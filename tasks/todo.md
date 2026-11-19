@@ -33,7 +33,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `api-client|i18n`
   - Files: `src/app/[locale]/`, `src/lib/api-client.ts`, `src/i18n/`, `messages/{vi,en}.json`, `tests/`
 
-- [ ] **T05 · mobile-app skeleton** · D01 · APP · M · Deps: T01
+- [x] **T05 · mobile-app skeleton** · D01 · APP · M · Deps: T01
   - Accept: Riverpod, go_router, dio `ApiClient` map lỗi → `AppException`, ARB vi/en, màn chào gọi `/health`, `env/*.example.json`
   - Verify: APP `test/`; `flutter run --dart-define-from-file=env/dev.json` lên emulator
   - Files: `lib/main.dart`, `lib/app/`, `lib/core/{api_client,config,errors}.dart`, `lib/l10n/`, `test/`
