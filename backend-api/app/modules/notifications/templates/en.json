@@ -6,5 +6,25 @@
   "STAY.TEST": {
     "title": "Test notification",
     "body": "This is a test notification from the hotel."
+  },
+  "FOOD_ORDER.CONFIRMED": {
+    "title": "Order confirmed",
+    "body": "The kitchen has confirmed your food order."
+  },
+  "FOOD_ORDER.PREPARING": {
+    "title": "Being prepared",
+    "body": "The kitchen is preparing your order."
+  },
+  "FOOD_ORDER.DELIVERING": {
+    "title": "On its way",
+    "body": "Your order will reach your room in a few minutes."
+  },
+  "FOOD_ORDER.COMPLETED": {
+    "title": "Delivered",
+    "body": "Enjoy your meal!"
+  },
+  "FOOD_ORDER.CANCELLED": {
+    "title": "Order cancelled",
+    "body": "Your food order was cancelled. Open the app to see why."
   }
 }

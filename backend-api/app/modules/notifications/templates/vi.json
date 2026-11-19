@@ -6,5 +6,25 @@
   "STAY.TEST": {
     "title": "Thông báo thử",
     "body": "Đây là thông báo thử từ khách sạn."
+  },
+  "FOOD_ORDER.CONFIRMED": {
+    "title": "Bếp đã nhận đơn",
+    "body": "Đơn đồ ăn của Quý khách đã được xác nhận."
+  },
+  "FOOD_ORDER.PREPARING": {
+    "title": "Đang chuẩn bị món",
+    "body": "Bếp đang chuẩn bị món cho Quý khách."
+  },
+  "FOOD_ORDER.DELIVERING": {
+    "title": "Đơn đang được giao",
+    "body": "Món của Quý khách sẽ tới phòng trong ít phút."
+  },
+  "FOOD_ORDER.COMPLETED": {
+    "title": "Đã giao món",
+    "body": "Chúc Quý khách ngon miệng!"
+  },
+  "FOOD_ORDER.CANCELLED": {
+    "title": "Đơn đã bị hủy",
+    "body": "Đơn đồ ăn của Quý khách đã bị hủy. Mở ứng dụng để xem lý do."
   }
 }

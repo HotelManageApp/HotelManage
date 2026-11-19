@@ -160,7 +160,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/room_service/test_menu.py`
   - Files: `modules/room_service/{models,schemas,router_guest,router_staff}.py`, `modules/shared/status_history.py`, `seeds/menu.example.csv`
 
-- [ ] **T25 · Create order (guest)** · D07 · BE · M · Deps: T24
+- [x] **T25 · Create order (guest)** · D07 · BE · M · Deps: T24
   - Accept: `POST /guest/orders` đủ bảng quy tắc (chụp giá, `ITEM_UNAVAILABLE`, `KITCHEN_CLOSED`, 5 PENDING, `Idempotency-Key`, trường lạ `400`); list/detail/cancel của khách; `403` stay khác
   - Verify: BE `tests/integration/room_service/test_create_order.py`
   - Files: `modules/room_service/{service,repository,router_guest}.py`
