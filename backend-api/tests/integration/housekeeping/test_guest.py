@@ -206,3 +206,23 @@ async def test_list_detail_cancel_and_other_stays(
     assert (
         await client.post(REQUESTS, json={"type": "CLEANING"}, headers=guest.headers)
     ).status_code == 201
+
+
+@pytest.mark.parametrize("status", ["ASSIGNED", "IN_PROGRESS", "DONE"])
+async def test_guest_cancel_after_staff_took_it_is_409(
+    client: httpx.AsyncClient, db: AsyncSession, guest: Guest, status: str
+) -> None:
+    rid = (await client.post(REQUESTS, json={"type": "CLEANING"}, headers=guest.headers)).json()[
+        "id"
+    ]
+    await db.execute(
+        update(HousekeepingRequest)
+        .where(HousekeepingRequest.id == uuid.UUID(rid))
+        .values(status=status)
+    )
+    await db.commit()
+    late = await client.post(f"{REQUESTS}/{rid}/cancel", headers=guest.headers)
+    assert late.status_code == 409
+    assert late.json()["error"]["code"] == "INVALID_TRANSITION"
+    db.expire_all()
+    assert (await db.get(HousekeepingRequest, uuid.UUID(rid))).status == status

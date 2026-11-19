@@ -9,7 +9,7 @@ from fastapi import APIRouter, Header, Query, Response, status
 from sqlalchemy import select
 
 from app.core.db import DbSession
-from app.core.errors import NotFound, ValidationFailed
+from app.core.errors import InvalidTransition, NotFound, ValidationFailed
 from app.modules.housekeeping import service, state
 from app.modules.housekeeping.models import HkStatus, HkType, HousekeepingRequest
 from app.modules.housekeeping.schemas import (
@@ -96,6 +96,10 @@ async def one(request_id: uuid.UUID, ctx: CurrentStay, db: DbSession) -> Houseke
 @router.post("/housekeeping-requests/{request_id}/cancel", response_model=HousekeepingOut)
 async def cancel(request_id: uuid.UUID, ctx: CurrentStay, db: DbSession) -> HousekeepingOut:
     request = await _own(db, ctx, request_id, for_update=True)
+    if request.status is not HkStatus.REQUESTED:
+        # For the guest this is "too late", not "not allowed": staff already took it
+        # (docs/domain-rules.md §4).
+        raise InvalidTransition("Nhân viên đã nhận việc nên không hủy được nữa")
     await state.transition(
         db,
         request,

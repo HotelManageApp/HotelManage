@@ -8,7 +8,7 @@ from fastapi import APIRouter, Header, Query, Request, Response, status
 from sqlalchemy import select
 
 from app.core.db import DbSession
-from app.core.errors import NotFound, ValidationFailed
+from app.core.errors import InvalidTransition, NotFound, ValidationFailed
 from app.modules.notifications.api import EntityType
 from app.modules.room_service import service, state
 from app.modules.room_service.models import FoodOrder, OrderStatus
@@ -84,6 +84,10 @@ async def my_order(order_id: uuid.UUID, ctx: CurrentStay, db: DbSession) -> Orde
 @router.post("/{order_id}/cancel", response_model=OrderOut)
 async def cancel(order_id: uuid.UUID, ctx: CurrentStay, db: DbSession) -> OrderOut:
     order = await _own_order(db, ctx, order_id, for_update=True)
+    if order.status is not OrderStatus.PENDING:
+        # For the guest this is "too late", not "not allowed": the kitchen has the order
+        # (docs/domain-rules.md §3, SPEC-room-service SC 4).
+        raise InvalidTransition("Bếp đã nhận đơn nên không hủy được nữa")
     await state.transition(
         db,
         order,

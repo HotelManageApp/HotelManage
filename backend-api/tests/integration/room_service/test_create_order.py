@@ -279,3 +279,21 @@ async def test_guest_cancels_only_pending_orders(
     again = await client.post(f"{ORDERS}/{order_id}/cancel", headers=guest.headers)
     assert again.status_code == 409
     assert again.json()["error"]["code"] == "INVALID_TRANSITION"
+
+
+@pytest.mark.parametrize("status", ["CONFIRMED", "PREPARING", "DELIVERING", "COMPLETED"])
+async def test_guest_cancel_after_the_kitchen_took_it_is_409(
+    client: httpx.AsyncClient, db: AsyncSession, menu: dict, guest: Guest, status: str
+) -> None:
+    order_id = (await client.post(ORDERS, json=order_body(menu), headers=guest.headers)).json()[
+        "id"
+    ]
+    await db.execute(
+        update(FoodOrder).where(FoodOrder.id == uuid.UUID(order_id)).values(status=status)
+    )
+    await db.commit()
+    late = await client.post(f"{ORDERS}/{order_id}/cancel", headers=guest.headers)
+    assert late.status_code == 409
+    assert late.json()["error"]["code"] == "INVALID_TRANSITION"
+    db.expire_all()
+    assert (await db.get(FoodOrder, uuid.UUID(order_id))).status == status
