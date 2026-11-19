@@ -1,0 +1,13 @@
+{
+  "@@locale": "vi",
+  "appTitle": "Dịch vụ phòng",
+  "welcomeTitle": "Chào mừng Quý khách",
+  "welcomeSubtitle": "Gọi đồ ăn, dọn phòng và hỏi Concierge ngay trên điện thoại.",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
+  "serverChecking": "Đang kiểm tra kết nối…",
+  "serverOnline": "Đã kết nối máy chủ",
+  "serverDegraded": "Máy chủ đang gặp sự cố",
+  "serverUnreachable": "Không kết nối được máy chủ",
+  "retry": "Thử lại"
+}

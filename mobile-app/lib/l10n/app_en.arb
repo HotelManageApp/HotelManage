@@ -1,0 +1,13 @@
+{
+  "@@locale": "en",
+  "appTitle": "Room Service",
+  "welcomeTitle": "Welcome",
+  "welcomeSubtitle": "Order food, request housekeeping and ask the Concierge from your phone.",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
+  "serverChecking": "Checking connection…",
+  "serverOnline": "Connected to server",
+  "serverDegraded": "Server is having problems",
+  "serverUnreachable": "Cannot reach the server",
+  "retry": "Retry"
+}
