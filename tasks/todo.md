@@ -51,7 +51,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 2 — Staff auth (D02–D03) · spec: SPEC-staff-auth
 
-- [ ] **T07 · Staff model, security, rate limiter** · D02 · BE · M · Deps: T02
+- [x] **T07 · Staff model, security, rate limiter** · D02 · BE · M · Deps: T02
   - Accept: migration `staff`, `staff_refresh_token`, `rate_limit_bucket`; `security.py` (argon2id, JWT encode/decode, `typ`, `ver`); `core/rate_limit.py`
   - Verify: BE `tests/unit/staff_auth tests/unit/core`
   - Files: `modules/staff_auth/{models,security}.py`, `core/rate_limit.py`, migration

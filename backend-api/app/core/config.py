@@ -5,7 +5,7 @@ Missing or invalid required variables stop the app at startup with a message tha
 
 from typing import Any, Literal
 
-from pydantic import ValidationError, field_validator
+from pydantic import Field, SecretStr, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AppEnv = Literal["dev", "test", "prod"]
@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     app_version: str = "dev"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     db_health_timeout_seconds: float = 2.0
+
+    # Staff authentication (spec/SPEC-staff-auth.md). Secret is never shared with guest tokens.
+    staff_jwt_secret: SecretStr = Field(min_length=32)
+    staff_access_token_minutes: int = Field(default=15, ge=1, le=60)
+    staff_refresh_token_hours: int = Field(default=12, ge=1, le=72)
+    admin_web_origins: list[str] = ["http://localhost:3000"]
 
     @field_validator("database_url")
     @classmethod

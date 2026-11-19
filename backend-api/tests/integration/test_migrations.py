@@ -17,6 +17,7 @@ from app.models import Base
 from tests.conftest import TEST_DATABASE_URL
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
+ALL_TABLES = sorted(Base.metadata.tables)
 
 
 def _alembic_config() -> Config:
@@ -58,10 +59,12 @@ def test_upgrade_downgrade_upgrade_roundtrip() -> None:
     cfg = _alembic_config()
 
     command.upgrade(cfg, "head")
-    assert _table_exists("hotel_settings")
+    for table in ALL_TABLES:
+        assert _table_exists(table), table
 
     command.downgrade(cfg, "base")
-    assert not _table_exists("hotel_settings")
+    for table in ALL_TABLES:
+        assert not _table_exists(table), table
 
     command.upgrade(cfg, "head")  # leave the test DB at head for other tests
     assert asyncio.run(_query("SELECT id FROM hotel_settings")) == [(1,)]
