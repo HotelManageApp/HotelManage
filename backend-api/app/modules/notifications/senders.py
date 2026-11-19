@@ -18,7 +18,7 @@ class SendOutcome(enum.StrEnum):
 
 @dataclass(frozen=True)
 class PushMessage:
-    token: str
+    token: str  # the device's push ID as registered by the app (a Firebase Installation ID)
     title: str
     body: str
     data: dict[str, str]

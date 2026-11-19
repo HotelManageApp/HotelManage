@@ -89,12 +89,14 @@ notification_outbox
 `PENDING` có `next_attempt_at ≤ now()` bằng `SELECT ... FOR UPDATE SKIP LOCKED` (an toàn nếu sau này chạy nhiều instance).
 
 **Gửi:** với mỗi dòng outbox, tìm các `stay_session` chưa revoke có `fcm_token` (hoặc dùng `target_tokens` với STAY/CLOSED),
-gửi một message cho mỗi token:
+gửi một message cho mỗi thiết bị. Thiết bị được định danh bằng **Firebase Installation ID (FID)**, gửi qua trường
+`fid` (trường `token` của HTTP v1 đã deprecated, chỉ nhận FID trong giai đoạn chuyển tiếp). Cột `fcm_token` và API
+`/guest/me/fcm-token` giữ tên cũ, giá trị lưu là FID:
 
 ```json
 {
   "message": {
-    "token": "<fcm_token>",
+    "fid": "<fcm_token = FID của thiết bị>",
     "notification": { "title": "Đơn đồ ăn đang được giao", "body": "Món của quý khách sẽ tới trong ít phút." },
     "data": {
       "type": "FOOD_ORDER", "entity_id": "uuid", "status": "DELIVERING",
@@ -126,7 +128,7 @@ Test dùng `FakePushSender` để ghi nhận các message đã gửi.
 
 | Method | Path | Quyền | Mô tả |
 |---|---|---|---|
-| PUT | `/api/v1/guest/me/fcm-token` | `current_stay` | `{fcm_token}` → `204`. Gọi sau đăng nhập và mỗi khi Firebase làm mới token |
+| PUT | `/api/v1/guest/me/fcm-token` | `current_stay` | `{fcm_token}` (FID) → `204`. Gọi sau đăng nhập và mỗi khi Firebase đổi FID |
 | DELETE | `/api/v1/guest/me/fcm-token` | `current_stay` | → `204` (khi khách tắt thông báo) |
 
 - Logout, cấp lại mã, check-out: `stay-access` xóa `fcm_token` của các session bị revoke (riêng check-out thì token đã được chụp lại cho lời cảm ơn).
@@ -162,8 +164,9 @@ Test dùng `FakePushSender` để ghi nhận các message đã gửi.
 
 ### mobile-app
 
-- Khởi tạo Firebase khi app chạy. Sau khi đăng nhập thành công: xin quyền `POST_NOTIFICATIONS` (Android 13+), lấy token,
-  gọi `PUT /guest/me/fcm-token`; lắng nghe `onTokenRefresh` để gửi lại.
+- Khởi tạo Firebase khi app chạy. Sau khi đăng nhập thành công: xin quyền `POST_NOTIFICATIONS` (Android 13+), gọi
+  `FirebaseMessaging.register()`, nhận FID qua `onRegistered` rồi gọi `PUT /guest/me/fcm-token`; FID đổi thì gửi lại.
+  (`getToken`/`onTokenRefresh` đã deprecated từ firebase_messaging 17 và không được dùng lẫn với API FID.)
 - Notification channel `requests` (importance high), tên hiển thị theo ngôn ngữ.
 - **App đang mở:** hiện thông báo bằng `flutter_local_notifications` và **làm mới provider** tương ứng với `type` để màn hình đang mở cập nhật ngay.
 - **Chạm vào thông báo** (app ở nền hoặc đã tắt): điều hướng tới `/requests/<type>/<entity_id>` (màn chi tiết do module nghiệp vụ cung cấp;

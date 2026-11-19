@@ -82,6 +82,9 @@ async def test_sender_posts_http_v1_message() -> None:
     assert request.headers["Authorization"] == "Bearer oauth-access-token"
     body = json.loads(request.content)
     assert body == build_payload(MESSAGE)
+    # Devices are addressed by Firebase Installation ID; message.token is deprecated in HTTP v1.
+    assert body["message"]["fid"] == "device-token-123456"
+    assert "token" not in body["message"]
     assert body["message"]["android"] == {
         "priority": "HIGH",
         "notification": {"channel_id": "requests"},

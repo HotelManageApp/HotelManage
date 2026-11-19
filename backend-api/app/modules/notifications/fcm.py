@@ -1,7 +1,11 @@
 """Firebase Cloud Messaging HTTP v1 sender (spec/SPEC-notifications.md).
 
 Auth: OAuth2 access token from a service-account JSON file (google-auth), cached until shortly
-before it expires. Sending: one POST per device token with httpx.
+before it expires. Sending: one POST per device with httpx.
+
+Devices are addressed by their Firebase Installation ID (FID) in `message.fid`; the app registers
+with firebase_messaging's register()/onRegistered. `message.token` is deprecated in HTTP v1 and
+accepts an FID only for a transition period.
 """
 
 import asyncio
@@ -45,7 +49,7 @@ class ServiceAccountTokens:
 def build_payload(message: PushMessage) -> dict[str, Any]:
     return {
         "message": {
-            "token": message.token,
+            "fid": message.token,
             "notification": {"title": message.title, "body": message.body},
             "data": message.data,
             "android": {
