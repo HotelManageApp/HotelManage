@@ -17,6 +17,8 @@ from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.periodic import Scheduler
 from app.core.request_context import RequestContextMiddleware
+from app.modules.concierge_data.router_guest import router as guest_kb_router
+from app.modules.concierge_data.router_staff import router as knowledge_router
 from app.modules.housekeeping import hooks as housekeeping_hooks
 from app.modules.housekeeping import jobs as housekeeping_jobs
 from app.modules.housekeeping.router_guest import router as guest_housekeeping_router
@@ -108,6 +110,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(staff_orders_router)
     api_v1.include_router(guest_housekeeping_router)
     api_v1.include_router(staff_housekeeping_router)
+    api_v1.include_router(guest_kb_router)
+    api_v1.include_router(knowledge_router)
     if settings.app_env == "dev":
         api_v1.include_router(dev_router)
     app.include_router(api_v1)

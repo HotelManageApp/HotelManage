@@ -228,7 +228,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### concierge-guide · spec: SPEC-concierge-guide
 
-- [ ] **T37 · KB data + search + staff CRUD** · D07–D08 · AI (BE code) · M · Deps: T15, T09
+- [x] **T37 · KB data + search + staff CRUD** · D07–D08 · AI (BE code) · M · Deps: T15, T09
   - Accept: migration `kb_entry`, `nearby_place` (tsvector unaccent); `GET /guest/kb/search` (shape tool §4.1, fallback theo topic); CRUD `RECEPTION`; `PATCH /settings/hotel`; `seed-kb`
   - Verify: BE `tests/integration/concierge_data/test_kb.py`
   - Files: `modules/concierge_data/{models,search,router_guest,router_staff}.py`, `seeds/kb.example.yaml`

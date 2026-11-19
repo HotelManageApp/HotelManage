@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.hotel_settings import HotelSettings
+from app.core.hotel_settings import HotelSettings, load_hotel_settings
 
 
 def is_open_at(moment_local: time, opens: time, closes: time) -> bool:
@@ -22,10 +22,7 @@ def label(opens: time, closes: time) -> str:
 
 
 async def load(db: AsyncSession) -> HotelSettings:
-    settings = await db.get(HotelSettings, 1)
-    if settings is None:  # created by migration 0001; guard against a hand-cleaned table
-        raise RuntimeError("hotel_settings row is missing")
-    return settings
+    return await load_hotel_settings(db)
 
 
 def accepting_orders(settings: HotelSettings, now: datetime, tz: str) -> bool:

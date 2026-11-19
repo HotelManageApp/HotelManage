@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import ConfigError, Settings, load_settings
 from app.core.db import create_engine, create_sessionmaker
+from app.modules.concierge_data.seed import SeedError, seed_kb
 from app.modules.room_service.models import MenuCategory, MenuItem
 from app.modules.staff_auth import repository
 from app.modules.staff_auth.models import Staff, StaffRole
@@ -217,6 +218,8 @@ def _parser() -> argparse.ArgumentParser:
     rooms.add_argument("--from-file", required=True, type=Path)
 
     menu = commands.add_parser("seed-menu", help="create menu categories and dishes from a CSV")
+    kb = commands.add_parser("seed-kb", help="load hotel info, knowledge base and places (YAML)")
+    kb.add_argument("--from-file", required=True, type=Path)
     menu.add_argument("--from-file", required=True, type=Path)
     return parser
 
@@ -261,6 +264,18 @@ async def run(
             elif args.command == "seed-menu":
                 made, skipped = await seed_menu(db, args.from_file)
                 out(f"dishes created: {made}, already existed: {skipped}")
+            elif args.command == "seed-kb":
+                try:
+                    report = await seed_kb(db, args.from_file)
+                except SeedError as exc:
+                    raise CliError(str(exc)) from None
+                out(
+                    f"entries created: {report.entries_created}, "
+                    f"already existed: {report.entries_skipped}; "
+                    f"places created: {report.places_created}, "
+                    f"already existed: {report.places_skipped}"
+                    + ("; hotel info updated" if report.hotel_updated else "")
+                )
     finally:
         await engine.dispose()
 

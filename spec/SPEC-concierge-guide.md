@@ -112,7 +112,14 @@ hotel_settings (+ cột mới)
 | POST | `/chat/messages` | `{guest_message, assistant_message, tool_trace, grounded}` → lưu cặp tin, trả `message_id`. Chỉ ai-service gọi, nhưng dùng token khách nên không mở thêm quyền |
 | POST | `/chat/quota` | Tăng và kiểm tra hạn mức (dùng `rate_limit_bucket`): **10 tin/phút/session, 100 tin/ngày/stay** → vượt `429 RATE_LIMITED` + `Retry-After` |
 
-**Nhân viên** (`/api/v1`, quyền `RECEPTION`): CRUD `/kb/entries`, `/kb/places`; `PATCH /settings/hotel` (`hotel_name`, `reception_phone`, `default_lang`, `chat_enabled`).
+**Nhân viên** (`/api/v1`, quyền `RECEPTION`): CRUD `/kb/entries`, `/kb/places`; `GET/PATCH /settings/hotel` (`hotel_name`, `reception_phone`, `default_lang`, `chat_enabled` ); `GET /kb/search` (bản nhân viên cho ô "Thử hỏi", cùng kết quả với khách).
+
+Chi tiết tìm kiếm (T37):
+- `TRANSPORT` tìm cả `kb_entry` topic `TRANSPORT` (xe sân bay, taxi của khách sạn) lẫn `nearby_place` category `TRANSPORT`.
+- Câu hỏi của khách là câu tự nhiên nên truy vấn là **OR** các từ đã bỏ dấu (an toàn: chỉ `[a-z0-9]` vào `to_tsquery`); từ ≥ 4 ký tự khớp tiền tố,
+  từ ngắn khớp chính xác ("sân" không khớp "sáng"); bỏ vài từ hỏi chung ("có", "không", "what"…) nhưng **không** bỏ từ trùng nghĩa khi bỏ dấu
+  (ăn/an, chợ/cho, thẻ/the, tối/toi…). Tiêu đề nặng hơn nội dung (`setweight` A/B).
+- Ngôn ngữ khác `vi`/`en` (VD `ko`) nhận bản tiếng Anh, LLM dịch khi trả lời.
 
 ### ai-service `POST /api/v1/chat`
 
