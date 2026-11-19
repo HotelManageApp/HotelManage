@@ -210,6 +210,20 @@ async def test_idempotency_key_returns_the_same_order(
     assert len(list(await db.scalars(select(FoodOrder.id)))) == 2
 
 
+async def test_many_concurrent_retries_create_one_order(
+    client: httpx.AsyncClient, db: AsyncSession, menu: dict, guest: Guest
+) -> None:
+    """Stress the race: ten parallel requests with one key must all see the same order."""
+    headers = {**guest.headers, "Idempotency-Key": "tap-burst-000001"}
+    responses = await asyncio.gather(
+        *(client.post(ORDERS, json=order_body(menu), headers=headers) for _ in range(10))
+    )
+    assert {r.status_code for r in responses} <= {200, 201}
+    assert len({r.json()["id"] for r in responses}) == 1
+    db.expire_all()
+    assert len(list(await db.scalars(select(FoodOrder.id)))) == 1
+
+
 async def test_bad_idempotency_key(
     client: httpx.AsyncClient, db: AsyncSession, menu: dict, guest: Guest
 ) -> None:

@@ -156,17 +156,20 @@ async def place_order(
         to_status=OrderStatus.PENDING.value,
         actor="GUEST",
     )
-    await emit_status_changed(
-        db,
-        entity_type=EntityType.FOOD_ORDER,
-        entity_id=order.id,
-        stay_id=ctx.stay_id,
-        status=OrderStatus.PENDING.value,
-        room_number=ctx.room_number,
-        actor="GUEST",
-        push=False,
-    )
     try:
+        # Flush first: a duplicate Idempotency-Key fails here (unique index), not later inside
+        # the NOTIFY statement's autoflush where it could escape this handler.
+        await db.flush()
+        await emit_status_changed(
+            db,
+            entity_type=EntityType.FOOD_ORDER,
+            entity_id=order.id,
+            stay_id=ctx.stay_id,
+            status=OrderStatus.PENDING.value,
+            room_number=ctx.room_number,
+            actor="GUEST",
+            push=False,
+        )
         await db.commit()
     except IntegrityError:
         # The same Idempotency-Key raced in from a retry: hand back the order that won.
