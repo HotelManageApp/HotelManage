@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- The app calls backend-api over the network in every build type. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Scanning the check-in slip QR (mobile_scanner). Asked at first use. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Room Service"
         android:name="${applicationName}"

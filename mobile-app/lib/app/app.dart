@@ -17,7 +17,7 @@ class HotelGuestApp extends ConsumerStatefulWidget {
 }
 
 class _HotelGuestAppState extends ConsumerState<HotelGuestApp> {
-  late final GoRouter _router = buildRouter();
+  late final GoRouter _router = buildRouter(ref);
 
   @override
   void dispose() {

@@ -11,6 +11,7 @@ class AppException implements Exception {
     required this.message,
     this.details = const [],
     this.requestId,
+    this.retryAfterSeconds,
   });
 
   /// Builds an [AppException] from whatever Dio reports.
@@ -30,6 +31,9 @@ class AppException implements Exception {
 
     final status = response.statusCode ?? 0;
     final headerRequestId = response.headers.value('x-request-id');
+    final retryAfter = int.tryParse(
+      response.headers.value('retry-after') ?? '',
+    );
     final data = response.data;
     if (data is Map && data['error'] is Map) {
       final envelope = Map<String, dynamic>.from(data['error'] as Map);
@@ -48,6 +52,7 @@ class AppException implements Exception {
                     .toList()
               : const [],
           requestId: envelope['request_id'] as String? ?? headerRequestId,
+          retryAfterSeconds: retryAfter,
         );
       }
     }
@@ -56,6 +61,7 @@ class AppException implements Exception {
       code: _codeForStatus(status),
       message: response.statusMessage ?? 'HTTP $status',
       requestId: headerRequestId,
+      retryAfterSeconds: retryAfter,
     );
   }
 
@@ -64,6 +70,19 @@ class AppException implements Exception {
   final String message;
   final List<Map<String, dynamic>> details;
   final String? requestId;
+
+  /// Seconds from the Retry-After header of a 429, when present.
+  final int? retryAfterSeconds;
+
+  /// `details[0].reason` of a 401 that ended a stay session
+  /// (STAY_CLOSED, CODE_REISSUED, LOGOUT), if any.
+  String? get endReason {
+    for (final detail in details) {
+      final reason = detail['reason'];
+      if (reason is String) return reason;
+    }
+    return null;
+  }
 
   bool get isUnauthorized => status == 401;
   bool get isNetworkError => status == 0;

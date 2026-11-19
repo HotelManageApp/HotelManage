@@ -113,7 +113,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `reception/stay`
   - Files: `reception/stays/[id]/`, `components/reception/`
 
-- [ ] **T18 · App login (code/QR) + home** · D04–D05 · APP · M · Deps: T05, T15
+- [x] **T18 · App login (code/QR) + home** · D04–D05 · APP · M · Deps: T05, T15
   - Accept: nhập mã `XXXX-XXXX` + quét QR (`mobile_scanner`, đúng scheme); token + `device_id` trong secure storage; `401` → về màn chào; `429` hiện thời gian chờ; trang chủ
   - Verify: APP `test/stay_access`
   - Files: `lib/features/stay_access/`, `lib/features/home/home_screen.dart`

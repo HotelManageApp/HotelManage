@@ -9,5 +9,51 @@
   "serverOnline": "Đã kết nối máy chủ",
   "serverDegraded": "Máy chủ đang gặp sự cố",
   "serverUnreachable": "Không kết nối được máy chủ",
-  "retry": "Thử lại"
+  "retry": "Thử lại",
+  "loginCodeLabel": "Mã phòng trên phiếu nhận phòng",
+  "loginSubmit": "Đăng nhập",
+  "loginSubmitting": "Đang đăng nhập…",
+  "loginScanQr": "Quét mã QR",
+  "loginHelp": "Mã gồm 8 ký tự, Lễ tân đưa cho Quý khách khi nhận phòng.",
+  "loginInvalidCode": "Mã phòng không hợp lệ hoặc đã hết hạn",
+  "loginTooManyDevices": "Phòng đã đăng nhập trên quá nhiều thiết bị. Vui lòng liên hệ Lễ tân.",
+  "loginRateLimited": "Quý khách đã thử quá nhiều lần. Vui lòng thử lại sau {minutes} phút.",
+  "@loginRateLimited": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "loginFailed": "Không đăng nhập được, vui lòng thử lại",
+  "scanInvalidQr": "Đây không phải mã QR của phiếu nhận phòng",
+  "noticeStayClosed": "Cảm ơn Quý khách đã lưu trú. Hẹn gặp lại!",
+  "noticeSessionEnded": "Phiên lưu trú đã kết thúc hoặc mã đã được cấp lại. Vui lòng liên hệ Lễ tân.",
+  "homeRoom": "Phòng {room}",
+  "@homeRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Xin chào, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingAnonymous": "Xin chào Quý khách",
+  "homeCheckout": "Trả phòng dự kiến: {when}",
+  "@homeCheckout": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCheckoutPending": "Yêu cầu trả phòng của Quý khách đang được Lễ tân xử lý.",
+  "logout": "Đăng xuất"
 }

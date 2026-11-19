@@ -43,6 +43,11 @@ class ApiClient {
   /// Bearer token of the logged-in stay; set by the stay-access feature (T18).
   String? token;
 
+  /// Called when an authenticated request gets 401: the stay ended, the code
+  /// was re-issued or the session was revoked. The session controller signs
+  /// out.
+  void Function(AppException error)? onUnauthorized;
+
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) => _send(
     () => _dio.get<dynamic>(path, queryParameters: query, options: _options()),
   );
@@ -85,7 +90,11 @@ class ApiClient {
       final response = await request();
       return response.data;
     } on DioException catch (error) {
-      throw AppException.fromDio(error);
+      final failure = AppException.fromDio(error);
+      if (failure.isUnauthorized && token != null) {
+        onUnauthorized?.call(failure);
+      }
+      throw failure;
     }
   }
 }

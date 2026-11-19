@@ -1,11 +1,34 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:hotel_guest/features/home/home_screen.dart';
+import 'package:hotel_guest/features/stay_access/qr_scan_screen.dart';
+import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/features/welcome/welcome_screen.dart';
+import 'package:material_ui/material_ui.dart';
 
-/// Routes are added per feature (stay_access in T18, room_service in T30, ...).
-GoRouter buildRouter() => GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
-  ],
-);
+/// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area.
+/// The session decides where you may be; any 401 sends you back to `/`.
+GoRouter buildRouter(WidgetRef ref) {
+  final refresh = ValueNotifier<int>(0);
+  ref.listen(sessionProvider, (_, _) => refresh.value++);
+
+  return GoRouter(
+    initialLocation: '/',
+    refreshListenable: refresh,
+    redirect: (context, state) {
+      final session = ref.read(sessionProvider);
+      if (session.isLoading && !session.hasValue) return null;
+      final signedIn = session.value is SignedIn;
+      final atPublic =
+          state.matchedLocation == '/' || state.matchedLocation == '/scan';
+      if (signedIn && atPublic) return '/home';
+      if (!signedIn && !atPublic) return '/';
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
+      GoRoute(path: '/scan', builder: (context, state) => const QrScanScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    ],
+  );
+}
