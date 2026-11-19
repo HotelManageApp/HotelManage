@@ -1,0 +1,53 @@
+"""Application settings, read from environment variables (and an optional .env file).
+
+Missing or invalid required variables stop the app at startup with a message that names them.
+"""
+
+from typing import Any, Literal
+
+from pydantic import ValidationError, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+AppEnv = Literal["dev", "test", "prod"]
+
+
+class ConfigError(RuntimeError):
+    """Raised when the environment does not provide a valid configuration."""
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    app_env: AppEnv
+    database_url: str
+    app_version: str = "dev"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    db_health_timeout_seconds: float = 2.0
+
+    @field_validator("database_url")
+    @classmethod
+    def _require_asyncpg(cls, value: str) -> str:
+        if not value.startswith("postgresql+asyncpg://"):
+            raise ValueError("must start with postgresql+asyncpg://")
+        return value
+
+
+def load_settings(**overrides: Any) -> Settings:
+    """Build Settings, turning pydantic's error into one readable ConfigError."""
+    try:
+        return Settings(**overrides)
+    except ValidationError as exc:
+        missing: list[str] = []
+        invalid: list[str] = []
+        for error in exc.errors():
+            name = ".".join(str(part) for part in error["loc"]).upper()
+            if error["type"] == "missing":
+                missing.append(name)
+            else:
+                invalid.append(f"{name} ({error['msg']})")
+        parts = []
+        if missing:
+            parts.append("missing required environment variable(s): " + ", ".join(missing))
+        if invalid:
+            parts.append("invalid environment variable(s): " + ", ".join(invalid))
+        raise ConfigError("; ".join(parts)) from None
