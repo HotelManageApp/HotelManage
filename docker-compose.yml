@@ -1,0 +1,49 @@
+# Môi trường local cho phát triển. KHÔNG dùng cho production (xem T56).
+#   docker compose up -d db                 # chỉ PostgreSQL
+#   docker compose --profile full up -d     # db + backend-api + ai-service (cần Dockerfile từ T02/T03)
+name: hotelapp
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hotel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hotel_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-hotel}
+      TZ: UTC
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend-api:
+    profiles: ["full"]
+    build: ./backend-api
+    env_file: ./backend-api/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-hotel}:${POSTGRES_PASSWORD:-hotel_dev_only}@db:5432/${POSTGRES_DB:-hotel}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ai-service:
+    profiles: ["full"]
+    build: ./ai-service
+    env_file: ./ai-service/.env
+    environment:
+      BACKEND_INTERNAL_URL: http://backend-api:8000
+    ports:
+      - "8001:8001"
+    depends_on:
+      - backend-api
+
+volumes:
+  db-data:

@@ -1,0 +1,54 @@
+# ---------- Secrets (C1.5) — không bao giờ commit ----------
+.env
+.env.*
+!.env.example
+**/env/*.json
+!**/env/*.example.json
+*service-account*.json
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+key.properties
+
+# ---------- Python (backend-api, ai-service) ----------
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+
+# ---------- Node (admin-web) ----------
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+npm-debug.log*
+
+# ---------- Flutter (mobile-app) ----------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+mobile-app/android/.gradle/
+mobile-app/android/local.properties
+mobile-app/android/app/release/
+*.iml
+
+# ---------- Tooling / OS ----------
+.claude/settings.local.json
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.log
