@@ -135,6 +135,7 @@ Tạo `CLEANING` khi đang bật "Không làm phiền" → tự tắt "Không l�
 | GET | `/housekeeping-requests/{id}` | `current_stay` | Chi tiết + lịch sử; của stay khác → `403`. Trả tên nhân viên dạng rút gọn ("Chị Lan"), không trả id |
 | POST | `/housekeeping-requests/{id}/cancel` | `current_stay` | Chỉ khi `REQUESTED` |
 | PUT | `/me/do-not-disturb` | `current_active_stay` | `{enabled}` → `204`; phát SSE `STAY` cho HOUSEKEEPING/RECEPTION |
+| GET | `/me` (stay-access) | `current_stay` | Có thêm `do_not_disturb` để app hiển thị đúng công tắc (kể cả khi bị tắt do khách gọi dọn phòng) |
 
 **Nhân viên** (`/api/v1`):
 

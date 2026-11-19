@@ -29,6 +29,7 @@ class GuestStay(BaseModel):
     guest_name: str | None
     expected_checkout_at: datetime
     status: StayStatus
+    do_not_disturb: bool  # set by the guest, cleared when they ask for cleaning
 
 
 class GuestTokenResponse(BaseModel):
@@ -54,6 +55,7 @@ def _token_response(session: guest_service.GuestSession) -> GuestTokenResponse:
             guest_name=session.stay.guest_name,
             expected_checkout_at=session.stay.expected_checkout_at,
             status=session.stay.status,
+            do_not_disturb=session.stay.do_not_disturb,
         ),
     )
 
@@ -98,5 +100,6 @@ async def me(ctx: CurrentStay, db: DbSession) -> GuestMe:
         guest_name=stay.guest_name,
         expected_checkout_at=stay.expected_checkout_at,
         status=stay.status,
+        do_not_disturb=stay.do_not_disturb,
         lang=ctx.lang,
     )

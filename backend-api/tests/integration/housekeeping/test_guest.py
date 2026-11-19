@@ -166,10 +166,15 @@ async def test_idempotency(client: httpx.AsyncClient, db: AsyncSession, guest: G
 async def test_do_not_disturb_and_cleaning_turns_it_off(
     client: httpx.AsyncClient, db: AsyncSession, guest: Guest
 ) -> None:
+    me = "/api/v1/guest/me"
+    assert (await client.get(me, headers=guest.headers)).json()["do_not_disturb"] is False
     assert (await client.put(DND, json={"enabled": True}, headers=guest.headers)).status_code == 204
     assert await _dnd(db, guest.stay_id) is True
+    # The app reads the switch back from /guest/me (other devices of the stay too).
+    assert (await client.get(me, headers=guest.headers)).json()["do_not_disturb"] is True
     await client.post(REQUESTS, json={"type": "CLEANING"}, headers=guest.headers)
     assert await _dnd(db, guest.stay_id) is False
+    assert (await client.get(me, headers=guest.headers)).json()["do_not_disturb"] is False
     assert (
         await client.put(DND, json={"enabled": "yes please"}, headers=guest.headers)
     ).status_code == 400

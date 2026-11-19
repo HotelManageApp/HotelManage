@@ -102,6 +102,7 @@ class TestLogin:
             "guest_name": "Tran Thi B",
             "expected_checkout_at": body["stay"]["expected_checkout_at"],
             "status": "ACTIVE",
+            "do_not_disturb": False,
             "lang": "vi",
         }
 
