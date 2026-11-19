@@ -153,5 +153,7 @@ async def staff_events(
     return StreamingResponse(
         event_stream(hub, sub, until=claims.expires_at, is_disconnected=request.is_disconnected),
         media_type="text/event-stream",
-        headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        # no-transform: proxies and the admin-web server (Next's gzip) must not compress the
+        # stream, or events sit in the compressor's buffer and never reach the browser.
+        headers={"Cache-Control": "no-store, no-transform", "X-Accel-Buffering": "no"},
     )

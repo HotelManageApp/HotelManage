@@ -120,7 +120,9 @@ async def test_endpoint_streams_until_token_expiry(
     response = await client.get("/api/v1/staff/events", headers=_short_token(staff, 1.5))
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/event-stream")
-    assert response.headers["cache-control"] == "no-store"
+    # Without no-transform the admin-web proxy gzips the stream and buffers every event.
+    assert response.headers["cache-control"] == "no-store, no-transform"
+    assert response.headers["x-accel-buffering"] == "no"
     assert response.text.startswith(": connected")
 
 
