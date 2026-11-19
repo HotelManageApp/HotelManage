@@ -197,7 +197,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### housekeeping · spec: SPEC-housekeeping
 
-- [ ] **T32 · Housekeeping requests (guest) + DND** · D08 · BE · M · Deps: T24 (status_history), T15
+- [x] **T32 · Housekeeping requests (guest) + DND** · D08 · BE · M · Deps: T24 (status_history), T15
   - Accept: migration; `POST/GET/cancel /guest/housekeeping-requests` đủ bảng quy tắc (1 CLEANING mở, 3 AMENITY, `TURNOVER` → `400`, idempotency); `PUT /guest/me/do-not-disturb`
   - Verify: BE `tests/integration/housekeeping/test_guest.py`
   - Files: `modules/housekeeping/{models,schemas,service,repository,router_guest}.py`, migration

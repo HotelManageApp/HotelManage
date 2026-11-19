@@ -26,5 +26,21 @@
   "FOOD_ORDER.CANCELLED": {
     "title": "Đơn đã bị hủy",
     "body": "Đơn đồ ăn của Quý khách đã bị hủy. Mở ứng dụng để xem lý do."
+  },
+  "HOUSEKEEPING.ASSIGNED": {
+    "title": "Đã có nhân viên nhận việc",
+    "body": "Nhân viên buồng phòng đã nhận yêu cầu của Quý khách."
+  },
+  "HOUSEKEEPING.IN_PROGRESS": {
+    "title": "Đang thực hiện",
+    "body": "Nhân viên đang thực hiện yêu cầu của Quý khách."
+  },
+  "HOUSEKEEPING.DONE": {
+    "title": "Đã hoàn tất",
+    "body": "Yêu cầu buồng phòng của Quý khách đã hoàn tất."
+  },
+  "HOUSEKEEPING.CANCELLED": {
+    "title": "Yêu cầu đã bị hủy",
+    "body": "Yêu cầu buồng phòng đã bị hủy. Mở ứng dụng để xem lý do."
   }
 }

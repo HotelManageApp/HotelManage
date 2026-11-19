@@ -26,5 +26,21 @@
   "FOOD_ORDER.CANCELLED": {
     "title": "Order cancelled",
     "body": "Your food order was cancelled. Open the app to see why."
+  },
+  "HOUSEKEEPING.ASSIGNED": {
+    "title": "Request accepted",
+    "body": "A housekeeper has taken your request."
+  },
+  "HOUSEKEEPING.IN_PROGRESS": {
+    "title": "In progress",
+    "body": "Housekeeping is working on your request."
+  },
+  "HOUSEKEEPING.DONE": {
+    "title": "Done",
+    "body": "Your housekeeping request is complete."
+  },
+  "HOUSEKEEPING.CANCELLED": {
+    "title": "Request cancelled",
+    "body": "Your housekeeping request was cancelled. Open the app to see why."
   }
 }

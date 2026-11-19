@@ -3,6 +3,7 @@
 from app.core.db import Base
 from app.core.hotel_settings import HotelSettings
 from app.core.rate_limit import RateLimitBucket
+from app.modules.housekeeping.models import HousekeepingRequest, HousekeepingRequestItem
 from app.modules.notifications.models import NotificationOutbox
 from app.modules.room_service.models import FoodOrder, MenuCategory, MenuItem, OrderItem
 from app.modules.shared.status_history import StatusHistory
@@ -13,6 +14,8 @@ __all__ = [
     "Base",
     "FoodOrder",
     "HotelSettings",
+    "HousekeepingRequest",
+    "HousekeepingRequestItem",
     "MenuCategory",
     "MenuItem",
     "NotificationOutbox",

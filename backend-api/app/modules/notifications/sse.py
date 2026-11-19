@@ -42,6 +42,8 @@ ROLE_ENTITY_TYPES: dict[StaffRole, frozenset[str] | None] = {
 
 
 def visible_to(role: StaffRole, event: dict[str, Any]) -> bool:
+    if event.get("event") == "do_not_disturb" and role is StaffRole.HOUSEKEEPING:
+        return True  # housekeeping must know not to knock
     allowed = ROLE_ENTITY_TYPES[role]
     return allowed is None or event.get("entity_type") in allowed
 

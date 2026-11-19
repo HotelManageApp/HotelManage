@@ -105,6 +105,11 @@ class Stay(TimestampMixin, Base):
         UUID(as_uuid=True), ForeignKey("staff.id"), nullable=False
     )
     closed_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("staff.id"))
+    # Guest asked housekeeping not to knock (SPEC-housekeeping).
+    do_not_disturb: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    dnd_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class StaySession(Base):
