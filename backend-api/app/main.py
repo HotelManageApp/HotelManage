@@ -17,6 +17,7 @@ from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.periodic import Scheduler
 from app.core.request_context import RequestContextMiddleware
+from app.modules.housekeeping import hooks as housekeeping_hooks
 from app.modules.housekeeping import jobs as housekeeping_jobs
 from app.modules.housekeeping.router_guest import router as guest_housekeeping_router
 from app.modules.housekeeping.router_staff import router as staff_housekeeping_router
@@ -54,6 +55,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     configure_logging(settings.log_level)
     notification_hooks.register()
     room_service_jobs.register()
+    housekeeping_hooks.register()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

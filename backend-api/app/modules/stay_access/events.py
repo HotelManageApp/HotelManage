@@ -17,6 +17,9 @@ StayClosedHandler = Callable[[AsyncSession, uuid.UUID], Awaitable[None]]
 
 _handlers: list[StayClosedHandler] = []
 
+RoomHandler = Callable[[AsyncSession, uuid.UUID], Awaitable[None]]
+_room_vacant_handlers: list[RoomHandler] = []
+
 
 def register_on_stay_closed(handler: StayClosedHandler) -> StayClosedHandler:
     if handler not in _handlers:
@@ -32,3 +35,15 @@ def unregister_on_stay_closed(handler: StayClosedHandler) -> None:
 async def run_on_stay_closed(db: AsyncSession, stay_id: uuid.UUID) -> None:
     for handler in list(_handlers):
         await handler(db, stay_id)
+
+
+def register_on_room_marked_vacant(handler: RoomHandler) -> RoomHandler:
+    """Called inside the transaction where reception marks a room vacant by hand."""
+    if handler not in _room_vacant_handlers:
+        _room_vacant_handlers.append(handler)
+    return handler
+
+
+async def run_on_room_marked_vacant(db: AsyncSession, room_id: uuid.UUID) -> None:
+    for handler in list(_room_vacant_handlers):
+        await handler(db, room_id)

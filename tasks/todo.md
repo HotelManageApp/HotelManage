@@ -207,7 +207,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/housekeeping tests/integration/housekeeping/test_staff.py`
   - Files: `modules/housekeeping/{state,router_staff,jobs}.py`, `notifications/templates/`
 
-- [ ] **T34 · TURNOVER + domain-rules update** · D10 · BE · S · Deps: T33, T14
+- [x] **T34 · TURNOVER + domain-rules update** · D10 · BE · S · Deps: T33, T14
   - Accept: `on_stay_closed` hủy yêu cầu mở + tạo `TURNOVER`; `TURNOVER DONE` → phòng `VACANT`; `mark-vacant` hủy `TURNOVER`; **sửa `docs/domain-rules.md` §2, §4**
   - Verify: BE `tests/integration/housekeeping/test_turnover.py`; coverage `housekeeping` ≥ 80%
   - Files: `modules/housekeeping/hooks.py`, `stay_access/service.py`, `docs/domain-rules.md`

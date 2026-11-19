@@ -226,6 +226,7 @@ async def mark_vacant(db: AsyncSession, room_id: uuid.UUID) -> Room:
     if room.status != RoomStatus.CLEANING:
         raise Conflict("Chỉ phòng đang chờ dọn mới đánh dấu đã dọn được", code="ROOM_NOT_CLEANING")
     room.status = RoomStatus.VACANT
+    await events.run_on_room_marked_vacant(db, room.id)
     await db.commit()
     await db.refresh(room)
     return room

@@ -18,6 +18,7 @@ EXPECTED: dict[tuple[S, S], set[Actor]] = {
     (S.IN_PROGRESS, S.DONE): {Actor.HOUSEKEEPING},
     (S.ASSIGNED, S.REQUESTED): {Actor.HOUSEKEEPING},
     (S.REQUESTED, S.CANCELLED): {Actor.GUEST, Actor.RECEPTION, Actor.SYSTEM},
+    (S.ASSIGNED, S.CANCELLED): {Actor.SYSTEM},
 }
 ME = uuid.uuid4()
 

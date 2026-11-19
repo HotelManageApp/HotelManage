@@ -3,7 +3,8 @@
     REQUESTED ─▶ ASSIGNED ─▶ IN_PROGRESS ─▶ DONE
         ▲            │
         └────────────┘ (hand back, assignee only)
-    REQUESTED ─▶ CANCELLED (guest, reception, system)
+    REQUESTED ─▶ CANCELLED (guest, reception, system); ASSIGNED ─▶ CANCELLED (system)
+    TURNOVER ─▶ DONE sets the room from CLEANING to VACANT.
 
 Only the staff member a request is assigned to may start, finish or hand it back.
 """
@@ -18,6 +19,7 @@ from app.core.errors import BadRequest, Conflict, Forbidden, InvalidTransition
 from app.modules.housekeeping.models import HkStatus, HkType, HousekeepingRequest
 from app.modules.notifications.api import EntityType, emit_status_changed
 from app.modules.shared import status_history
+from app.modules.stay_access.models import Room, RoomStatus
 
 
 class Actor(enum.StrEnum):
@@ -34,6 +36,8 @@ TRANSITIONS: dict[tuple[HkStatus, HkStatus], frozenset[Actor]] = {
     (S.IN_PROGRESS, S.DONE): frozenset({Actor.HOUSEKEEPING}),
     (S.ASSIGNED, S.REQUESTED): frozenset({Actor.HOUSEKEEPING}),
     (S.REQUESTED, S.CANCELLED): frozenset({Actor.GUEST, Actor.RECEPTION, Actor.SYSTEM}),
+    # Claimed but not started when the stay closes or the room is marked vacant.
+    (S.ASSIGNED, S.CANCELLED): frozenset({Actor.SYSTEM}),
 }
 ASSIGNEE_ONLY = {(S.ASSIGNED, S.IN_PROGRESS), (S.IN_PROGRESS, S.DONE), (S.ASSIGNED, S.REQUESTED)}
 
@@ -106,6 +110,10 @@ async def transition(
         request.started_at = now
     elif to_status is S.DONE:
         request.done_at = now
+        if request.type is HkType.TURNOVER:
+            room = await db.get(Room, request.room_id, with_for_update=True)
+            if room is not None and room.status is RoomStatus.CLEANING:
+                room.status = RoomStatus.VACANT
     elif to_status is S.CANCELLED:
         request.cancel_reason = reason
         request.cancelled_by = actor_label

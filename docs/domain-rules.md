@@ -25,12 +25,14 @@ stateDiagram-v2
     VACANT --> OCCUPIED: RECEPTION check-in\n(sinh mã phiên/QR, tạo stay ACTIVE)
     OCCUPIED --> OCCUPIED: Khách đổi mã → stay_session_token
     OCCUPIED --> CLEANING: RECEPTION check-out / duyệt Express Checkout\n(revoke mọi stay_session)
-    CLEANING --> VACANT: HOUSEKEEPING dọn xong
+    CLEANING --> VACANT: HOUSEKEEPING hoàn tất việc TURNOVER
+(hoặc RECEPTION "Đánh dấu đã dọn")
 ```
 
-- Mã phiên chỉ hợp lệ khi `stay.status = ACTIVE`. Nhiều thiết bị cùng stay được phép (mỗi thiết bị một `jti`).
+- Mã phiên dùng được khi `stay.status` là `ACTIVE` hoặc `CHECKOUT_PENDING` (lúc chờ trả phòng chỉ xem, không tạo yêu cầu mới), tới `expected_checkout_at` + 6 giờ. Nhiều thiết bị cùng stay được phép (mỗi thiết bị một `jti`, tối đa 6).
 - Lễ tân có thể **cấp lại mã** (revoke mã cũ + mọi session cũ) khi nghi lộ.
-- Khi stay `CLOSED`: mọi token → `401`, các đơn còn mở chuyển `CANCELLED` (lý do `STAY_CLOSED`).
+- Khi stay `CLOSED`: mọi token → `401`; đơn đồ ăn `PENDING`/`CONFIRMED` và yêu cầu buồng phòng `REQUESTED`/`ASSIGNED` chuyển `CANCELLED` (lý do `STAY_CLOSED`); đơn đang nấu/giao và việc dọn đang làm được giữ nguyên; hệ thống mở một việc `TURNOVER` cho phòng.
+- Lễ tân "Đánh dấu đã dọn" (`CLEANING → VACANT`) thì việc `TURNOVER` chưa bắt đầu của phòng bị hủy (lý do `MARKED_VACANT_BY_RECEPTION`).
 
 ## 3. Đặt đồ ăn (Room Service)
 
@@ -67,7 +69,9 @@ stateDiagram-v2
     REQUESTED --> ASSIGNED: HOUSEKEEPING nhận việc (gán nhân viên)
     ASSIGNED --> IN_PROGRESS: HOUSEKEEPING
     IN_PROGRESS --> DONE: HOUSEKEEPING
-    REQUESTED --> CANCELLED: GUEST / RECEPTION
+    ASSIGNED --> REQUESTED: HOUSEKEEPING trả lại việc (chỉ người được gán)
+    REQUESTED --> CANCELLED: GUEST / RECEPTION / SYSTEM
+    ASSIGNED --> CANCELLED: SYSTEM (stay đóng, phòng được đánh dấu đã dọn)
     DONE --> [*]
     CANCELLED --> [*]
 ```
@@ -76,10 +80,13 @@ stateDiagram-v2
 |---|:-:|:-:|:-:|:-:|
 | tạo → `REQUESTED` | ✅ | | | |
 | `REQUESTED → ASSIGNED → IN_PROGRESS → DONE` | | ✅ | | |
+| `ASSIGNED → REQUESTED` (trả lại việc) | | ✅ | | |
 | `REQUESTED → CANCELLED` | ✅ | | ✅ | |
 
 - Khách có thể chọn khung giờ mong muốn (`preferred_time`) hoặc "Không làm phiền".
-- Một stay chỉ có tối đa 1 yêu cầu `CLEANING` đang mở cùng lúc (tránh spam).
+- Một stay chỉ có tối đa 1 yêu cầu `CLEANING` đang mở cùng lúc (tránh spam), tối đa 3 yêu cầu `AMENITY` đang mở.
+- Loại yêu cầu: `CLEANING`, `AMENITY` (khách tạo) và `TURNOVER` (hệ thống tạo khi trả phòng, không gắn stay, khách không thấy). Mỗi phòng tối đa 1 `TURNOVER` đang mở; `TURNOVER → DONE` đưa phòng từ `CLEANING` về `VACANT`.
+- Chỉ nhân viên được gán mới chuyển `IN_PROGRESS`, `DONE` hoặc trả lại việc.
 
 ## 5. Trả phòng nhanh (Express Checkout)
 
