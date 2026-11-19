@@ -1,0 +1,24 @@
+{
+  "App": {
+    "title": "Quản trị khách sạn",
+    "tagline": "Lễ tân · Bếp · Buồng phòng"
+  },
+  "Home": {
+    "systemStatus": "Trạng thái hệ thống"
+  },
+  "LocaleSwitcher": {
+    "label": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "Health": {
+    "title": "Trạng thái hệ thống",
+    "backend": "Máy chủ (backend-api)",
+    "database": "Cơ sở dữ liệu",
+    "version": "Phiên bản",
+    "ok": "Hoạt động",
+    "error": "Lỗi",
+    "unreachable": "Không kết nối được tới máy chủ",
+    "back": "Về trang chủ"
+  }
+}

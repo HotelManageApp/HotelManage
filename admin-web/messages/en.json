@@ -1,0 +1,24 @@
+{
+  "App": {
+    "title": "Hotel administration",
+    "tagline": "Reception · Kitchen · Housekeeping"
+  },
+  "Home": {
+    "systemStatus": "System status"
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "vi": "Tiếng Việt",
+    "en": "English"
+  },
+  "Health": {
+    "title": "System status",
+    "backend": "Server (backend-api)",
+    "database": "Database",
+    "version": "Version",
+    "ok": "Operational",
+    "error": "Error",
+    "unreachable": "Cannot reach the server",
+    "back": "Back to home"
+  }
+}

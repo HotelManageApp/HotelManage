@@ -28,7 +28,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/`
   - Files: `app/main.py`, `app/core/`, `app/llm/{base,fake}.py`, `tests/`
 
-- [ ] **T04 · admin-web skeleton** · D01 · WEB · M · Deps: T01
+- [x] **T04 · admin-web skeleton** · D01 · WEB · M · Deps: T01
   - Accept: Next.js 15 strict TS, Tailwind, next-intl vi/en; `api-client` parse envelope lỗi; `/[locale]/health` hiện trạng thái backend
   - Verify: WEB `api-client|i18n`
   - Files: `src/app/[locale]/`, `src/lib/api-client.ts`, `src/i18n/`, `messages/{vi,en}.json`, `tests/`
