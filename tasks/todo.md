@@ -66,7 +66,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/test_route_guards.py tests/integration/staff_auth/test_rbac.py`
   - Files: `modules/staff_auth/deps.py`, `tests/integration/test_route_guards.py`
 
-- [ ] **T10 · Staff CLI** · D03 · BE · S · Deps: T07
+- [x] **T10 · Staff CLI** · D03 · BE · S · Deps: T07
   - Accept: `create-staff`, `set-active` (tăng `token_version`), `reset-password` (prompt ẩn), `seed-dev` chỉ khi `APP_ENV=dev`
   - Verify: BE `tests/unit/test_cli.py`; chạy `uv run python -m app.cli seed-dev`
   - Files: `app/cli.py`
