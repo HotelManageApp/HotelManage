@@ -1,0 +1,10 @@
+{
+  "STAY.CLOSED": {
+    "title": "Cảm ơn Quý khách",
+    "body": "Cảm ơn Quý khách đã lưu trú. Hẹn gặp lại!"
+  },
+  "STAY.TEST": {
+    "title": "Thông báo thử",
+    "body": "Đây là thông báo thử từ khách sạn."
+  }
+}

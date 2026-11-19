@@ -128,7 +128,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### notifications · spec: SPEC-notifications
 
-- [ ] **T19 · Outbox + emit_status_changed** · D06 · AI→BE · M · Deps: T14
+- [x] **T19 · Outbox + emit_status_changed** · D06 · AI→BE · M · Deps: T14
   - Accept: `notification_outbox`, cột `fcm_token`; `emit_status_changed` (outbox + `pg_notify`); worker `SKIP LOCKED`; `LogSender`/`FakePushSender`; mẫu vi/en; rollback → không có sự kiện
   - Verify: BE `tests/integration/notifications/test_outbox.py`
   - Files: `modules/notifications/{api,models,outbox_worker,senders}.py`, `templates/`, migration

@@ -37,6 +37,7 @@ def make_settings(**overrides: object) -> Settings:
         "staff_jwt_secret": TEST_STAFF_JWT_SECRET,
         "stay_jwt_secret": TEST_STAY_JWT_SECRET,
         "room_code_pepper": TEST_ROOM_CODE_PEPPER,
+        "notifications_worker_enabled": False,  # tests drive the worker explicitly
         "_env_file": None,
     }
     values.update(overrides)

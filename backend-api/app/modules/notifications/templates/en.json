@@ -1,0 +1,10 @@
+{
+  "STAY.CLOSED": {
+    "title": "Thank you",
+    "body": "Thank you for staying with us. See you again!"
+  },
+  "STAY.TEST": {
+    "title": "Test notification",
+    "body": "This is a test notification from the hotel."
+  }
+}

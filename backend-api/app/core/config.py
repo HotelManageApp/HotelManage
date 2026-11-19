@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     stay_grace_hours: int = Field(default=6, ge=0, le=48)
     max_devices_per_stay: int = Field(default=6, ge=1, le=20)
 
+    # Notifications (spec/SPEC-notifications.md)
+    fcm_sender: Literal["log", "fcm"] = "log"
+    fcm_project_id: str | None = None
+    fcm_credentials_file: str | None = None
+    notifications_worker_enabled: bool = True
+
     @field_validator("database_url")
     @classmethod
     def _require_asyncpg(cls, value: str) -> str:

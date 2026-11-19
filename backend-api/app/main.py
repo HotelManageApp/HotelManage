@@ -16,11 +16,20 @@ from app.core.db import create_engine, create_sessionmaker
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.request_context import RequestContextMiddleware
+from app.modules.notifications.outbox_worker import OutboxWorker
+from app.modules.notifications.senders import LogSender, PushSender
 from app.modules.staff_auth.router import router as staff_auth_router
 from app.modules.stay_access.router_guest import router as guest_router
 from app.modules.stay_access.router_staff import router as reception_router
 
 API_V1_PREFIX = "/api/v1"
+
+
+def build_push_sender(settings: Settings) -> PushSender:
+    """FCM_SENDER=log writes pushes to the log (dev default); fcm is added in T20."""
+    if settings.fcm_sender == "log":
+        return LogSender()
+    raise ValueError(f"unsupported FCM_SENDER {settings.fcm_sender!r}")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -32,9 +41,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         engine = create_engine(settings)
         app.state.engine = engine
         app.state.sessionmaker = create_sessionmaker(engine)
+        worker = OutboxWorker(app.state.sessionmaker, build_push_sender(settings))
+        app.state.outbox_worker = worker
+        if settings.notifications_worker_enabled:
+            worker.start()
         try:
             yield
         finally:
+            await worker.stop()
             await engine.dispose()
 
     is_prod = settings.app_env == "prod"

@@ -126,6 +126,9 @@ class StaySession(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Firebase Cloud Messaging token of this device (SPEC-notifications); never logged.
+    fcm_token: Mapped[str | None] = mapped_column(Text)
+    fcm_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoke_reason: Mapped[RevokeReason | None] = mapped_column(
         _pg_enum(RevokeReason, "revoke_reason")
     )
