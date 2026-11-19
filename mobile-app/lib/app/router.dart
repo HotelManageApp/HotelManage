@@ -6,7 +6,8 @@ import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/features/welcome/welcome_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area.
+/// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area,
+/// `/requests/<type>/<id>` where a tapped notification leads.
 /// The session decides where you may be; any 401 sends you back to `/`.
 GoRouter buildRouter(WidgetRef ref) {
   final refresh = ValueNotifier<int>(0);
@@ -29,6 +30,13 @@ GoRouter buildRouter(WidgetRef ref) {
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/scan', builder: (context, state) => const QrScanScreen()),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      // Request detail screens come with their modules (room service,
+      // housekeeping, checkout). Until a type has one, a notification opens
+      // the home screen (SPEC-notifications).
+      GoRoute(
+        path: '/requests/:type/:id',
+        redirect: (context, state) => '/home',
+      ),
     ],
   );
 }

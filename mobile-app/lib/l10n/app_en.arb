@@ -27,5 +27,7 @@
   "homeGreetingAnonymous": "Hello",
   "homeCheckout": "Expected check-out: {when}",
   "homeCheckoutPending": "Reception is processing your check-out request.",
-  "logout": "Sign out"
+  "logout": "Sign out",
+  "notificationChannelName": "Request updates",
+  "notificationChannelDescription": "Status of food orders, housekeeping and check-out"
 }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/app/router.dart';
 import 'package:hotel_guest/app/theme.dart';
 import 'package:hotel_guest/core/providers.dart';
+import 'package:hotel_guest/features/notifications/notifications_controller.dart';
 import 'package:hotel_guest/l10n/generated/app_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -27,6 +28,14 @@ class _HotelGuestAppState extends ConsumerState<HotelGuestApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Keeps push wired to the session for the app's lifetime.
+    ref
+      ..listen(notificationsProvider, (_, _) {})
+      ..listen(pendingRouteProvider, (_, route) {
+        if (route == null) return;
+        _router.go(route);
+        ref.read(pendingRouteProvider.notifier).route = null;
+      });
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       theme: buildTheme(),

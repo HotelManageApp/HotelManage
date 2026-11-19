@@ -148,7 +148,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `realtime`
   - Files: `src/lib/realtime/`, `components/layout/{ConnectionIndicator,SoundToggle}.tsx`
 
-- [ ] **T23 · App FCM** · D06–D08 · APP · M · Deps: T18, T20
+- [x] **T23 · App FCM** · D06–D08 · APP · M · Deps: T18, T20
   - Accept: Firebase init, xin quyền Android 13+, gửi token + `onTokenRefresh`; channel `requests`; foreground notification + làm mới provider; chạm → route `/requests/<type>/<id>`
   - Verify: APP `test/notifications`; thủ công SC 1–3 của notifications trên máy thật
   - Files: `lib/features/notifications/`, `android/` (cấu hình)

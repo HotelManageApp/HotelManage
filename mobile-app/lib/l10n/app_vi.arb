@@ -55,5 +55,10 @@
     }
   },
   "homeCheckoutPending": "Yêu cầu trả phòng của Quý khách đang được Lễ tân xử lý.",
-  "logout": "Đăng xuất"
+  "logout": "Đăng xuất",
+  "notificationChannelName": "Cập nhật yêu cầu",
+  "notificationChannelDescription": "Trạng thái đơn đồ ăn, dọn phòng và trả phòng",
+  "@notificationChannelName": {
+    "description": "Android notification channel for request status pushes"
+  }
 }
