@@ -98,7 +98,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/stay_access/test_close_stay.py`
   - Files: `modules/stay_access/{service,events,router_staff}.py`
 
-- [ ] **T15 · Guest auth + current_stay** · D05 · BE · M · Deps: T14
+- [x] **T15 · Guest auth + current_stay** · D05 · BE · M · Deps: T14
   - Accept: `room-code`/`renew`/`logout`/`me`; `current_stay`, `current_active_stay`; rate limit IP/device; tối đa 6 session; **đủ test C5.1, C5.2**
   - Verify: BE `tests/integration/stay_access/test_guest_auth.py`; coverage `stay_access` ≥ 85%
   - Files: `modules/stay_access/{deps,router_guest}.py`

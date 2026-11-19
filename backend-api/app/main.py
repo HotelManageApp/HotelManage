@@ -17,6 +17,7 @@ from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.request_context import RequestContextMiddleware
 from app.modules.staff_auth.router import router as staff_auth_router
+from app.modules.stay_access.router_guest import router as guest_router
 from app.modules.stay_access.router_staff import router as reception_router
 
 API_V1_PREFIX = "/api/v1"
@@ -55,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Module routers are included here as modules are built (stay_access, ...).
     api_v1.include_router(staff_auth_router)
     api_v1.include_router(reception_router)
+    api_v1.include_router(guest_router)
     app.include_router(api_v1)
     return app
 

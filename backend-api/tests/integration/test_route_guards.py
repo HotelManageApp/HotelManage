@@ -14,6 +14,7 @@ from fastapi.routing import APIRoute, iter_route_contexts
 
 from app.main import API_V1_PREFIX, create_app
 from app.modules.staff_auth.deps import current_staff
+from app.modules.stay_access.deps import current_stay
 from tests.conftest import make_settings
 
 # (method, path): reason it needs no Authorization header.
@@ -21,10 +22,10 @@ PUBLIC_ENDPOINTS: dict[tuple[str, str], str] = {
     ("POST", "/api/v1/staff/auth/login"): "credentials in body; rate limited",
     ("POST", "/api/v1/staff/auth/refresh"): "HttpOnly refresh cookie + Origin check",
     ("POST", "/api/v1/staff/auth/logout"): "HttpOnly refresh cookie + Origin check",
+    ("POST", "/api/v1/guest/auth/room-code"): "room code in body; rate limited (C4.3)",
 }
 
-# Guest auth (`current_stay`) is added here when stay-access lands (T15).
-AUTH_DEPENDENCIES: set[Callable[..., Any]] = {current_staff}
+AUTH_DEPENDENCIES: set[Callable[..., Any]] = {current_staff, current_stay}
 
 
 def _calls(dependant: Dependant) -> Iterator[Callable[..., Any]]:
