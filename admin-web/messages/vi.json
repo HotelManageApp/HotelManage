@@ -111,5 +111,51 @@
     "onlyOnce": "Mã chỉ hiển thị một lần. Đóng phiếu là không xem lại được; khi cần, hãy cấp lại mã.",
     "print": "In phiếu",
     "close": "Đóng"
+  },
+  "Confirm": {
+    "yes": "Xác nhận",
+    "no": "Hủy"
+  },
+  "StayDetail": {
+    "back": "← Sơ đồ phòng",
+    "loading": "Đang tải…",
+    "notFound": "Không tìm thấy kỳ lưu trú",
+    "title": "Phòng {room}",
+    "checkedIn": "nhận phòng",
+    "status": {
+      "ACTIVE": "Đang ở",
+      "CHECKOUT_PENDING": "Chờ trả phòng",
+      "CLOSED": "Đã trả phòng"
+    },
+    "guestName": "Tên khách",
+    "guestCount": "Số khách",
+    "checkout": "Trả phòng dự kiến",
+    "charge": "Tiền phòng (VND)",
+    "note": "Ghi chú",
+    "save": "Lưu thay đổi",
+    "saved": "Đã lưu",
+    "saveFailed": "Không lưu được, kiểm tra lại thông tin",
+    "reissue": "Cấp lại mã",
+    "reissueQuestion": "Mã cũ sẽ mất hiệu lực và mọi thiết bị của khách sẽ bị đăng xuất. Tiếp tục?",
+    "checkoutAction": "Check-out",
+    "checkoutQuestion": "Khách sẽ bị đăng xuất khỏi ứng dụng ngay và phòng chuyển sang chờ dọn. Tiếp tục?",
+    "loadFailed": "Không tải được thông tin, vui lòng thử lại"
+  },
+  "RoomManager": {
+    "back": "← Sơ đồ phòng",
+    "title": "Quản lý phòng",
+    "number": "Số phòng",
+    "floor": "Tầng",
+    "type": "Loại phòng",
+    "inService": "Đang kinh doanh",
+    "inServiceOf": "Phòng {room} đang kinh doanh",
+    "add": "Thêm phòng",
+    "edit": "Sửa",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "errorTaken": "Số phòng đã tồn tại",
+    "errorNotVacant": "Chỉ ngừng kinh doanh được phòng đang trống",
+    "errorInvalid": "Thông tin phòng chưa hợp lệ",
+    "errorUnknown": "Đã có lỗi, vui lòng thử lại"
   }
 }

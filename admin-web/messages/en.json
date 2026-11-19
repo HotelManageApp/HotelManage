@@ -111,5 +111,51 @@
     "onlyOnce": "The code is shown only once. After closing the slip it cannot be shown again; re-issue a code if needed.",
     "print": "Print slip",
     "close": "Close"
+  },
+  "Confirm": {
+    "yes": "Confirm",
+    "no": "Cancel"
+  },
+  "StayDetail": {
+    "back": "← Room board",
+    "loading": "Loading…",
+    "notFound": "Stay not found",
+    "title": "Room {room}",
+    "checkedIn": "checked in",
+    "status": {
+      "ACTIVE": "In house",
+      "CHECKOUT_PENDING": "Checkout pending",
+      "CLOSED": "Checked out"
+    },
+    "guestName": "Guest name",
+    "guestCount": "Guests",
+    "checkout": "Expected check-out",
+    "charge": "Room charge (VND)",
+    "note": "Note",
+    "save": "Save changes",
+    "saved": "Saved",
+    "saveFailed": "Could not save, please check the details",
+    "reissue": "Re-issue code",
+    "reissueQuestion": "The old code stops working and every guest device is signed out. Continue?",
+    "checkoutAction": "Check out",
+    "checkoutQuestion": "The guest is signed out of the app at once and the room moves to cleaning. Continue?",
+    "loadFailed": "Could not load the stay, please try again"
+  },
+  "RoomManager": {
+    "back": "← Room board",
+    "title": "Manage rooms",
+    "number": "Room number",
+    "floor": "Floor",
+    "type": "Room type",
+    "inService": "In service",
+    "inServiceOf": "Room {room} in service",
+    "add": "Add room",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "errorTaken": "That room number already exists",
+    "errorNotVacant": "Only vacant rooms can be taken out of service",
+    "errorInvalid": "Invalid room details",
+    "errorUnknown": "Something went wrong, please try again"
   }
 }

@@ -108,7 +108,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `reception/checkin`
   - Files: `reception/rooms/`, `components/reception/{RoomBoard,CheckinForm,CheckinSlip}.tsx`
 
-- [ ] **T17 · Web stay detail + room management** · D05 · WEB · M · Deps: T14, T16
+- [x] **T17 · Web stay detail + room management** · D05 · WEB · M · Deps: T14, T16
   - Accept: gia hạn, sửa tiền phòng, cấp lại mã, check-out (hộp thoại xác nhận), đánh dấu đã dọn, thêm/sửa phòng
   - Verify: WEB `reception/stay`
   - Files: `reception/stays/[id]/`, `components/reception/`
