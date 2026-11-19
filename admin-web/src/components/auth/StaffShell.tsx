@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { RealtimeBar } from "@/components/layout/RealtimeBar";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { roleHome } from "@/lib/auth/roles";
@@ -31,6 +32,7 @@ export function StaffShell({ children }: { children: ReactNode }) {
           {staff.full_name}
         </span>
         <span className="ml-auto flex items-center gap-4">
+          <RealtimeBar />
           <Link href="/account" className="underline">
             {t("account")}
           </Link>

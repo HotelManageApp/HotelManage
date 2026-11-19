@@ -143,7 +143,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/notifications/test_sse.py`
   - Files: `modules/notifications/{sse,router_dev}.py`
 
-- [ ] **T22 · Web realtime hook** · D06–D07 · WEB · M · Deps: T11 (T21 cho kiểm thử thật)
+- [x] **T22 · Web realtime hook** · D06–D07 · WEB · M · Deps: T11 (T21 cho kiểm thử thật)
   - Accept: `useStaffEvents` (fetch stream, backoff, `onReconnect`); chấm kết nối; toast theo bộ phận; bật âm báo
   - Verify: WEB `realtime`
   - Files: `src/lib/realtime/`, `components/layout/{ConnectionIndicator,SoundToggle}.tsx`

@@ -157,5 +157,19 @@
     "errorNotVacant": "Chỉ ngừng kinh doanh được phòng đang trống",
     "errorInvalid": "Thông tin phòng chưa hợp lệ",
     "errorUnknown": "Đã có lỗi, vui lòng thử lại"
+  },
+  "Realtime": {
+    "connection": {
+      "open": "Đã kết nối",
+      "connecting": "Đang kết nối…",
+      "closed": "Mất kết nối"
+    },
+    "soundOn": "Âm báo: bật",
+    "soundOff": "Âm báo: tắt",
+    "newOrder": "Đơn đồ ăn mới — phòng {room}",
+    "newHousekeeping": "Yêu cầu buồng phòng mới — phòng {room}",
+    "newCheckout": "Yêu cầu trả phòng — phòng {room}",
+    "orderOverdue": "Đơn của phòng {room} chờ quá 10 phút",
+    "housekeepingOverdue": "Yêu cầu của phòng {room} chờ quá 15 phút"
   }
 }

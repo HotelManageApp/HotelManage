@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { StaffGuard } from "@/components/auth/StaffGuard";
 import { StaffShell } from "@/components/auth/StaffShell";
 import { areaOf, canAccess, roleHome } from "@/lib/auth/roles";
+import { StaffEventsProvider } from "@/lib/realtime/useStaffEvents";
 import { envelope, json, mockBackend, renderWithAuth, session, STAFF } from "./helpers";
 
 const nav = vi.hoisted(() => ({ replace: vi.fn(), pathname: "/kitchen" }));
@@ -118,8 +119,16 @@ describe("StaffShell", () => {
     mockBackend({
       "POST /api/v1/staff/auth/refresh": () => json(session()),
       "POST /api/v1/staff/auth/logout": () => json(null, 204),
+      "GET /api/v1/staff/events": () =>
+        new Response(new ReadableStream({ start: () => undefined }), {
+          headers: { "Content-Type": "text/event-stream" },
+        }),
     });
-    renderWithAuth(<StaffShell>content</StaffShell>);
+    renderWithAuth(
+      <StaffEventsProvider>
+        <StaffShell>content</StaffShell>
+      </StaffEventsProvider>,
+    );
     expect(await screen.findByTestId("staff-name")).toHaveTextContent(STAFF.full_name);
     expect(screen.getByRole("link", { name: "Bếp" })).toHaveAttribute("href", "/kitchen");
 

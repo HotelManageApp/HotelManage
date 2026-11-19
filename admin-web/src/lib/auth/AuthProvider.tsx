@@ -45,6 +45,8 @@ export interface AuthContextValue {
   login: (email: string, password: string) => Promise<StaffProfile>;
   logout: () => Promise<void>;
   authFetch: <T>(path: string, options?: Omit<ApiRequestOptions, "token">) => Promise<T>;
+  /** Current access token, refreshed first if there is none (for streaming requests). */
+  getAccessToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -155,9 +157,11 @@ export function AuthProvider({
     [baseUrl, refresh],
   );
 
+  const getAccessToken = useCallback(async () => tokenRef.current ?? (await refresh()), [refresh]);
+
   const value = useMemo(
-    () => ({ state, login, logout, authFetch }),
-    [state, login, logout, authFetch],
+    () => ({ state, login, logout, authFetch, getAccessToken }),
+    [state, login, logout, authFetch, getAccessToken],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -157,5 +157,19 @@
     "errorNotVacant": "Only vacant rooms can be taken out of service",
     "errorInvalid": "Invalid room details",
     "errorUnknown": "Something went wrong, please try again"
+  },
+  "Realtime": {
+    "connection": {
+      "open": "Connected",
+      "connecting": "Connecting…",
+      "closed": "Disconnected"
+    },
+    "soundOn": "Sound: on",
+    "soundOff": "Sound: off",
+    "newOrder": "New food order — room {room}",
+    "newHousekeeping": "New housekeeping request — room {room}",
+    "newCheckout": "Check-out request — room {room}",
+    "orderOverdue": "Order for room {room} waiting over 10 min",
+    "housekeepingOverdue": "Request for room {room} waiting over 15 min"
   }
 }
