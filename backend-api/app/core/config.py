@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     app_version: str = "dev"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     db_health_timeout_seconds: float = 2.0
+    hotel_timezone: str = "Asia/Ho_Chi_Minh"
 
     # Staff authentication (spec/SPEC-staff-auth.md). Secret is never shared with guest tokens.
     staff_jwt_secret: SecretStr = Field(min_length=32)

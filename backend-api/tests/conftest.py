@@ -68,9 +68,12 @@ async def db(migrated_database: None) -> AsyncIterator[AsyncSession]:
     finally:
         await session.close()
         tables = [t.name for t in Base.metadata.sorted_tables if t.name not in _KEEP_ROWS]
-        if tables:
-            async with engine.begin() as conn:
+        async with engine.begin() as conn:
+            if tables:
                 await conn.execute(text(f"TRUNCATE {', '.join(tables)} CASCADE"))
+            # Back to the migration defaults (single row, server defaults).
+            await conn.execute(text("DELETE FROM hotel_settings"))
+            await conn.execute(text("INSERT INTO hotel_settings (id) VALUES (1)"))
         await engine.dispose()
 
 

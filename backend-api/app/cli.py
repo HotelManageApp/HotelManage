@@ -15,10 +15,12 @@ from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import ConfigError, Settings, load_settings
 from app.core.db import create_engine, create_sessionmaker
+from app.modules.room_service.models import MenuCategory, MenuItem
 from app.modules.staff_auth import repository
 from app.modules.staff_auth.models import Staff, StaffRole
 from app.modules.staff_auth.schemas import MIN_PASSWORD_LENGTH
@@ -135,6 +137,62 @@ async def seed_rooms(db: AsyncSession, path: Path) -> tuple[int, int]:
     return created, skipped
 
 
+async def seed_menu(db: AsyncSession, path: Path) -> tuple[int, int]:
+    """Create categories and dishes from a CSV. Columns: category_code, category_vi, category_en,
+    name_vi, name_en, price_vnd, description_vi, description_en. Existing dishes (same category
+    and Vietnamese name) are left untouched."""
+    try:
+        content = await asyncio.to_thread(path.read_text, encoding="utf-8-sig")
+    except FileNotFoundError:
+        raise CliError(f"file not found: {path}") from None
+    created = skipped = 0
+    categories: dict[str, MenuCategory] = {}
+    for line, row in enumerate(csv.DictReader(io.StringIO(content)), start=2):
+        code = (row.get("category_code") or "").strip().upper()
+        name_vi = (row.get("name_vi") or "").strip()
+        if not code or not name_vi:
+            raise CliError(f"line {line}: category_code and name_vi are required")
+        try:
+            price = int((row.get("price_vnd") or "").replace(".", "").replace(",", ""))
+        except ValueError:
+            raise CliError(f"line {line}: price_vnd must be a whole number") from None
+        category = categories.get(code) or await db.scalar(
+            select(MenuCategory).where(MenuCategory.code == code)
+        )
+        if category is None:
+            category = MenuCategory(
+                code=code,
+                name_vi=(row.get("category_vi") or code).strip(),
+                name_en=(row.get("category_en") or code).strip(),
+                sort_order=len(categories),
+            )
+            db.add(category)
+            await db.flush()
+        categories[code] = category
+        exists = await db.scalar(
+            select(MenuItem.id).where(
+                MenuItem.category_id == category.id, MenuItem.name_vi == name_vi
+            )
+        )
+        if exists:
+            skipped += 1
+            continue
+        db.add(
+            MenuItem(
+                category_id=category.id,
+                name_vi=name_vi,
+                name_en=(row.get("name_en") or name_vi).strip(),
+                description_vi=(row.get("description_vi") or None),
+                description_en=(row.get("description_en") or None),
+                price_vnd=price,
+            )
+        )
+        await db.flush()
+        created += 1
+    await db.commit()
+    return created, skipped
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m app.cli", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -157,6 +215,9 @@ def _parser() -> argparse.ArgumentParser:
 
     rooms = commands.add_parser("seed-rooms", help="create rooms from a CSV file")
     rooms.add_argument("--from-file", required=True, type=Path)
+
+    menu = commands.add_parser("seed-menu", help="create menu categories and dishes from a CSV")
+    menu.add_argument("--from-file", required=True, type=Path)
     return parser
 
 
@@ -197,6 +258,9 @@ async def run(
             elif args.command == "seed-rooms":
                 made, skipped = await seed_rooms(db, args.from_file)
                 out(f"rooms created: {made}, already existed: {skipped}")
+            elif args.command == "seed-menu":
+                made, skipped = await seed_menu(db, args.from_file)
+                out(f"dishes created: {made}, already existed: {skipped}")
     finally:
         await engine.dispose()
 

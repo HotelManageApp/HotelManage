@@ -155,7 +155,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### room-service · spec: SPEC-room-service
 
-- [ ] **T24 · Menu + status_history + settings** · D06 · BE · M · Deps: T15
+- [x] **T24 · Menu + status_history + settings** · D06 · BE · M · Deps: T15
   - Accept: migration menu, `status_history` dùng chung, cột `hotel_settings`; `GET /guest/menu` (shape = tool `get_available_menu`); CRUD menu `KITCHEN`; giờ phục vụ `RECEPTION`; `seed-menu`
   - Verify: BE `tests/integration/room_service/test_menu.py`
   - Files: `modules/room_service/{models,schemas,router_guest,router_staff}.py`, `modules/shared/status_history.py`, `seeds/menu.example.csv`

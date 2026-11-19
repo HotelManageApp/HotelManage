@@ -1,0 +1,8 @@
+category_code,category_vi,category_en,name_vi,name_en,price_vnd,description_vi,description_en
+BREAKFAST,Bữa sáng,Breakfast,Bánh mì ốp la,Fried egg baguette,45000,Bánh mì giòn với 2 trứng ốp la,Crispy baguette with two fried eggs
+BREAKFAST,Bữa sáng,Breakfast,Phở bò,Beef pho,65000,Phở bò tái chín,Rice noodle soup with beef
+MAIN,Món chính,Main dishes,Cơm rang dưa bò,Fried rice with beef,75000,,
+MAIN,Món chính,Main dishes,Mì xào hải sản,Stir-fried noodles with seafood,85000,,
+DRINK,Đồ uống,Drinks,Nước cam,Orange juice,40000,Cam tươi vắt,Freshly squeezed
+DRINK,Đồ uống,Drinks,Cà phê sữa đá,Iced milk coffee,30000,,
+DRINK,Đồ uống,Drinks,Nước suối,Mineral water,15000,,

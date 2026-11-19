@@ -5,6 +5,8 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.hotel_settings import HotelSettings
+from app.modules.room_service.models import MenuCategory, MenuItem
 from app.modules.staff_auth.models import Staff, StaffRole
 from app.modules.staff_auth.security import encode_access_token, hash_password
 from app.modules.stay_access.models import Room, RoomStatus, Stay, StaySession, StayStatus
@@ -118,3 +120,56 @@ async def add_session(
     await db.commit()
     await db.refresh(session)
     return session
+
+
+async def kitchen_open_all_day(db: AsyncSession, *, paused: bool = False) -> None:
+    """Tests must not depend on the wall clock: open == close means open around the clock."""
+    settings = await db.get(HotelSettings, 1)
+    assert settings is not None
+    settings.room_service_open = settings.room_service_close = datetime.min.time()
+    settings.room_service_paused = paused
+    await db.commit()
+
+
+async def create_menu(db: AsyncSession) -> dict[str, MenuItem]:
+    """Two categories and four dishes; one sold out, one archived, one in a hidden category."""
+    breakfast = MenuCategory(
+        code="BREAKFAST", name_vi="Bữa sáng", name_en="Breakfast", sort_order=0
+    )
+    drink = MenuCategory(code="DRINK", name_vi="Đồ uống", name_en="Drinks", sort_order=1)
+    hidden = MenuCategory(code="SEASONAL", name_vi="Theo mùa", name_en="Seasonal", is_active=False)
+    db.add_all([breakfast, drink, hidden])
+    await db.flush()
+    items = {
+        "pho": MenuItem(
+            category_id=breakfast.id, name_vi="Phở bò", name_en="Beef pho", price_vnd=65000
+        ),
+        "banhmi": MenuItem(
+            category_id=breakfast.id,
+            name_vi="Bánh mì",
+            name_en="Baguette",
+            price_vnd=45000,
+            available=False,
+        ),
+        "cam": MenuItem(
+            category_id=drink.id,
+            name_vi="Nước cam",
+            name_en="Orange juice",
+            price_vnd=40000,
+            description_vi="Cam tươi",
+            description_en="Fresh oranges",
+        ),
+        "old": MenuItem(
+            category_id=drink.id,
+            name_vi="Trà sữa",
+            name_en="Milk tea",
+            price_vnd=35000,
+            is_archived=True,
+        ),
+        "mango": MenuItem(category_id=hidden.id, name_vi="Xoài", name_en="Mango", price_vnd=30000),
+    }
+    db.add_all(items.values())
+    await db.commit()
+    for item in items.values():
+        await db.refresh(item)
+    return items
