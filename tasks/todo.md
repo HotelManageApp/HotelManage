@@ -23,7 +23,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/` (SC 2–6 của foundation), coverage ≥ 70%
   - Files: `app/main.py`, `app/core/{config,errors,logging,request_id,db}.py`, `app/api/health.py`, `migrations/`, `tests/`
 
-- [ ] **T03 · ai-service skeleton** · D01 · AI · M · Deps: T01
+- [x] **T03 · ai-service skeleton** · D01 · AI · M · Deps: T01
   - Accept: app + config + envelope lỗi; `LLMClient` base + `FakeLLMClient` + chọn adapter theo `LLM_PROVIDER`; `/health`
   - Verify: AI `tests/`
   - Files: `app/main.py`, `app/core/`, `app/llm/{base,fake}.py`, `tests/`
