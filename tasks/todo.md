@@ -233,7 +233,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/concierge_data/test_kb.py`
   - Files: `modules/concierge_data/{models,search,router_guest,router_staff}.py`, `seeds/kb.example.yaml`
 
-- [ ] **T38 · Chat history + quota** · D09 · AI (BE code) · S · Deps: T37
+- [x] **T38 · Chat history + quota** · D09 · AI (BE code) · S · Deps: T37
   - Accept: `chat_message`; `GET/POST /guest/chat/messages`; `POST /guest/chat/quota` (10/phút, 100/ngày); `GET /guest/hotel-info`; hook xóa khi đóng stay
   - Verify: BE `tests/integration/concierge_data/test_chat.py`
   - Files: `modules/concierge_data/{models,router_guest,hooks}.py`

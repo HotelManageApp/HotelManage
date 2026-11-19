@@ -6,10 +6,25 @@ IMMUTABLE wrapper around `unaccent` created by migration 0008), so "an sang" fin
 
 import enum
 import uuid
+from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
-from sqlalchemy import Boolean, Computed, Enum, ForeignKey, Index, Numeric, Text, text
-from sqlalchemy.dialects.postgresql import TSVECTOR, UUID
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Computed,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Numeric,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base, TimestampMixin
@@ -99,3 +114,35 @@ class NearbyPlace(TimestampMixin, Base):
 
     def description(self, lang: str) -> str | None:
         return self.description_vi if lang == "vi" else self.description_en
+
+
+class ChatMessage(Base):
+    """One line of the concierge chat. History belongs to the stay (every device sees it) and is
+    deleted when the stay closes (personal data, chatbot-tools-spec §1)."""
+
+    __tablename__ = "chat_message"
+    __table_args__ = (
+        Index("ix_chat_message_stay_created", "stay_id", "created_at"),
+        CheckConstraint("role IN ('GUEST', 'ASSISTANT')", name="role_known"),
+        # A retried send from ai-service carries the same client_message_id: stored once.
+        UniqueConstraint("stay_id", "client_message_id", "role", name="uq_chat_message_client_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    stay_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("stay.id", ondelete="CASCADE"), nullable=False
+    )
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("stay_session.id", ondelete="CASCADE"), nullable=False
+    )
+    client_message_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    role: Mapped[str] = mapped_column(Text, nullable=False)  # GUEST | ASSISTANT
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    # Tool names, arguments and KB ids used for the answer; never tokens.
+    tool_trace: Mapped[Any | None] = mapped_column(JSONB(none_as_null=True))
+    grounded: Mapped[bool | None] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.clock_timestamp(), nullable=False
+    )

@@ -85,6 +85,7 @@ chat_message
   id            uuid PK
   stay_id       uuid FK → stay ON DELETE CASCADE NOT NULL
   session_id    uuid FK → stay_session NOT NULL
+  client_message_id uuid NULL           -- ai-service gửi lại cùng id → không lưu trùng; UNIQUE (stay_id, client_message_id, role)
   role          text NOT NULL             -- GUEST | ASSISTANT
   content       text NOT NULL             -- tối đa 1000 ký tự (GUEST), 4000 (ASSISTANT)
   tool_trace    jsonb NULL                -- tên tool + tham số + id mục KB đã dùng (không có token)
@@ -108,9 +109,9 @@ hotel_settings (+ cột mới)
 |---|---|---|
 | GET | `/kb/search?topic=&q=&lang=` | Lọc theo `topic` (`ATTRACTIONS`/`FOOD_NEARBY`/`TRANSPORT` tìm trong `nearby_place`, còn lại trong `kb_entry`; `OTHER` tìm cả hai), xếp hạng `ts_rank` trên `q`, tối đa 5 mục + 8 địa điểm; chỉ mục `is_published`. Không khớp `q` nhưng có mục cùng `topic` → trả các mục của topic. Output đúng shape `data` của tool §4.1 (`found`, `entries`, `places`) |
 | GET | `/hotel-info` | `{hotel_name, reception_phone, default_lang, chat_enabled}` để chèn vào prompt và app |
-| GET | `/chat/messages?limit=50&before=` | Lịch sử của stay |
-| POST | `/chat/messages` | `{guest_message, assistant_message, tool_trace, grounded}` → lưu cặp tin, trả `message_id`. Chỉ ai-service gọi, nhưng dùng token khách nên không mở thêm quyền |
-| POST | `/chat/quota` | Tăng và kiểm tra hạn mức (dùng `rate_limit_bucket`): **10 tin/phút/session, 100 tin/ngày/stay** → vượt `429 RATE_LIMITED` + `Retry-After` |
+| GET | `/chat/messages?limit=50&before=` | Lịch sử của stay, cũ trước mới sau: `[{id, role, content, created_at}]` (không trả `tool_trace`); `before` là thời điểm ISO để lùi trang |
+| POST | `/chat/messages` | `{guest_message, assistant_message, tool_trace, grounded, client_message_id?}` → lưu cặp tin, trả `{message_id, guest_message_id}`; cùng `client_message_id` → trả lại cặp đã lưu. `tool_trace` ≤ 16 KB, từ chối khóa `token`/`authorization`/`room_code`/`room_id`/`stay_id`. Chỉ ai-service gọi, nhưng dùng token khách nên không mở thêm quyền |
+| POST | `/chat/quota` | Tăng và kiểm tra hạn mức (dùng `rate_limit_bucket`, cửa sổ cố định): **10 tin/phút/session, 100 tin/ngày/stay** → `{remaining_minute, remaining_day}`; vượt `429 RATE_LIMITED` + `Retry-After` = thời gian còn lại của cửa sổ (lần bị từ chối không trừ hạn mức ngày) |
 
 **Nhân viên** (`/api/v1`, quyền `RECEPTION`): CRUD `/kb/entries`, `/kb/places`; `GET/PATCH /settings/hotel` (`hotel_name`, `reception_phone`, `default_lang`, `chat_enabled` ); `GET /kb/search` (bản nhân viên cho ô "Thử hỏi", cùng kết quả với khách).
 

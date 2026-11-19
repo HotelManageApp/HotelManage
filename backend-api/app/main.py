@@ -17,6 +17,7 @@ from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.periodic import Scheduler
 from app.core.request_context import RequestContextMiddleware
+from app.modules.concierge_data import hooks as concierge_hooks
 from app.modules.concierge_data.router_guest import router as guest_kb_router
 from app.modules.concierge_data.router_staff import router as knowledge_router
 from app.modules.housekeeping import hooks as housekeeping_hooks
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     notification_hooks.register()
     room_service_jobs.register()
     housekeeping_hooks.register()
+    concierge_hooks.register()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
