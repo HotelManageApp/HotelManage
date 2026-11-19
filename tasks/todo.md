@@ -180,7 +180,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `kitchen`
   - Files: `kitchen/page.tsx`, `components/kitchen/{OrderBoard,OrderCard,RejectDialog}.tsx`
 
-- [ ] **T29 · Web menu mgmt + reception orders** · D08–D09 · WEB · M · Deps: T24, T28
+- [x] **T29 · Web menu mgmt + reception orders** · D08–D09 · WEB · M · Deps: T24, T28
   - Accept: `/kitchen/menu` (công tắc còn món, sửa, lưu trữ, tạm ngưng); `/reception/orders` (lọc, chi tiết, hủy có lý do); `/reception/settings` giờ phục vụ
   - Verify: WEB `kitchen/menu|reception/orders`
   - Files: `kitchen/menu/`, `reception/orders/`, `reception/settings/`, `components/kitchen/MenuTable.tsx`

@@ -204,5 +204,96 @@
       "COMPLETED": "đã giao",
       "CANCELLED": "đã hủy"
     }
+  },
+  "AreaTabs": {
+    "label": "Điều hướng khu vực",
+    "reception": {
+      "rooms": "Sơ đồ phòng",
+      "orders": "Đơn đồ ăn",
+      "settings": "Giờ phục vụ"
+    },
+    "kitchen": {
+      "queue": "Hàng đợi đơn",
+      "menu": "Thực đơn"
+    },
+    "housekeeping": {
+      "queue": "Hàng đợi"
+    }
+  },
+  "OrderStatus": {
+    "PENDING": "Chờ nhận",
+    "CONFIRMED": "Đã nhận",
+    "PREPARING": "Đang nấu",
+    "DELIVERING": "Đang giao",
+    "COMPLETED": "Đã giao",
+    "CANCELLED": "Đã hủy"
+  },
+  "Menu": {
+    "title": "Thực đơn",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được thực đơn",
+    "saveError": "Không lưu được, vui lòng thử lại",
+    "invalid": "Thông tin món chưa hợp lệ",
+    "openNotice": "Đang nhận đơn đồ ăn theo giờ phục vụ",
+    "pausedNotice": "Đã tạm ngưng nhận đơn — khách không đặt được món",
+    "pause": "Tạm ngưng nhận đơn",
+    "resume": "Mở lại nhận đơn",
+    "category": "Nhóm",
+    "nameVi": "Tên món",
+    "nameEn": "Tên tiếng Anh",
+    "price": "Giá (₫)",
+    "description": "Mô tả",
+    "available": "Tình trạng",
+    "availableOf": "Còn món {name}",
+    "inStock": "Còn",
+    "soldOut": "Tạm hết",
+    "add": "Thêm món",
+    "edit": "Sửa",
+    "save": "Lưu",
+    "cancel": "Thôi",
+    "archive": "Lưu trữ",
+    "archiveOf": "Lưu trữ {name}",
+    "archived": "Món đã lưu trữ ({count})",
+    "restore": "Khôi phục",
+    "restoreOf": "Khôi phục {name}",
+    "empty": "Chưa có món nào"
+  },
+  "ReceptionOrders": {
+    "title": "Đơn đồ ăn",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được danh sách đơn",
+    "empty": "Không có đơn nào",
+    "filterStatus": "Trạng thái",
+    "filterRoom": "Phòng",
+    "openAndRecent": "Đang mở và gần đây",
+    "room": "Phòng",
+    "guest": "Khách",
+    "items": "Món",
+    "total": "Tổng",
+    "status": "Trạng thái",
+    "waiting": "Đặt lúc",
+    "minutes": "{minutes} phút trước",
+    "overdue": "quá hạn",
+    "openOrder": "Xem đơn phòng {room}",
+    "detail": "Đơn phòng {room}",
+    "close": "Đóng",
+    "cancelReason": "Lý do hủy (khách sẽ thấy)",
+    "cancelOrder": "Hủy đơn",
+    "stale": "Đơn vừa được cập nhật, đã tải lại — vui lòng kiểm tra rồi thử lại",
+    "cancelError": "Không hủy được đơn, vui lòng thử lại"
+  },
+  "RoomServiceSettings": {
+    "title": "Giờ phục vụ đồ ăn",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được cài đặt",
+    "pausedByKitchen": "Bếp đang tạm ngưng nhận đơn",
+    "open": "Mở cửa",
+    "close": "Đóng cửa",
+    "overnightHint": "Giờ đóng nhỏ hơn giờ mở nghĩa là phục vụ qua đêm; trùng nhau là phục vụ 24 giờ.",
+    "prep": "Thời gian chuẩn bị mặc định (phút)",
+    "save": "Lưu",
+    "saved": "Đã lưu giờ phục vụ",
+    "invalid": "Giờ phục vụ chưa hợp lệ",
+    "saveError": "Không lưu được, vui lòng thử lại"
   }
 }

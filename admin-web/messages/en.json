@@ -204,5 +204,96 @@
       "COMPLETED": "delivered",
       "CANCELLED": "cancelled"
     }
+  },
+  "AreaTabs": {
+    "label": "Area navigation",
+    "reception": {
+      "rooms": "Room board",
+      "orders": "Food orders",
+      "settings": "Service hours"
+    },
+    "kitchen": {
+      "queue": "Order queue",
+      "menu": "Menu"
+    },
+    "housekeeping": {
+      "queue": "Queue"
+    }
+  },
+  "OrderStatus": {
+    "PENDING": "Waiting",
+    "CONFIRMED": "Accepted",
+    "PREPARING": "Cooking",
+    "DELIVERING": "Delivering",
+    "COMPLETED": "Delivered",
+    "CANCELLED": "Cancelled"
+  },
+  "Menu": {
+    "title": "Menu",
+    "loading": "Loading…",
+    "loadError": "Could not load the menu",
+    "saveError": "Could not save, please try again",
+    "invalid": "The dish details are not valid",
+    "openNotice": "Taking food orders during service hours",
+    "pausedNotice": "Ordering is paused — guests cannot order",
+    "pause": "Pause ordering",
+    "resume": "Resume ordering",
+    "category": "Category",
+    "nameVi": "Dish name",
+    "nameEn": "English name",
+    "price": "Price (₫)",
+    "description": "Description",
+    "available": "Availability",
+    "availableOf": "{name} available",
+    "inStock": "Available",
+    "soldOut": "Sold out",
+    "add": "Add dish",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "archive": "Archive",
+    "archiveOf": "Archive {name}",
+    "archived": "Archived dishes ({count})",
+    "restore": "Restore",
+    "restoreOf": "Restore {name}",
+    "empty": "No dishes yet"
+  },
+  "ReceptionOrders": {
+    "title": "Food orders",
+    "loading": "Loading…",
+    "loadError": "Could not load orders",
+    "empty": "No orders",
+    "filterStatus": "Status",
+    "filterRoom": "Room",
+    "openAndRecent": "Open and recent",
+    "room": "Room",
+    "guest": "Guest",
+    "items": "Items",
+    "total": "Total",
+    "status": "Status",
+    "waiting": "Ordered",
+    "minutes": "{minutes} min ago",
+    "overdue": "overdue",
+    "openOrder": "Open order for room {room}",
+    "detail": "Order for room {room}",
+    "close": "Close",
+    "cancelReason": "Reason for cancelling (shown to the guest)",
+    "cancelOrder": "Cancel order",
+    "stale": "The order just changed and has been reloaded — please check and try again",
+    "cancelError": "Could not cancel the order, please try again"
+  },
+  "RoomServiceSettings": {
+    "title": "Room-service hours",
+    "loading": "Loading…",
+    "loadError": "Could not load settings",
+    "pausedByKitchen": "The kitchen has paused ordering",
+    "open": "Opens",
+    "close": "Closes",
+    "overnightHint": "A closing time before the opening time means overnight service; equal times mean 24 hours.",
+    "prep": "Default preparation time (minutes)",
+    "save": "Save",
+    "saved": "Service hours saved",
+    "invalid": "The service hours are not valid",
+    "saveError": "Could not save, please try again"
   }
 }
