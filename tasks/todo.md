@@ -18,7 +18,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: `docker compose up -d db` chạy; `git check-ignore backend-api/.env` khớp
   - Files: `docker-compose.yml`, `.gitignore`, `README.md`, `.github/pull_request_template.md`
 
-- [ ] **T02 · backend-api skeleton** · D01 · BE · M · Deps: T01
+- [x] **T02 · backend-api skeleton** · D01 · BE · M · Deps: T01
   - Accept: `create_app` + `Settings` (thiếu biến → không start); envelope lỗi + 422→400 + `X-Request-ID`; log JSON redact; `/health` 200/503; Alembic revision nền (`pgcrypto`, `citext`, `unaccent`, `hotel_settings`)
   - Verify: BE `tests/` (SC 2–6 của foundation), coverage ≥ 70%
   - Files: `app/main.py`, `app/core/{config,errors,logging,request_id,db}.py`, `app/api/health.py`, `migrations/`, `tests/`

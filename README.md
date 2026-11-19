@@ -37,8 +37,16 @@ docs/ spec/ tasks/
 docker compose up -d db
 docker compose ps            # db phải ở trạng thái healthy
 
-# 2. Từng package — hướng dẫn chi tiết sẽ được bổ sung khi T02–T05 xong
-#    backend-api : uv sync && uv run alembic upgrade head && uv run uvicorn app.main:app --reload --port 8000
+# 2. backend-api (cần uv: https://docs.astral.sh/uv/)
+cd backend-api
+cp .env.example .env                       # sửa nếu cần
+uv sync
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload --port 8000    # http://localhost:8000/health, /docs
+uv run pytest -q --cov=app --cov-fail-under=70     # cần db đang chạy (dùng DB hotel_test)
+cd ..
+
+# 3. Các package còn lại — hướng dẫn chi tiết bổ sung khi T03–T05 xong
 #    ai-service  : uv sync && uv run uvicorn app.main:app --reload --port 8001
 #    admin-web   : npm ci && npm run dev
 #    mobile-app  : flutter pub get && flutter run --dart-define-from-file=env/dev.json
