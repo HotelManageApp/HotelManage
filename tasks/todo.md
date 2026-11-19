@@ -13,7 +13,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 1 — Foundation (D01) · spec: SPEC-foundation
 
-- [ ] **T01 · Monorepo skeleton** · D01 · LEAD · S · Deps: —
+- [x] **T01 · Monorepo skeleton** · D01 · LEAD · S · Deps: —
   - Accept: `docker-compose.yml` (postgres:16), `.gitignore` (env, service-account, google-services), `README.md` (setup + branch protection), `.github/pull_request_template.md`
   - Verify: `docker compose up -d db` chạy; `git check-ignore backend-api/.env` khớp
   - Files: `docker-compose.yml`, `.gitignore`, `README.md`, `.github/pull_request_template.md`
