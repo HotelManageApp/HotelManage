@@ -1,9 +1,10 @@
-"""Rooms and check-in (spec/SPEC-stay-access.md). Close/re-issue/checkout land in T14."""
+"""Rooms, check-in, re-issue, check-out and close_stay (spec/SPEC-stay-access.md)."""
 
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,8 +12,15 @@ from app.core.config import Settings
 from app.core.errors import Conflict, NotFound, ValidationFailed
 from app.core.logging import get_logger
 from app.modules.staff_auth.models import Staff
-from app.modules.stay_access import codes, repository
-from app.modules.stay_access.models import Room, RoomStatus, Stay, StayStatus
+from app.modules.stay_access import codes, events, repository
+from app.modules.stay_access.models import (
+    RevokeReason,
+    Room,
+    RoomStatus,
+    Stay,
+    StaySession,
+    StayStatus,
+)
 from app.modules.stay_access.schemas import CheckInRequest, RoomCreate, RoomUpdate, StayUpdate
 
 logger = get_logger(__name__)
@@ -142,3 +150,81 @@ async def update_stay(db: AsyncSession, stay_id: uuid.UUID, body: StayUpdate) ->
     await db.refresh(stay)
     room = await repository.get_room(db, stay.room_id)
     return stay, room.number if room else ""
+
+
+# ---------- close / re-issue / rooms after check-out ----------
+
+
+async def revoke_sessions(
+    db: AsyncSession, stay_id: uuid.UUID, reason: RevokeReason, now: datetime
+) -> None:
+    await db.execute(
+        update(StaySession)
+        .where(StaySession.stay_id == stay_id, StaySession.revoked_at.is_(None))
+        .values(revoked_at=now, revoke_reason=reason)
+    )
+
+
+async def _open_stay_for_update(db: AsyncSession, stay_id: uuid.UUID) -> tuple[Stay, Room]:
+    stay = await repository.get_stay(db, stay_id, for_update=True)
+    if stay is None:
+        raise NotFound("Không tìm thấy kỳ lưu trú")
+    if stay.status == StayStatus.CLOSED:
+        raise Conflict("Kỳ lưu trú đã kết thúc", code="STAY_CLOSED")
+    room = await repository.get_room(db, stay.room_id, for_update=True)
+    if room is None:
+        raise NotFound("Không tìm thấy phòng")
+    return stay, room
+
+
+async def close_stay(db: AsyncSession, stay_id: uuid.UUID, closed_by: Staff) -> Stay:
+    """The only way a stay ends (desk check-out here, express checkout in T45).
+
+    One transaction: stay CLOSED, code lookup cleared, every guest session revoked, room to
+    CLEANING, then the registered on-stay-closed hooks. Any failure rolls everything back.
+    """
+    now = datetime.now(UTC)
+    stay, room = await _open_stay_for_update(db, stay_id)
+    stay.status = StayStatus.CLOSED
+    stay.closed_at = now
+    stay.closed_by = closed_by.id
+    stay.room_code_lookup = None
+    await revoke_sessions(db, stay.id, RevokeReason.CHECKOUT, now)
+    room.status = RoomStatus.CLEANING
+    try:
+        await events.run_on_stay_closed(db, stay.id)
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise
+    await db.refresh(stay)
+    logger.info("stay_closed", stay_id=str(stay.id), room=room.number, staff_id=str(closed_by.id))
+    return stay
+
+
+async def reissue_code(
+    db: AsyncSession, settings: Settings, stay_id: uuid.UUID, staff: Staff
+) -> IssuedStayCode:
+    """New code for a stay (suspected leak): old code dead, every device signed out."""
+    now = datetime.now(UTC)
+    stay, room = await _open_stay_for_update(db, stay_id)
+    code, lookup = await _new_code(db, settings.room_code_pepper.get_secret_value())
+    stay.room_code_lookup = lookup
+    stay.code_issued_at = now
+    await revoke_sessions(db, stay.id, RevokeReason.REISSUE, now)
+    await db.commit()
+    await db.refresh(stay)
+    logger.info("stay_code_reissued", stay_id=str(stay.id), staff_id=str(staff.id))
+    return IssuedStayCode(stay=stay, room_number=room.number, code=code)
+
+
+async def mark_vacant(db: AsyncSession, room_id: uuid.UUID) -> Room:
+    room = await repository.get_room(db, room_id, for_update=True)
+    if room is None:
+        raise NotFound("Không tìm thấy phòng")
+    if room.status != RoomStatus.CLEANING:
+        raise Conflict("Chỉ phòng đang chờ dọn mới đánh dấu đã dọn được", code="ROOM_NOT_CLEANING")
+    room.status = RoomStatus.VACANT
+    await db.commit()
+    await db.refresh(room)
+    return room

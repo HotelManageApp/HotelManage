@@ -93,7 +93,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/stay_access/test_checkin.py` (gồm check-in đồng thời)
   - Files: `modules/stay_access/{schemas,service,repository,router_staff}.py`, `seeds/rooms.example.csv`
 
-- [ ] **T14 · close_stay, reissue, checkout, hook** · D04 · BE · M · Deps: T13
+- [x] **T14 · close_stay, reissue, checkout, hook** · D04 · BE · M · Deps: T13
   - Accept: `close_stay()` dùng chung; `events.register_on_stay_closed`; `reissue-code`, `checkout`, `mark-vacant`; revoke trong cùng transaction
   - Verify: BE `tests/integration/stay_access/test_close_stay.py`
   - Files: `modules/stay_access/{service,events,router_staff}.py`

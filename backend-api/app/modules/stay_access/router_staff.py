@@ -14,6 +14,7 @@ from app.modules.stay_access.models import Stay, StayStatus
 from app.modules.stay_access.schemas import (
     CheckInRequest,
     CheckInResponse,
+    IssuedCode,
     RoomCreate,
     RoomOut,
     RoomUpdate,
@@ -89,3 +90,23 @@ async def get_stay(stay_id: uuid.UUID, _: Reception, db: DbSession) -> StayOut:
 async def update_stay(stay_id: uuid.UUID, body: StayUpdate, _: Reception, db: DbSession) -> StayOut:
     stay, number = await service.update_stay(db, stay_id, body)
     return stay_out(stay, number)
+
+
+@router.post("/stays/{stay_id}/reissue-code", response_model=IssuedCode)
+async def reissue_code(
+    stay_id: uuid.UUID, request: Request, staff: Reception, db: DbSession
+) -> IssuedCode:
+    issued = await service.reissue_code(db, request.app.state.settings, stay_id, staff)
+    return IssuedCode(room_code=issued.display_code, qr_payload=issued.qr_payload)
+
+
+@router.post("/stays/{stay_id}/checkout", response_model=StayOut)
+async def checkout(stay_id: uuid.UUID, staff: Reception, db: DbSession) -> StayOut:
+    stay = await service.close_stay(db, stay_id, staff)
+    room = await repository.get_room(db, stay.room_id)
+    return stay_out(stay, room.number if room else "")
+
+
+@router.post("/rooms/{room_id}/mark-vacant", response_model=RoomOut)
+async def mark_vacant(room_id: uuid.UUID, _: Reception, db: DbSession) -> RoomOut:
+    return RoomOut.model_validate(await service.mark_vacant(db, room_id))
