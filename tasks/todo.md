@@ -61,7 +61,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/staff_auth`
   - Files: `modules/staff_auth/{schemas,service,repository,router}.py`
 
-- [ ] **T09 · RBAC dependencies + route guard** · D03 · BE · S · Deps: T08
+- [x] **T09 · RBAC dependencies + route guard** · D03 · BE · S · Deps: T08
   - Accept: `current_staff`, `require_roles`; test quét router (endpoint thiếu phân quyền → đỏ); ma trận 3×3 `200/403`, token `typ=stay` → `401`
   - Verify: BE `tests/integration/test_route_guards.py tests/integration/staff_auth/test_rbac.py`
   - Files: `modules/staff_auth/deps.py`, `tests/integration/test_route_guards.py`
