@@ -6,11 +6,14 @@ command-line arguments, so they do not end up in shell history or process lists.
 
 import argparse
 import asyncio
+import csv
 import getpass
+import io
 import os
 import sys
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
+from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,6 +23,8 @@ from app.modules.staff_auth import repository
 from app.modules.staff_auth.models import Staff, StaffRole
 from app.modules.staff_auth.schemas import MIN_PASSWORD_LENGTH
 from app.modules.staff_auth.security import hash_password
+from app.modules.stay_access import repository as stay_repository
+from app.modules.stay_access.models import Room
 
 PasswordPrompt = Callable[[str], str]
 
@@ -104,6 +109,32 @@ async def seed_dev(db: AsyncSession, settings: Settings, *, password: str | None
     return created
 
 
+async def seed_rooms(db: AsyncSession, path: Path) -> tuple[int, int]:
+    """Create rooms from a CSV (number,floor,room_type). Existing numbers are left untouched."""
+    try:
+        content = await asyncio.to_thread(path.read_text, encoding="utf-8-sig")
+    except FileNotFoundError:
+        raise CliError(f"file not found: {path}") from None
+    created = skipped = 0
+    for line, row in enumerate(csv.DictReader(io.StringIO(content)), start=2):
+        number = (row.get("number") or "").strip()
+        if not number:
+            raise CliError(f"line {line}: number is required")
+        floor_raw = (row.get("floor") or "").strip()
+        try:
+            floor = int(floor_raw) if floor_raw else None
+        except ValueError:
+            raise CliError(f"line {line}: floor must be a number") from None
+        if await stay_repository.get_room_by_number(db, number) is not None:
+            skipped += 1
+            continue
+        db.add(Room(number=number, floor=floor, room_type=(row.get("room_type") or None)))
+        await db.flush()
+        created += 1
+    await db.commit()
+    return created, skipped
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m app.cli", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -123,6 +154,9 @@ def _parser() -> argparse.ArgumentParser:
     reset.add_argument("--email", required=True)
 
     commands.add_parser("seed-dev", help="create the three dev accounts (APP_ENV=dev only)")
+
+    rooms = commands.add_parser("seed-rooms", help="create rooms from a CSV file")
+    rooms.add_argument("--from-file", required=True, type=Path)
     return parser
 
 
@@ -160,6 +194,9 @@ async def run(
                     db, settings, password=os.environ.get("DEV_STAFF_PASSWORD")
                 )
                 out("created: " + (", ".join(created) if created else "nothing (already seeded)"))
+            elif args.command == "seed-rooms":
+                made, skipped = await seed_rooms(db, args.from_file)
+                out(f"rooms created: {made}, already existed: {skipped}")
     finally:
         await engine.dispose()
 

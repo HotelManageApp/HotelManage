@@ -88,7 +88,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/stay_access`
   - Files: `modules/stay_access/{models,codes,tokens}.py`, migration
 
-- [ ] **T13 · Rooms + check-in API** · D04 · BE · M · Deps: T09, T12
+- [x] **T13 · Rooms + check-in API** · D04 · BE · M · Deps: T09, T12
   - Accept: CRUD `/rooms`, `POST /stays` (khóa hàng, phòng không `VACANT` → `409`, mã thô trả một lần), `GET/PATCH /stays`, CLI `seed-rooms`
   - Verify: BE `tests/integration/stay_access/test_checkin.py` (gồm check-in đồng thời)
   - Files: `modules/stay_access/{schemas,service,repository,router_staff}.py`, `seeds/rooms.example.csv`
