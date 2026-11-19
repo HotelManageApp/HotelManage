@@ -15,6 +15,7 @@ from app.core.config import Settings, load_settings
 from app.core.db import create_engine, create_sessionmaker
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
+from app.core.periodic import Scheduler
 from app.core.request_context import RequestContextMiddleware
 from app.modules.notifications import hooks as notification_hooks
 from app.modules.notifications.fcm import FcmSender, ServiceAccountTokens
@@ -24,6 +25,7 @@ from app.modules.notifications.router_guest import router as fcm_token_router
 from app.modules.notifications.senders import LogSender, PushSender
 from app.modules.notifications.sse import StaffEventHub
 from app.modules.notifications.sse import router as staff_events_router
+from app.modules.room_service import jobs as room_service_jobs
 from app.modules.room_service.router_guest import router as guest_orders_router
 from app.modules.room_service.router_menu import router as menu_router
 from app.modules.room_service.router_staff import router as staff_orders_router
@@ -48,6 +50,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or load_settings()
     configure_logging(settings.log_level)
     notification_hooks.register()
+    room_service_jobs.register()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -56,14 +59,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.sessionmaker = create_sessionmaker(engine)
         worker = OutboxWorker(app.state.sessionmaker, build_push_sender(settings))
         app.state.outbox_worker = worker
+        scheduler = Scheduler(app.state.sessionmaker)
+        scheduler.add(room_service_jobs.OVERDUE_JOB)
+        app.state.scheduler = scheduler
         hub = StaffEventHub(settings.database_url.replace("postgresql+asyncpg://", "postgresql://"))
         app.state.staff_event_hub = hub
         if settings.notifications_worker_enabled:
             worker.start()
+            scheduler.start()
         try:
             yield
         finally:
             await worker.stop()
+            await scheduler.stop()
             await hub.close()
             await engine.dispose()
 

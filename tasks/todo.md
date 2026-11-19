@@ -170,7 +170,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/room_service tests/integration/room_service/test_transitions.py`
   - Files: `modules/room_service/{state,service,router_staff}.py`, `notifications/templates/`
 
-- [ ] **T27 · Order hooks, overdue, food total** · D08 · BE · S · Deps: T26
+- [x] **T27 · Order hooks, overdue, food total** · D08 · BE · S · Deps: T26
   - Accept: `on_stay_closed` hủy `PENDING/CONFIRMED`; job mỗi phút nhắc quá 10 phút một lần; `get_stay_food_total`, `count_open_orders`
   - Verify: BE `tests/integration/room_service/test_hooks.py`; coverage `room_service` ≥ 80%
   - Files: `modules/room_service/{api,jobs}.py`, migration (`overdue_notified_at`)

@@ -63,6 +63,7 @@ async def transition(
     reason: str | None = None,
     expected_version: int | None = None,
     estimated_minutes: int | None = None,
+    push: bool | None = None,
 ) -> None:
     """Move `order` (already row-locked by the caller) and record it. Does not commit."""
     if expected_version is not None and expected_version != order.version:
@@ -101,5 +102,6 @@ async def transition(
         status=to_status.value,
         room_number=room_number,
         actor=actor_label,
-        push=actor is not Actor.GUEST,  # the guest knows what they just did
+        # The guest knows what they just did; callers may also silence a push explicitly.
+        push=(actor is not Actor.GUEST) if push is None else push,
     )
