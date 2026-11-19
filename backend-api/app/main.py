@@ -17,7 +17,9 @@ from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.periodic import Scheduler
 from app.core.request_context import RequestContextMiddleware
+from app.modules.housekeeping import jobs as housekeeping_jobs
 from app.modules.housekeeping.router_guest import router as guest_housekeeping_router
+from app.modules.housekeeping.router_staff import router as staff_housekeeping_router
 from app.modules.notifications import hooks as notification_hooks
 from app.modules.notifications.fcm import FcmSender, ServiceAccountTokens
 from app.modules.notifications.outbox_worker import OutboxWorker
@@ -62,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.outbox_worker = worker
         scheduler = Scheduler(app.state.sessionmaker)
         scheduler.add(room_service_jobs.OVERDUE_JOB)
+        scheduler.add(housekeeping_jobs.OVERDUE_JOB)
         app.state.scheduler = scheduler
         hub = StaffEventHub(settings.database_url.replace("postgresql+asyncpg://", "postgresql://"))
         app.state.staff_event_hub = hub
@@ -102,6 +105,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(guest_orders_router)
     api_v1.include_router(staff_orders_router)
     api_v1.include_router(guest_housekeeping_router)
+    api_v1.include_router(staff_housekeeping_router)
     if settings.app_env == "dev":
         api_v1.include_router(dev_router)
     app.include_router(api_v1)

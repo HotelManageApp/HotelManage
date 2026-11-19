@@ -202,7 +202,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/housekeeping/test_guest.py`
   - Files: `modules/housekeeping/{models,schemas,service,repository,router_guest}.py`, migration
 
-- [ ] **T33 · Housekeeping state machine + staff API** · D09 · BE · M · Deps: T32, T19
+- [x] **T33 · Housekeeping state machine + staff API** · D09 · BE · M · Deps: T32, T19
   - Accept: `transition` với quy tắc "chỉ người được gán", trả lại việc, `version`; staff list (thứ tự ưu tiên)/detail/transition/cancel; emit + mẫu; nhắc quá 15 phút
   - Verify: BE `tests/unit/housekeeping tests/integration/housekeeping/test_staff.py`
   - Files: `modules/housekeeping/{state,router_staff,jobs}.py`, `notifications/templates/`
