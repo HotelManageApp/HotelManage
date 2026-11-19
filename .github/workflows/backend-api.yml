@@ -1,0 +1,61 @@
+name: backend-api
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths: ["backend-api/**", ".github/workflows/backend-api.yml"]
+  push:
+    branches: [develop, main]
+    paths: ["backend-api/**", ".github/workflows/backend-api.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend-api
+
+jobs:
+  lint-test:
+    name: backend-api / lint + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      # Integration tests need real PostgreSQL (spec: no SQLite). Same credentials as docker-compose.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hotel
+          POSTGRES_PASSWORD: hotel_dev_only
+          POSTGRES_DB: hotel_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hotel -d hotel_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://hotel:hotel_dev_only@localhost:5432/hotel_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend-api/uv.lock
+
+      - name: Install dependencies (locked)
+        run: uv sync --frozen
+
+      # Commands must match the table in CLAUDE.md.
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Test (coverage >= 70%)
+        run: uv run pytest -q --cov=app --cov-fail-under=70
