@@ -26,6 +26,7 @@ from app.modules.notifications.sse import StaffEventHub
 from app.modules.notifications.sse import router as staff_events_router
 from app.modules.room_service.router_guest import router as guest_orders_router
 from app.modules.room_service.router_menu import router as menu_router
+from app.modules.room_service.router_staff import router as staff_orders_router
 from app.modules.staff_auth.router import router as staff_auth_router
 from app.modules.stay_access.router_guest import router as guest_router
 from app.modules.stay_access.router_staff import router as reception_router
@@ -90,6 +91,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(staff_events_router)
     api_v1.include_router(menu_router)
     api_v1.include_router(guest_orders_router)
+    api_v1.include_router(staff_orders_router)
     if settings.app_env == "dev":
         api_v1.include_router(dev_router)
     app.include_router(api_v1)

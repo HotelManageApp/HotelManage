@@ -165,7 +165,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/room_service/test_create_order.py`
   - Files: `modules/room_service/{service,repository,router_guest}.py`
 
-- [ ] **T26 · Order state machine + kitchen API** · D07–D08 · BE · M · Deps: T25, T19
+- [x] **T26 · Order state machine + kitchen API** · D07–D08 · BE · M · Deps: T25, T19
   - Accept: `state.py` + `transition`; `/orders/{id}/transition|cancel` có `version`; `emit_status_changed`; test bảng 36 cặp × 4 actor (C5.4)
   - Verify: BE `tests/unit/room_service tests/integration/room_service/test_transitions.py`
   - Files: `modules/room_service/{state,service,router_staff}.py`, `notifications/templates/`
