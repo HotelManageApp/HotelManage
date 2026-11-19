@@ -85,6 +85,11 @@
       "VACANT": "Trống",
       "OCCUPIED": "Có khách",
       "CLEANING": "Chờ dọn"
+    },
+    "dnd": "Không làm phiền",
+    "hk": {
+      "waiting": "Chờ dọn",
+      "cleaning": "Đang dọn"
     }
   },
   "Checkin": {
@@ -210,7 +215,8 @@
     "reception": {
       "rooms": "Sơ đồ phòng",
       "orders": "Đơn đồ ăn",
-      "settings": "Giờ phục vụ"
+      "settings": "Giờ phục vụ",
+      "housekeeping": "Buồng phòng"
     },
     "kitchen": {
       "queue": "Hàng đợi đơn",
@@ -295,5 +301,72 @@
     "saved": "Đã lưu giờ phục vụ",
     "invalid": "Giờ phục vụ chưa hợp lệ",
     "saveError": "Không lưu được, vui lòng thử lại"
+  },
+  "Housekeeping": {
+    "title": "Buồng phòng",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được danh sách việc",
+    "room": "Phòng {room}",
+    "type": {
+      "CLEANING": "Dọn phòng",
+      "AMENITY": "Đồ dùng",
+      "TURNOVER": "Dọn sau trả phòng"
+    },
+    "amenity": {
+      "TOWEL": "Khăn tắm",
+      "WATER": "Nước suối",
+      "TOILETRIES": "Đồ vệ sinh cá nhân",
+      "PILLOW": "Gối",
+      "BLANKET": "Chăn",
+      "SLIPPERS": "Dép",
+      "OTHER": "Khác"
+    },
+    "dnd": "Khách bật Không làm phiền — không gõ cửa",
+    "asap": "Càng sớm càng tốt",
+    "preferredAt": "Khách hẹn lúc {time}",
+    "minutesAgo": "{minutes} phút trước",
+    "takenBy": "{name} đang phụ trách",
+    "tab": {
+      "waiting": "Việc chờ ({count})",
+      "mine": "Việc của tôi ({count})"
+    },
+    "emptyWaiting": "Không có việc nào đang chờ",
+    "emptyMine": "Bạn chưa nhận việc nào",
+    "action": {
+      "claim": "Nhận việc",
+      "start": "Bắt đầu",
+      "handBack": "Trả lại",
+      "done": "Hoàn tất"
+    },
+    "notYours": "Việc này đang do nhân viên khác phụ trách",
+    "stale": "Việc vừa được người khác cập nhật, đã tải lại",
+    "actionFailed": "Không thực hiện được, vui lòng thử lại"
+  },
+  "ReceptionHousekeeping": {
+    "title": "Yêu cầu buồng phòng",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được danh sách yêu cầu",
+    "empty": "Không có yêu cầu nào",
+    "room": "Phòng",
+    "type": "Loại",
+    "status": "Trạng thái",
+    "statusName": {
+      "REQUESTED": "Chờ nhận",
+      "ASSIGNED": "Đã nhận",
+      "IN_PROGRESS": "Đang làm",
+      "DONE": "Xong",
+      "CANCELLED": "Đã hủy"
+    },
+    "assignee": "Người làm",
+    "created": "Gửi lúc",
+    "dnd": "Không làm phiền",
+    "overdue": "quá hạn",
+    "cancel": "Hủy",
+    "cancelOf": "Hủy yêu cầu phòng {room}",
+    "cancelReason": "Lý do hủy (khách sẽ thấy)",
+    "confirmCancel": "Hủy yêu cầu",
+    "keep": "Thôi",
+    "stale": "Yêu cầu vừa được nhận hoặc cập nhật, đã tải lại",
+    "cancelError": "Không hủy được yêu cầu, vui lòng thử lại"
   }
 }

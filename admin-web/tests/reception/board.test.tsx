@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RoomBoard } from "@/components/reception/RoomBoard";
 import { defaultCheckoutInput, localInputToIso } from "@/lib/reception/types";
-import { envelope, json, mockBackend, renderWithAuth, session } from "../auth/helpers";
+import { envelope, json, mockBackend, session } from "../auth/helpers";
+import { renderStaffScreen, sseRoute } from "../realtime/sse";
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
@@ -68,14 +69,19 @@ const ROOMS = [
   },
 ];
 
-const signedIn = { "POST /api/v1/staff/auth/refresh": () => json(session("t", 900, RECEPTIONIST)) };
+// The board also listens to staff events and reads housekeeping requests for its badges.
+const signedIn = {
+  "POST /api/v1/staff/auth/refresh": () => json(session("t", 900, RECEPTIONIST)),
+  "GET /api/v1/staff/events": () => sseRoute().handler(),
+  "GET /api/v1/housekeeping-requests": () => json([]),
+};
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("RoomBoard", () => {
   it("shows active rooms with their status and actions", async () => {
     mockBackend({ ...signedIn, "GET /api/v1/rooms": () => json(ROOMS) });
-    renderWithAuth(<RoomBoard />);
+    renderStaffScreen(<RoomBoard />);
 
     const vacant = await screen.findByTestId("room-101");
     expect(vacant).toHaveAttribute("data-status", "VACANT");
@@ -93,7 +99,7 @@ describe("RoomBoard", () => {
 
   it("filters by floor", async () => {
     mockBackend({ ...signedIn, "GET /api/v1/rooms": () => json(ROOMS) });
-    renderWithAuth(<RoomBoard />);
+    renderStaffScreen(<RoomBoard />);
     await screen.findByTestId("room-101");
     await userEvent.selectOptions(screen.getByLabelText(/Tầng/), "2");
     expect(screen.queryByTestId("room-101")).not.toBeInTheDocument();
@@ -114,7 +120,7 @@ describe("RoomBoard", () => {
           201,
         ),
     });
-    renderWithAuth(<RoomBoard />);
+    renderStaffScreen(<RoomBoard />);
     await userEvent.click(
       within(await screen.findByTestId("room-101")).getByRole("button", { name: "Check-in" }),
     );
@@ -147,7 +153,7 @@ describe("RoomBoard", () => {
       "GET /api/v1/rooms": () => json(ROOMS),
       "POST /api/v1/stays": () => envelope(409, "ROOM_NOT_VACANT"),
     });
-    renderWithAuth(<RoomBoard />);
+    renderStaffScreen(<RoomBoard />);
     await userEvent.click(
       within(await screen.findByTestId("room-101")).getByRole("button", { name: "Check-in" }),
     );
@@ -157,15 +163,21 @@ describe("RoomBoard", () => {
   });
 
   it("marks a cleaned room vacant and reloads", async () => {
+    // The board loads on mount and again when the event stream opens, so the room only
+    // changes once it has actually been marked vacant.
+    let cleaned = false;
     const fetchMock = mockBackend({
       ...signedIn,
-      "GET /api/v1/rooms": [
-        () => json(ROOMS),
-        () => json(ROOMS.map((r) => (r.id === "r201" ? { ...r, status: "VACANT" } : r))),
-      ],
-      "POST /api/v1/rooms/r201/mark-vacant": () => json({ ...ROOMS[2], status: "VACANT" }),
+      "GET /api/v1/rooms": () =>
+        json(
+          cleaned ? ROOMS.map((r) => (r.id === "r201" ? { ...r, status: "VACANT" } : r)) : ROOMS,
+        ),
+      "POST /api/v1/rooms/r201/mark-vacant": () => {
+        cleaned = true;
+        return json({ ...ROOMS[2], status: "VACANT" });
+      },
     });
-    renderWithAuth(<RoomBoard />);
+    renderStaffScreen(<RoomBoard />);
     await userEvent.click(await screen.findByText("Đánh dấu đã dọn"));
     await waitFor(() =>
       expect(screen.getByTestId("room-201")).toHaveAttribute("data-status", "VACANT"),

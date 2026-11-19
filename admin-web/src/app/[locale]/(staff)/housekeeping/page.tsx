@@ -1,7 +1,11 @@
 import { setRequestLocale } from "next-intl/server";
-import { AreaHome } from "@/components/auth/AreaHome";
+import { HousekeepingBoard } from "@/components/housekeeping/HousekeepingBoard";
 
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+export default async function HousekeepingPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   setRequestLocale((await params).locale);
-  return <AreaHome area="housekeeping" />;
+  return <HousekeepingBoard />;
 }

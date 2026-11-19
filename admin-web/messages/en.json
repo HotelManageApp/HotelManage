@@ -85,6 +85,11 @@
       "VACANT": "Vacant",
       "OCCUPIED": "Occupied",
       "CLEANING": "Needs cleaning"
+    },
+    "dnd": "Do not disturb",
+    "hk": {
+      "waiting": "Waiting for housekeeping",
+      "cleaning": "Being cleaned"
     }
   },
   "Checkin": {
@@ -210,7 +215,8 @@
     "reception": {
       "rooms": "Room board",
       "orders": "Food orders",
-      "settings": "Service hours"
+      "settings": "Service hours",
+      "housekeeping": "Housekeeping"
     },
     "kitchen": {
       "queue": "Order queue",
@@ -295,5 +301,72 @@
     "saved": "Service hours saved",
     "invalid": "The service hours are not valid",
     "saveError": "Could not save, please try again"
+  },
+  "Housekeeping": {
+    "title": "Housekeeping",
+    "loading": "Loading…",
+    "loadError": "Could not load jobs",
+    "room": "Room {room}",
+    "type": {
+      "CLEANING": "Cleaning",
+      "AMENITY": "Amenities",
+      "TURNOVER": "Turnover after check-out"
+    },
+    "amenity": {
+      "TOWEL": "Towels",
+      "WATER": "Bottled water",
+      "TOILETRIES": "Toiletries",
+      "PILLOW": "Pillow",
+      "BLANKET": "Blanket",
+      "SLIPPERS": "Slippers",
+      "OTHER": "Other"
+    },
+    "dnd": "Do not disturb is on — do not knock",
+    "asap": "As soon as possible",
+    "preferredAt": "Guest asked for {time}",
+    "minutesAgo": "{minutes} min ago",
+    "takenBy": "Handled by {name}",
+    "tab": {
+      "waiting": "Waiting ({count})",
+      "mine": "My jobs ({count})"
+    },
+    "emptyWaiting": "Nothing is waiting",
+    "emptyMine": "You have not claimed any job",
+    "action": {
+      "claim": "Claim",
+      "start": "Start",
+      "handBack": "Hand back",
+      "done": "Done"
+    },
+    "notYours": "Another staff member is handling this job",
+    "stale": "The job was just updated by someone else and has been reloaded",
+    "actionFailed": "Could not do that, please try again"
+  },
+  "ReceptionHousekeeping": {
+    "title": "Housekeeping requests",
+    "loading": "Loading…",
+    "loadError": "Could not load requests",
+    "empty": "No requests",
+    "room": "Room",
+    "type": "Type",
+    "status": "Status",
+    "statusName": {
+      "REQUESTED": "Waiting",
+      "ASSIGNED": "Claimed",
+      "IN_PROGRESS": "In progress",
+      "DONE": "Done",
+      "CANCELLED": "Cancelled"
+    },
+    "assignee": "Handled by",
+    "created": "Sent",
+    "dnd": "Do not disturb",
+    "overdue": "overdue",
+    "cancel": "Cancel",
+    "cancelOf": "Cancel request for room {room}",
+    "cancelReason": "Reason for cancelling (shown to the guest)",
+    "confirmCancel": "Cancel request",
+    "keep": "Keep",
+    "stale": "The request was just claimed or updated and has been reloaded",
+    "cancelError": "Could not cancel the request, please try again"
   }
 }

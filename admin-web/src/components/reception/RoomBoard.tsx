@@ -4,7 +4,9 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { byRoom, type StaffHkRequest } from "@/lib/housekeeping/types";
 import type { Room, RoomStatus, SlipData } from "@/lib/reception/types";
+import { useStaffEvents } from "@/lib/realtime/useStaffEvents";
 import { CheckinForm } from "./CheckinForm";
 import { CheckinSlip } from "./CheckinSlip";
 
@@ -22,6 +24,7 @@ export function RoomBoard() {
   const [floor, setFloor] = useState<string>("all");
   const [checkingIn, setCheckingIn] = useState<Room | null>(null);
   const [slip, setSlip] = useState<SlipData | null>(null);
+  const [housekeeping, setHousekeeping] = useState<StaffHkRequest[]>([]);
 
   const load = useCallback(async () => {
     try {
@@ -30,11 +33,26 @@ export function RoomBoard() {
     } catch {
       setError(true);
     }
+    try {
+      setHousekeeping(await authFetch<StaffHkRequest[]>("/api/v1/housekeeping-requests"));
+    } catch {
+      // Badges are extra information; the board stays usable without them.
+      setHousekeeping([]);
+    }
   }, [authFetch]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  useStaffEvents(
+    (event) => {
+      if (event.entity_type !== "FOOD_ORDER") void load();
+    },
+    () => void load(),
+  );
+
+  const roomHk = useMemo(() => byRoom(housekeeping), [housekeeping]);
 
   async function markVacant(room: Room) {
     try {
@@ -104,6 +122,14 @@ export function RoomBoard() {
             >
               <p className="text-lg font-semibold">{room.number}</p>
               <p className="text-xs">{t(`status.${room.status}`)}</p>
+              {roomHk.get(room.number)?.doNotDisturb && (
+                <p className="text-xs font-semibold text-red-700">🚫 {t("dnd")}</p>
+              )}
+              {roomHk.get(room.number)?.work && (
+                <p className="text-xs text-amber-800">
+                  🧹 {t(`hk.${roomHk.get(room.number)?.work}`)}
+                </p>
+              )}
               {room.open_stay?.guest_name && (
                 <p className="truncate text-xs">{room.open_stay.guest_name}</p>
               )}

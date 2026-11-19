@@ -212,7 +212,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/housekeeping/test_turnover.py`; coverage `housekeeping` ≥ 80%
   - Files: `modules/housekeeping/hooks.py`, `stay_access/service.py`, `docs/domain-rules.md`
 
-- [ ] **T35 · Web housekeeping board + reception view** · D09–D10 · WEB · M · Deps: T22, T33
+- [x] **T35 · Web housekeeping board + reception view** · D09–D10 · WEB · M · Deps: T22, T33
   - Accept: tab "Việc chờ"/"Việc của tôi", nút theo trạng thái + người gán, nhãn DND, một cột ở 360px; `/reception/housekeeping` có cột người làm + hủy; biểu tượng DND/đang dọn trên sơ đồ phòng
   - Verify: WEB `housekeeping`
   - Files: `housekeeping/page.tsx`, `reception/housekeeping/`, `components/housekeeping/`, `RoomBoard.tsx`
