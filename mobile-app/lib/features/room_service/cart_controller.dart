@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hotel_guest/core/errors.dart';
+import 'package:hotel_guest/core/idempotency.dart';
 import 'package:hotel_guest/features/room_service/room_service_models.dart';
 import 'package:hotel_guest/features/room_service/room_service_repository.dart';
 import 'package:hotel_guest/features/stay_access/session_controller.dart';
@@ -138,12 +138,6 @@ class MemoryCartStore implements CartStore {
 }
 
 final cartStoreProvider = Provider<CartStore>((ref) => SecureCartStore());
-
-/// 32 random [0-9a-f] characters, within the backend's `[A-Za-z0-9_-]{8,64}`.
-String newIdempotencyKey([Random? random]) {
-  final rng = random ?? Random.secure();
-  return List.generate(32, (_) => rng.nextInt(16).toRadixString(16)).join();
-}
 
 /// The guest's cart for the current stay. Saved locally per stay and wiped
 /// on sign-out.

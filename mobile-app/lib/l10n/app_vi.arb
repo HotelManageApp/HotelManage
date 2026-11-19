@@ -207,5 +207,77 @@
   "orderCancelNo": "Không",
   "orderCancelled": "Đã hủy đơn",
   "orderCancelTooLate": "Bếp đã nhận đơn nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
-  "orderCancelFailed": "Không hủy được đơn, vui lòng thử lại."
+  "orderCancelFailed": "Không hủy được đơn, vui lòng thử lại.",
+  "homeHousekeeping": "Dọn phòng & đồ dùng",
+  "homeHousekeepingHint": "Gọi dọn phòng, thêm khăn, nước…",
+  "homeOpenHousekeeping": "{count, plural, =1{1 yêu cầu buồng phòng đang xử lý} other{{count} yêu cầu buồng phòng đang xử lý}}",
+  "@homeOpenHousekeeping": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hkTitle": "Dọn phòng & đồ dùng",
+  "hkDnd": "Không làm phiền",
+  "hkDndHint": "Nhân viên sẽ không gõ cửa phòng Quý khách",
+  "hkDndFailed": "Không đổi được chế độ Không làm phiền, vui lòng thử lại.",
+  "hkCleaning": "Dọn phòng",
+  "hkCleaningOpen": "Quý khách đã có một yêu cầu dọn phòng đang xử lý.",
+  "hkViewRequest": "Xem yêu cầu",
+  "hkNow": "Ngay bây giờ",
+  "hkAtTime": "Chọn giờ",
+  "hkTime": "Giờ mong muốn",
+  "hkNoSlots": "Không còn khung giờ trước giờ trả phòng",
+  "hkNote": "Ghi chú",
+  "hkSendCleaning": "Gọi dọn phòng",
+  "hkCleaningClearsDnd": "Gọi dọn phòng sẽ tắt chế độ Không làm phiền.",
+  "hkAmenities": "Thêm đồ dùng",
+  "hkOtherNeedsNote": "Vui lòng ghi rõ đồ dùng cần thêm",
+  "hkSendAmenities": "Gửi yêu cầu đồ dùng",
+  "hkMyRequests": "Yêu cầu của tôi",
+  "hkSent": "Đã gửi yêu cầu",
+  "hkCheckoutPending": "Quý khách đang chờ trả phòng nên không gửi thêm yêu cầu được.",
+  "hkErrorOpenCleaning": "Quý khách đã có một yêu cầu dọn phòng đang xử lý.",
+  "hkErrorTooMany": "Quý khách đang có nhiều yêu cầu đồ dùng chưa xong, vui lòng đợi.",
+  "hkErrorInvalid": "Thông tin yêu cầu chưa hợp lệ (giờ hẹn phải trong 24 giờ tới và trước giờ trả phòng).",
+  "hkErrorNetwork": "Mất kết nối. Bấm gửi lần nữa để thử lại — yêu cầu sẽ không bị gửi trùng.",
+  "hkErrorFailed": "Không gửi được yêu cầu, vui lòng thử lại.",
+  "amenityTOWEL": "Khăn tắm",
+  "amenityWATER": "Nước suối",
+  "amenityTOILETRIES": "Đồ vệ sinh cá nhân",
+  "amenityPILLOW": "Gối",
+  "amenityBLANKET": "Chăn",
+  "amenitySLIPPERS": "Dép",
+  "amenityOTHER": "Khác",
+  "hkTypeCLEANING": "Dọn phòng",
+  "hkTypeAMENITY": "Đồ dùng",
+  "hkStatusREQUESTED": "Chờ nhân viên nhận",
+  "hkStatusASSIGNED": "Đã có nhân viên nhận",
+  "hkStatusIN_PROGRESS": "Đang thực hiện",
+  "hkStatusDONE": "Đã xong",
+  "hkStatusCANCELLED": "Đã hủy",
+  "hkAssignee": "Người phụ trách: {name}",
+  "@hkAssignee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hkWhenAsap": "Càng sớm càng tốt",
+  "hkWhenAt": "Hẹn lúc {time}",
+  "@hkWhenAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hkRequestsEmpty": "Quý khách chưa có yêu cầu nào",
+  "hkCancel": "Hủy yêu cầu",
+  "hkCancelQuestion": "Quý khách chắc chắn muốn hủy yêu cầu này?",
+  "hkCancelled": "Đã hủy yêu cầu",
+  "hkCancelTooLate": "Nhân viên đã nhận việc nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
+  "hkCancelFailed": "Không hủy được yêu cầu, vui lòng thử lại."
 }

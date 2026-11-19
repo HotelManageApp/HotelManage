@@ -217,7 +217,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `housekeeping`
   - Files: `housekeeping/page.tsx`, `reception/housekeeping/`, `components/housekeeping/`, `RoomBoard.tsx`
 
-- [ ] **T36 · App housekeeping** · D09–D10 · APP · M · Deps: T23, T32
+- [x] **T36 · App housekeeping** · D09–D10 · APP · M · Deps: T23, T32
   - Accept: nút dọn phòng (ASAP/khung giờ), bộ chọn đồ dùng 1–5 ("Khác" bắt buộc ghi chú), công tắc DND, danh sách/chi tiết, hủy khi `REQUESTED`
   - Verify: APP `test/housekeeping`
   - Files: `lib/features/housekeeping/`

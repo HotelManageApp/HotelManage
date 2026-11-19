@@ -70,23 +70,15 @@ final FutureProvider<GuestMenu> menuProvider =
       retry: (retryCount, error) => null,
     );
 
-/// Reloads [ref]'s provider whenever a food-order push arrives, so open
-/// screens follow the kitchen without waiting for their 15 s refresh.
-void _reloadOnFoodOrderPush(Ref ref) {
-  ref.listen(notificationsProvider, (_, payload) {
-    if (payload?.type == 'FOOD_ORDER') ref.invalidateSelf();
-  });
-}
-
 final FutureProvider<List<FoodOrder>> myOrdersProvider =
     FutureProvider.autoDispose<List<FoodOrder>>((ref) {
-      _reloadOnFoodOrderPush(ref);
+      reloadOnPush(ref, 'FOOD_ORDER');
       return ref.watch(roomServiceRepositoryProvider).myOrders();
     }, retry: (retryCount, error) => null);
 
 final FutureProviderFamily<FoodOrder, String> orderProvider = FutureProvider
     .autoDispose
     .family<FoodOrder, String>((ref, id) {
-      _reloadOnFoodOrderPush(ref);
+      reloadOnPush(ref, 'FOOD_ORDER');
       return ref.watch(roomServiceRepositoryProvider).order(id);
     }, retry: (retryCount, error) => null);

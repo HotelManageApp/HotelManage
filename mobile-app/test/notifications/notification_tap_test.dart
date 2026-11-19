@@ -8,11 +8,11 @@ import 'package:hotel_guest/features/stay_access/session_store.dart';
 import '../stay_access/fakes.dart';
 import 'fakes.dart';
 
-/// Housekeeping has no detail screen yet, so its notifications open home.
-const housekeepingPayload = PushPayload(
-  type: 'HOUSEKEEPING',
+/// Express checkout has no detail screen yet, so its notifications open home.
+const checkoutPayload = PushPayload(
+  type: 'CHECKOUT',
   entityId: '6f1c2a3b-0000-4000-8000-000000000002',
-  status: 'IN_PROGRESS',
+  status: 'BILLING_VERIFIED',
 );
 
 Future<FakePushService> pumpSignedIn(
@@ -47,7 +47,7 @@ void main() {
       tester.element(find.byType(HotelGuestApp)),
     );
 
-    push.taps.add(housekeepingPayload);
+    push.taps.add(checkoutPayload);
     await tester.pumpAndSettle();
 
     expect(find.text('Phòng 101'), findsOneWidget);

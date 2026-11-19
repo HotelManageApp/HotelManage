@@ -78,6 +78,17 @@ class SessionController extends AsyncNotifier<SessionState> {
     );
   }
 
+  /// Re-reads the stay (status, Do Not Disturb) after something that may
+  /// have changed it. Errors are left to the caller; a 401 signs out.
+  Future<void> refreshStay() async {
+    final current = state.value;
+    if (current is! SignedIn) return;
+    final stay = await _repo.me();
+    if (state.value is SignedIn) {
+      state = AsyncData(SignedIn(stay, stayId: current.stayId));
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _repo.logout();

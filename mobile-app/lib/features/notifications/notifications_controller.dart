@@ -88,6 +88,11 @@ class NotificationsController extends Notifier<PushPayload?> {
     return null;
   }
 
+  /// Every push is news, even one equal to the previous (the same status
+  /// twice, or a tap on a push that was shown in the foreground).
+  @override
+  bool updateShouldNotify(PushPayload? previous, PushPayload? next) => true;
+
   Future<void> _onSignedIn() async {
     if (!await _push.requestPermission()) return;
     final known = _latest;
@@ -122,3 +127,11 @@ final notificationsProvider =
     NotifierProvider<NotificationsController, PushPayload?>(
       NotificationsController.new,
     );
+
+/// Reloads [ref]'s provider whenever a push about [type] arrives, so open
+/// screens follow staff updates without waiting for their 15 s refresh.
+void reloadOnPush(Ref ref, String type) {
+  ref.listen(notificationsProvider, (_, payload) {
+    if (payload?.type == type) ref.invalidateSelf();
+  });
+}

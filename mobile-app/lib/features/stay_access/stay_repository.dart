@@ -7,6 +7,7 @@ class GuestStay {
     required this.guestName,
     required this.expectedCheckoutAt,
     required this.status,
+    this.doNotDisturb = false,
   });
 
   factory fromJson(Map<String, dynamic> json) => GuestStay(
@@ -14,12 +15,17 @@ class GuestStay {
     guestName: json['guest_name'] as String?,
     expectedCheckoutAt: DateTime.parse(json['expected_checkout_at'] as String),
     status: json['status'] as String,
+    doNotDisturb: json['do_not_disturb'] as bool? ?? false,
   );
 
   final String roomNumber;
   final String? guestName;
   final DateTime expectedCheckoutAt;
   final String status;
+
+  /// The guest's Do Not Disturb switch (cleared by the server when they ask
+  /// for cleaning).
+  final bool doNotDisturb;
 
   bool get checkoutPending => status == 'CHECKOUT_PENDING';
 }

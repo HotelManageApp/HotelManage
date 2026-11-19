@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/core/auto_refresh.dart';
+import 'package:hotel_guest/features/housekeeping/hk_labels.dart';
+import 'package:hotel_guest/features/housekeeping/housekeeping_models.dart';
+import 'package:hotel_guest/features/housekeeping/housekeeping_repository.dart';
 import 'package:hotel_guest/features/room_service/order_status.dart';
 import 'package:hotel_guest/features/room_service/room_service_models.dart';
 import 'package:hotel_guest/features/room_service/room_service_repository.dart';
@@ -70,6 +73,16 @@ class HomeScreen extends ConsumerWidget {
               onTap: () => context.push('/orders'),
             ),
           ),
+          Card(
+            child: ListTile(
+              key: const Key('tile-housekeeping'),
+              leading: const Icon(Icons.cleaning_services_outlined),
+              title: Text(l10n.homeHousekeeping),
+              subtitle: Text(l10n.homeHousekeepingHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/housekeeping'),
+            ),
+          ),
           if (stay.checkoutPending) ...[
             const SizedBox(height: 12),
             Card(
@@ -85,33 +98,59 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// "N orders in progress", shown while the stay has open food orders.
-/// Follows pushes, and refreshes every 15 s while something is open.
+/// "In progress": open food orders and housekeeping requests, each line
+/// opening the one item directly or its list. Follows pushes, and refreshes
+/// every 15 s while something is open.
 class _OpenOrdersCard extends ConsumerWidget {
   const new();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final open = <FoodOrder>[
+    final orders = <FoodOrder>[
       for (final order in ref.watch(myOrdersProvider).value ?? <FoodOrder>[])
         if (order.isOpen) order,
     ];
-    if (open.isEmpty) return const SizedBox.shrink();
-    final latest = open.first;
+    final requests = <HkRequest>[
+      for (final r in ref.watch(myHkRequestsProvider).value ?? <HkRequest>[])
+        if (r.isOpen) r,
+    ];
+    if (orders.isEmpty && requests.isEmpty) return const SizedBox.shrink();
     return AutoRefresh(
-      onRefresh: () => ref.invalidate(myOrdersProvider),
+      onRefresh: () => ref
+        ..invalidate(myOrdersProvider)
+        ..invalidate(myHkRequestsProvider),
       child: Card(
         color: Theme.of(context).colorScheme.primaryContainer,
-        child: ListTile(
-          key: const Key('open-orders-card'),
-          leading: Icon(orderStatusIcon(latest.status)),
-          title: Text(l10n.homeOpenOrders(open.length)),
-          subtitle: Text(orderStatusLabel(l10n, latest.status)),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.push(
-            open.length == 1 ? '/requests/food_order/${latest.id}' : '/orders',
-          ),
+        child: Column(
+          children: [
+            if (orders.isNotEmpty)
+              ListTile(
+                key: const Key('open-orders-card'),
+                leading: Icon(orderStatusIcon(orders.first.status)),
+                title: Text(l10n.homeOpenOrders(orders.length)),
+                subtitle: Text(orderStatusLabel(l10n, orders.first.status)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                  orders.length == 1
+                      ? '/requests/food_order/${orders.first.id}'
+                      : '/orders',
+                ),
+              ),
+            if (requests.isNotEmpty)
+              ListTile(
+                key: const Key('open-hk-card'),
+                leading: Icon(hkStatusIcon(requests.first.status)),
+                title: Text(l10n.homeOpenHousekeeping(requests.length)),
+                subtitle: Text(hkStatusLabel(l10n, requests.first.status)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(
+                  requests.length == 1
+                      ? '/requests/housekeeping/${requests.first.id}'
+                      : '/housekeeping/requests',
+                ),
+              ),
+          ],
         ),
       ),
     );
