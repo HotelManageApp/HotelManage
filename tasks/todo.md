@@ -243,7 +243,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/llm tests/unit/backend_client`
   - Files: `app/core/backend_client.py`, `app/llm/{gemini,openai}.py`
 
-- [ ] **T40 · /chat orchestrator + guide tool + grounding** · D11–D12 · AI · M · Deps: T38, T39
+- [x] **T40 · /chat orchestrator + guide tool + grounding** · D11–D12 · AI · M · Deps: T38, T39
   - Accept: `POST /chat` (401/429/503/504, `client_message_id`, `debug` chỉ dev/test); tool `get_hotel_info_and_guide`; `suggested_actions`; grounding 3 bước
   - Verify: AI `tests/unit/concierge tests/integration`
   - Files: `app/api/chat.py`, `app/concierge/{orchestrator,grounding}.py`, `tools/guide.py`, `prompts/concierge.md`

@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     # backend-api on the internal network; called with the guest's own token only.
     backend_internal_url: AnyHttpUrl = AnyHttpUrl("http://localhost:8000")
     backend_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
+    # Local time put into the concierge prompt ("now=...").
+    hotel_timezone: str = "Asia/Ho_Chi_Minh"
 
     @model_validator(mode="after")
     def _no_fake_llm_in_prod(self) -> Self:
