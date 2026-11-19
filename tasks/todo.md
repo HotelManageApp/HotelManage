@@ -175,7 +175,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/room_service/test_hooks.py`; coverage `room_service` ≥ 80%
   - Files: `modules/room_service/{api,jobs}.py`, migration (`overdue_notified_at`)
 
-- [ ] **T28 · Web kitchen board** · D07–D08 · WEB · M · Deps: T22, T26
+- [x] **T28 · Web kitchen board** · D07–D08 · WEB · M · Deps: T22, T26
   - Accept: cột trạng thái, nút một chạm, từ chối có lý do, chọn thời gian dự kiến, viền đỏ quá hạn, cập nhật SSE
   - Verify: WEB `kitchen`
   - Files: `kitchen/page.tsx`, `components/kitchen/{OrderBoard,OrderCard,RejectDialog}.tsx`

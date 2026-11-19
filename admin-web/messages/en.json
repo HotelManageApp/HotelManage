@@ -171,5 +171,38 @@
     "newCheckout": "Check-out request — room {room}",
     "orderOverdue": "Order for room {room} waiting over 10 min",
     "housekeepingOverdue": "Request for room {room} waiting over 15 min"
+  },
+  "Kitchen": {
+    "title": "Food order queue",
+    "loading": "Loading…",
+    "loadError": "Could not load orders",
+    "room": "Room {room}",
+    "minutesAgo": "{minutes} min ago",
+    "eta": "About {minutes} min",
+    "confirmWithEta": "Accept with an estimate",
+    "confirmEta": "Accept · {minutes}′",
+    "next": {
+      "PREPARING": "Start cooking",
+      "DELIVERING": "Out for delivery",
+      "COMPLETED": "Delivered"
+    },
+    "reject": "Reject order",
+    "rejectReason": "Reason (shown to the guest)",
+    "rejectConfirm": "Reject",
+    "cancel": "Never mind",
+    "staleOrder": "Someone else just updated this order; the list was reloaded.",
+    "actionFailed": "That did not work, please try again.",
+    "emptyColumn": "No orders",
+    "finished": "Recently finished / cancelled ({count})",
+    "column": {
+      "PENDING": "New",
+      "CONFIRMED": "Accepted",
+      "PREPARING": "Cooking",
+      "DELIVERING": "On the way"
+    },
+    "status": {
+      "COMPLETED": "delivered",
+      "CANCELLED": "cancelled"
+    }
   }
 }

@@ -171,5 +171,38 @@
     "newCheckout": "Yêu cầu trả phòng — phòng {room}",
     "orderOverdue": "Đơn của phòng {room} chờ quá 10 phút",
     "housekeepingOverdue": "Yêu cầu của phòng {room} chờ quá 15 phút"
+  },
+  "Kitchen": {
+    "title": "Hàng đợi đơn đồ ăn",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được danh sách đơn",
+    "room": "Phòng {room}",
+    "minutesAgo": "{minutes} phút trước",
+    "eta": "Dự kiến {minutes} phút",
+    "confirmWithEta": "Nhận đơn với thời gian dự kiến",
+    "confirmEta": "Nhận · {minutes}′",
+    "next": {
+      "PREPARING": "Bắt đầu nấu",
+      "DELIVERING": "Mang đi giao",
+      "COMPLETED": "Đã giao xong"
+    },
+    "reject": "Từ chối đơn",
+    "rejectReason": "Lý do từ chối (khách sẽ thấy)",
+    "rejectConfirm": "Từ chối",
+    "cancel": "Thôi",
+    "staleOrder": "Đơn vừa được người khác cập nhật, danh sách đã tải lại.",
+    "actionFailed": "Không thực hiện được, vui lòng thử lại.",
+    "emptyColumn": "Không có đơn",
+    "finished": "Đã xong / đã hủy gần đây ({count})",
+    "column": {
+      "PENDING": "Chờ nhận",
+      "CONFIRMED": "Đã nhận",
+      "PREPARING": "Đang nấu",
+      "DELIVERING": "Đang giao"
+    },
+    "status": {
+      "COMPLETED": "đã giao",
+      "CANCELLED": "đã hủy"
+    }
   }
 }
