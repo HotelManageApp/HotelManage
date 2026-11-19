@@ -190,7 +190,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: APP `test/room_service`
   - Files: `lib/features/room_service/{menu_screen,cart_controller,room_service_repository}.dart`
 
-- [ ] **T31 · App order list/detail** · D09 · APP · S · Deps: T30, T23
+- [x] **T31 · App order list/detail** · D09 · APP · S · Deps: T30, T23
   - Accept: danh sách + chi tiết có thanh tiến trình, hủy khi `PENDING`; route push; tự làm mới 15 s; thẻ "Đang xử lý" ở trang chủ
   - Verify: APP `test/room_service`
   - Files: `lib/features/room_service/{order_list_screen,order_detail_screen}.dart`, `home_screen.dart`

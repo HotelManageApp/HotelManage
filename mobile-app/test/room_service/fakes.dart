@@ -120,6 +120,61 @@ class FakeRoomServiceRepository implements RoomServiceRepository {
   }) async {
     calls.add(PlaceCall(items, orderNote, idempotencyKey));
     if (failures.isNotEmpty) throw failures.removeAt(0);
-    return orderFrom(items, unitPrice: serverUnitPrice);
+    final order = orderFrom(items, unitPrice: serverUnitPrice);
+    orders.insert(0, order);
+    return order;
+  }
+
+  /// The stay's orders, newest first, as the server would list them.
+  final List<FoodOrder> orders = [];
+  int listLoads = 0;
+  final List<String> detailLoads = [];
+  final List<String> cancels = [];
+
+  /// Thrown by the next cancel, if set.
+  AppException? cancelFailure;
+
+  @override
+  Future<List<FoodOrder>> myOrders() async {
+    listLoads++;
+    return List.of(orders);
+  }
+
+  @override
+  Future<FoodOrder> order(String id) async {
+    detailLoads.add(id);
+    return orders.firstWhere((o) => o.id == id);
+  }
+
+  @override
+  Future<FoodOrder> cancel(String id) async {
+    cancels.add(id);
+    final failure = cancelFailure;
+    if (failure != null) throw failure;
+    final index = orders.indexWhere((o) => o.id == id);
+    final cancelled = withStatus(
+      orders[index],
+      'CANCELLED',
+      reason: 'Khách hủy',
+    );
+    orders[index] = cancelled;
+    return cancelled;
   }
 }
+
+FoodOrder withStatus(
+  FoodOrder order,
+  String status, {
+  int? estimatedMinutes,
+  String? reason,
+}) => FoodOrder(
+  id: order.id,
+  status: status,
+  items: order.items,
+  totalVnd: order.totalVnd,
+  createdAt: order.createdAt,
+  version: order.version + 1,
+  orderNote: order.orderNote,
+  estimatedMinutes: estimatedMinutes ?? order.estimatedMinutes,
+  cancelReason: reason,
+);

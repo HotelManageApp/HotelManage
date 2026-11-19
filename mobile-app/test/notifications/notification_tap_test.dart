@@ -2,10 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hotel_guest/app/app.dart';
 import 'package:hotel_guest/features/notifications/notifications_controller.dart';
+import 'package:hotel_guest/features/notifications/push_payload.dart';
 import 'package:hotel_guest/features/stay_access/session_store.dart';
 
 import '../stay_access/fakes.dart';
 import 'fakes.dart';
+
+/// Housekeeping has no detail screen yet, so its notifications open home.
+const housekeepingPayload = PushPayload(
+  type: 'HOUSEKEEPING',
+  entityId: '6f1c2a3b-0000-4000-8000-000000000002',
+  status: 'IN_PROGRESS',
+);
 
 Future<FakePushService> pumpSignedIn(
   WidgetTester tester, {
@@ -39,7 +47,7 @@ void main() {
       tester.element(find.byType(HotelGuestApp)),
     );
 
-    push.taps.add(orderPayload);
+    push.taps.add(housekeepingPayload);
     await tester.pumpAndSettle();
 
     expect(find.text('Phòng 101'), findsOneWidget);

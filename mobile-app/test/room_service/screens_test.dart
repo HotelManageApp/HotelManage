@@ -124,7 +124,12 @@ void main() {
     );
     await tester.tap(find.text('Đóng'));
     await tester.pumpAndSettle();
-    expect(find.text('Phòng 101'), findsOneWidget, reason: 'home until T31');
+    // The new order's detail, with the server's total.
+    expect(find.text('Chờ Bếp xác nhận'), findsWidgets);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('order-total'))).data,
+      'Tổng cộng: 120.000 ₫',
+    );
   });
 
   testWidgets('dishes that sold out meanwhile are marked and block ordering', (

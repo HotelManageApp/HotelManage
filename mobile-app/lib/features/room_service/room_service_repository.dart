@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show FutureProviderFamily;
 import 'package:hotel_guest/core/api_client.dart';
 import 'package:hotel_guest/core/providers.dart';
+import 'package:hotel_guest/features/notifications/notifications_controller.dart';
 import 'package:hotel_guest/features/room_service/room_service_models.dart';
 
 /// Calls to /api/v1/guest/menu and /api/v1/guest/orders (SPEC-room-service).
@@ -33,6 +35,27 @@ class RoomServiceRepository {
     );
     return FoodOrder.fromJson(Map<String, dynamic>.from(data as Map));
   }
+
+  /// The stay's orders, newest first (the backend returns at most 50).
+  Future<List<FoodOrder>> myOrders() async {
+    final data = await _api.get('/api/v1/guest/orders');
+    return [
+      for (final o in data as List)
+        FoodOrder.fromJson(Map<String, dynamic>.from(o as Map)),
+    ];
+  }
+
+  /// One order with its status history.
+  Future<FoodOrder> order(String id) async {
+    final data = await _api.get('/api/v1/guest/orders/$id');
+    return FoodOrder.fromJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Allowed while the order is PENDING; otherwise `409`.
+  Future<FoodOrder> cancel(String id) async {
+    final data = await _api.post('/api/v1/guest/orders/$id/cancel');
+    return FoodOrder.fromJson(Map<String, dynamic>.from(data as Map));
+  }
 }
 
 final roomServiceRepositoryProvider = Provider<RoomServiceRepository>(
@@ -46,3 +69,24 @@ final FutureProvider<GuestMenu> menuProvider =
       (ref) => ref.watch(roomServiceRepositoryProvider).menu(),
       retry: (retryCount, error) => null,
     );
+
+/// Reloads [ref]'s provider whenever a food-order push arrives, so open
+/// screens follow the kitchen without waiting for their 15 s refresh.
+void _reloadOnFoodOrderPush(Ref ref) {
+  ref.listen(notificationsProvider, (_, payload) {
+    if (payload?.type == 'FOOD_ORDER') ref.invalidateSelf();
+  });
+}
+
+final FutureProvider<List<FoodOrder>> myOrdersProvider =
+    FutureProvider.autoDispose<List<FoodOrder>>((ref) {
+      _reloadOnFoodOrderPush(ref);
+      return ref.watch(roomServiceRepositoryProvider).myOrders();
+    }, retry: (retryCount, error) => null);
+
+final FutureProviderFamily<FoodOrder, String> orderProvider = FutureProvider
+    .autoDispose
+    .family<FoodOrder, String>((ref, id) {
+      _reloadOnFoodOrderPush(ref);
+      return ref.watch(roomServiceRepositoryProvider).order(id);
+    }, retry: (retryCount, error) => null);

@@ -142,5 +142,70 @@
   "errorTooManyPending": "Quý khách đang có nhiều đơn chờ xác nhận, vui lòng đợi Bếp xử lý.",
   "errorCheckoutPending": "Quý khách đang chờ trả phòng nên không đặt thêm món được.",
   "errorOrderNetwork": "Mất kết nối. Bấm \"Đặt đơn\" lần nữa để thử lại — đơn sẽ không bị gửi trùng.",
-  "errorOrderFailed": "Không đặt được đơn, vui lòng thử lại."
+  "errorOrderFailed": "Không đặt được đơn, vui lòng thử lại.",
+  "ordersTitle": "Đơn đồ ăn của tôi",
+  "ordersEmpty": "Quý khách chưa có đơn nào",
+  "ordersLoadError": "Không tải được đơn",
+  "homeMyOrders": "Đơn của tôi",
+  "homeOpenOrders": "{count, plural, =1{1 đơn đang xử lý} other{{count} đơn đang xử lý}}",
+  "@homeOpenOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "orderTitle": "Đơn lúc {time}",
+  "@orderTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orderStatusPENDING": "Chờ Bếp xác nhận",
+  "orderStatusCONFIRMED": "Bếp đã nhận",
+  "orderStatusPREPARING": "Đang nấu",
+  "orderStatusDELIVERING": "Đang mang lên phòng",
+  "orderStatusCOMPLETED": "Đã giao",
+  "orderStatusCANCELLED": "Đã hủy",
+  "orderEta": "Dự kiến khoảng {minutes} phút",
+  "@orderEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "orderCancelledReason": "Lý do: {reason}",
+  "@orderCancelledReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTotal": "Tổng cộng: {total}",
+  "@orderTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderNote": "Ghi chú: {note}",
+  "@orderNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "orderCancel": "Hủy đơn",
+  "orderCancelQuestion": "Quý khách chắc chắn muốn hủy đơn này?",
+  "orderCancelYes": "Hủy đơn",
+  "orderCancelNo": "Không",
+  "orderCancelled": "Đã hủy đơn",
+  "orderCancelTooLate": "Bếp đã nhận đơn nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
+  "orderCancelFailed": "Không hủy được đơn, vui lòng thử lại."
 }

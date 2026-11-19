@@ -96,6 +96,30 @@ class OrderLine {
   final String? note;
 }
 
+/// One status change of an order, oldest first.
+class OrderStep {
+  const new({required this.toStatus, required this.at, this.reason});
+
+  factory fromJson(Map<String, dynamic> json) => OrderStep(
+    toStatus: json['to_status'] as String,
+    at: DateTime.parse(json['at'] as String),
+    reason: json['reason'] as String?,
+  );
+
+  final String toStatus;
+  final DateTime at;
+  final String? reason;
+}
+
+/// The happy path of an order, for the progress bar.
+const orderProgress = [
+  'PENDING',
+  'CONFIRMED',
+  'PREPARING',
+  'DELIVERING',
+  'COMPLETED',
+];
+
 /// A food order as the backend returns it. Prices and the total are the
 /// server's, never computed by the app (C2.4).
 class FoodOrder {
@@ -109,6 +133,7 @@ class FoodOrder {
     this.orderNote,
     this.estimatedMinutes,
     this.cancelReason,
+    this.history = const [],
   });
 
   factory fromJson(Map<String, dynamic> json) => FoodOrder(
@@ -124,6 +149,10 @@ class FoodOrder {
     orderNote: json['order_note'] as String?,
     estimatedMinutes: json['estimated_minutes'] as int?,
     cancelReason: json['cancel_reason'] as String?,
+    history: [
+      for (final h in (json['history'] as List?) ?? const [])
+        OrderStep.fromJson(Map<String, dynamic>.from(h as Map)),
+    ],
   );
 
   final String id;
@@ -135,6 +164,14 @@ class FoodOrder {
   final String? orderNote;
   final int? estimatedMinutes;
   final String? cancelReason;
+
+  /// Only filled by the detail endpoint.
+  final List<OrderStep> history;
+
+  bool get isOpen => status != 'COMPLETED' && status != 'CANCELLED';
+
+  /// Guests may cancel only before the kitchen accepts (domain-rules §3).
+  bool get guestCanCancel => status == 'PENDING';
 }
 
 /// One line of the order being placed: no price, total, room or stay
