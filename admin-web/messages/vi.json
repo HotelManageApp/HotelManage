@@ -69,5 +69,47 @@
     "changed": "Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất.",
     "wrongCurrent": "Mật khẩu hiện tại không đúng",
     "failed": "Không đổi được mật khẩu, vui lòng thử lại"
+  },
+  "RoomBoard": {
+    "title": "Sơ đồ phòng",
+    "floor": "Tầng",
+    "allFloors": "Tất cả",
+    "manageRooms": "Quản lý phòng",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được danh sách phòng",
+    "empty": "Chưa có phòng nào",
+    "checkin": "Check-in",
+    "details": "Chi tiết",
+    "markVacant": "Đánh dấu đã dọn",
+    "status": {
+      "VACANT": "Trống",
+      "OCCUPIED": "Có khách",
+      "CLEANING": "Chờ dọn"
+    }
+  },
+  "Checkin": {
+    "title": "Check-in phòng {room}",
+    "guestName": "Tên khách (không bắt buộc)",
+    "guestCount": "Số khách",
+    "checkout": "Ngày giờ trả phòng dự kiến",
+    "charge": "Tiền phòng (VND)",
+    "note": "Ghi chú",
+    "submit": "Check-in và cấp mã",
+    "cancel": "Hủy",
+    "errorCharge": "Vui lòng nhập tiền phòng",
+    "errorNotVacant": "Phòng không còn trống",
+    "errorInvalid": "Thông tin chưa hợp lệ (ngày trả phòng phải ở tương lai)",
+    "errorUnknown": "Không check-in được, vui lòng thử lại"
+  },
+  "Slip": {
+    "title": "Phiếu nhận phòng",
+    "room": "Phòng",
+    "codeLabel": "Mã đăng nhập ứng dụng",
+    "qrAlt": "Mã QR đăng nhập",
+    "howTo": "Mở ứng dụng Dịch vụ phòng, quét mã QR hoặc nhập mã ở trên.",
+    "checkoutBy": "Trả phòng dự kiến: {when}",
+    "onlyOnce": "Mã chỉ hiển thị một lần. Đóng phiếu là không xem lại được; khi cần, hãy cấp lại mã.",
+    "print": "In phiếu",
+    "close": "Đóng"
   }
 }

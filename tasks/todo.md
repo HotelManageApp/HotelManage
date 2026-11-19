@@ -103,7 +103,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/stay_access/test_guest_auth.py`; coverage `stay_access` ≥ 85%
   - Files: `modules/stay_access/{deps,router_guest}.py`
 
-- [ ] **T16 · Web room board + check-in slip** · D04 · WEB · M · Deps: T11, T13
+- [x] **T16 · Web room board + check-in slip** · D04 · WEB · M · Deps: T11, T13
   - Accept: sơ đồ phòng theo màu/tầng; form check-in; phiếu mã + QR (`qrcode.react`) in K80/A6, đóng là mất mã
   - Verify: WEB `reception/checkin`
   - Files: `reception/rooms/`, `components/reception/{RoomBoard,CheckinForm,CheckinSlip}.tsx`

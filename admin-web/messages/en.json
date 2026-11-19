@@ -69,5 +69,47 @@
     "changed": "Password changed. Other devices have been signed out.",
     "wrongCurrent": "The current password is incorrect",
     "failed": "Could not change the password, please try again"
+  },
+  "RoomBoard": {
+    "title": "Room board",
+    "floor": "Floor",
+    "allFloors": "All",
+    "manageRooms": "Manage rooms",
+    "loading": "Loading…",
+    "loadError": "Could not load rooms",
+    "empty": "No rooms yet",
+    "checkin": "Check in",
+    "details": "Details",
+    "markVacant": "Mark as cleaned",
+    "status": {
+      "VACANT": "Vacant",
+      "OCCUPIED": "Occupied",
+      "CLEANING": "Needs cleaning"
+    }
+  },
+  "Checkin": {
+    "title": "Check in room {room}",
+    "guestName": "Guest name (optional)",
+    "guestCount": "Guests",
+    "checkout": "Expected check-out",
+    "charge": "Room charge (VND)",
+    "note": "Note",
+    "submit": "Check in and issue code",
+    "cancel": "Cancel",
+    "errorCharge": "Please enter the room charge",
+    "errorNotVacant": "The room is no longer vacant",
+    "errorInvalid": "Invalid details (check-out must be in the future)",
+    "errorUnknown": "Could not check in, please try again"
+  },
+  "Slip": {
+    "title": "Check-in slip",
+    "room": "Room",
+    "codeLabel": "App sign-in code",
+    "qrAlt": "Sign-in QR code",
+    "howTo": "Open the Room Service app and scan the QR code or type the code above.",
+    "checkoutBy": "Expected check-out: {when}",
+    "onlyOnce": "The code is shown only once. After closing the slip it cannot be shown again; re-issue a code if needed.",
+    "print": "Print slip",
+    "close": "Close"
   }
 }

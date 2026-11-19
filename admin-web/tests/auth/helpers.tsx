@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { vi } from "vitest";
-import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { AuthProvider, type StaffProfile } from "@/lib/auth/AuthProvider";
 import viMessages from "../../messages/vi.json";
 
 export const BASE = "http://web.test";
@@ -14,7 +14,7 @@ export const STAFF = {
   role: "KITCHEN" as const,
 };
 
-export function session(token = "access-1", expiresIn = 900, staff = STAFF) {
+export function session(token = "access-1", expiresIn = 900, staff: StaffProfile = STAFF) {
   return { access_token: token, token_type: "bearer", expires_in: expiresIn, staff };
 }
 
@@ -51,7 +51,7 @@ export function mockBackend(routes: Record<string, Handler | Handler[]>) {
 
 export function renderWithAuth(ui: ReactNode) {
   return render(
-    <NextIntlClientProvider locale="vi" messages={viMessages}>
+    <NextIntlClientProvider locale="vi" messages={viMessages} timeZone="Asia/Ho_Chi_Minh">
       <AuthProvider baseUrl={BASE}>{ui}</AuthProvider>
     </NextIntlClientProvider>,
   );

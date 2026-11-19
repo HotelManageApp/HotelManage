@@ -15,3 +15,24 @@ body {
     Roboto,
     sans-serif;
 }
+
+/* Check-in slip: print only the slip, sized for an 80 mm thermal roll (A6 works too). */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .print-slip,
+  .print-slip * {
+    visibility: visible;
+  }
+  .print-slip {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 72mm;
+    color: #000;
+  }
+}
