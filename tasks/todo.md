@@ -238,7 +238,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/concierge_data/test_chat.py`
   - Files: `modules/concierge_data/{models,router_guest,hooks}.py`
 
-- [ ] **T39 · Backend client + LLM adapters** · D09–D10 · AI · M · Deps: T03
+- [x] **T39 · Backend client + LLM adapters** · D09–D10 · AI · M · Deps: T03
   - Accept: `backend_client` (token khách, timeout 3 s, map lỗi); adapter Gemini + OpenAI (tool calling + structured output) kiểm bằng payload mẫu
   - Verify: AI `tests/unit/llm tests/unit/backend_client`
   - Files: `app/core/backend_client.py`, `app/llm/{gemini,openai}.py`

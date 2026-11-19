@@ -1,0 +1,33 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "Planning the lookup",
+            "thought": true
+          },
+          {
+            "functionCall": {
+              "name": "get_hotel_info_and_guide",
+              "args": {
+                "topic": "BREAKFAST",
+                "query": "Mấy giờ ăn sáng?",
+                "lang": "vi"
+              }
+            }
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 812,
+    "candidatesTokenCount": 31,
+    "totalTokenCount": 843
+  },
+  "modelVersion": "gemini-2.5-flash"
+}

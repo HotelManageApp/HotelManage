@@ -28,8 +28,7 @@ Khách hỏi chatbot trong app về khách sạn (giờ ăn sáng, Wi-Fi, tiện
 
 | Package | Dependency mới (cần duyệt) | Lý do |
 |---|---|---|
-| ai-service | `google-genai` | SDK Gemini, hỗ trợ function calling |
-| ai-service | `openai` | Adapter thay thế (giả định 4); chỉ import khi `LLM_PROVIDER=openai` |
+| ai-service | ~~`google-genai`~~, ~~`openai`~~ → **không thêm** | T39 gọi thẳng REST API (`generateContent` của Gemini, Chat Completions của OpenAI) bằng `httpx` có sẵn: không thêm SDK nặng, tự kiểm soát timeout, test bằng payload mẫu qua `httpx.MockTransport`. Đổi sang SDK chỉ ảnh hưởng bên trong `app/llm/{gemini,openai}.py` |
 | mobile-app | `url_launcher` | Mở link bản đồ / gọi điện Lễ tân |
 | mobile-app | `flutter_markdown` | Hiển thị danh sách/in đậm trong câu trả lời |
 
@@ -214,6 +213,8 @@ mobile-app/lib/features/concierge/  chat_screen.dart  chat_controller.dart  sugg
 Theo `foundation`. Riêng module này:
 - Tool là class có `name`, `input_schema` (Pydantic, `extra="forbid"`), `async run(ctx, args)`; `concierge-actions` thêm tool cùng mẫu.
 - `orchestrator` không biết provider: chỉ gọi `LLMClient.generate(messages, tools, response_schema)`.
+- Gemini không cho function calling và JSON output trong cùng một lần gọi: orchestrator gọi tool ở các lượt có `tools`, rồi xin câu trả lời có cấu trúc ở lượt cuối **không** có `tools` (adapter từ chối nếu gửi cả hai).
+- Biến môi trường ai-service: `LLM_PROVIDER` (`fake|gemini|openai`), `GEMINI_API_KEY`, `GEMINI_MODEL` (mặc định `gemini-2.5-flash`), `OPENAI_API_KEY`, `OPENAI_MODEL` (`gpt-4.1-mini`), `LLM_TIMEOUT_SECONDS` (7), `BACKEND_INTERNAL_URL` (`http://localhost:8000`), `BACKEND_TIMEOUT_SECONDS` (3). Key của provider đang chọn là bắt buộc.
 - Không nối chuỗi tin của khách vào system prompt; tin khách luôn ở vai trò `user`.
 
 ## Testing Strategy

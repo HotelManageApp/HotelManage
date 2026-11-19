@@ -5,13 +5,12 @@ Missing or invalid required variables stop the app at startup with a message tha
 
 from typing import Any, Literal, Self
 
-from pydantic import ValidationError, model_validator
+from pydantic import AnyHttpUrl, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AppEnv = Literal["dev", "test", "prod"]
 
-# Providers are added as their adapters land: "gemini" and "openai" in T39.
-LLMProvider = Literal["fake"]
+LLMProvider = Literal["fake", "gemini", "openai"]
 
 
 class ConfigError(RuntimeError):
@@ -26,10 +25,32 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     llm_provider: LLMProvider = "fake"
 
+    # LLM providers (only the key of the chosen provider is required). Keys are never logged.
+    gemini_api_key: SecretStr | None = None
+    gemini_model: str = "gemini-2.5-flash"
+    openai_api_key: SecretStr | None = None
+    openai_model: str = "gpt-4.1-mini"
+    # One model call; the chat answer must stay under 8 s at p95 (CONSTRAINTS C6).
+    llm_timeout_seconds: float = Field(default=7.0, gt=0, le=60)
+
+    # backend-api on the internal network; called with the guest's own token only.
+    backend_internal_url: AnyHttpUrl = AnyHttpUrl("http://localhost:8000")
+    backend_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
+
     @model_validator(mode="after")
     def _no_fake_llm_in_prod(self) -> Self:
         if self.app_env == "prod" and self.llm_provider == "fake":
             raise ValueError("LLM_PROVIDER=fake is not allowed when APP_ENV=prod")
+        return self
+
+    @model_validator(mode="after")
+    def _provider_key_present(self) -> Self:
+        key = {"gemini": self.gemini_api_key, "openai": self.openai_api_key}.get(self.llm_provider)
+        if self.llm_provider != "fake" and (key is None or not key.get_secret_value()):
+            raise ValueError(
+                f"{self.llm_provider.upper()}_API_KEY is required when "
+                f"LLM_PROVIDER={self.llm_provider}"
+            )
         return self
 
 

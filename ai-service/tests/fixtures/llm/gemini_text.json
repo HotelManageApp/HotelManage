@@ -1,0 +1,24 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "role": "model",
+        "parts": [
+          {
+            "text": "Bữa sáng phục vụ "
+          },
+          {
+            "text": "06:30–09:30 tại tầng 1."
+          }
+        ]
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 920,
+    "candidatesTokenCount": 18,
+    "totalTokenCount": 938
+  }
+}
