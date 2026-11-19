@@ -8,7 +8,15 @@ from app.main import create_app
 def clean_env(monkeypatch: pytest.MonkeyPatch, tmp_path) -> pytest.MonkeyPatch:
     """No .env file in cwd and no relevant variables in the environment."""
     monkeypatch.chdir(tmp_path)
-    for name in ("APP_ENV", "DATABASE_URL", "APP_VERSION", "LOG_LEVEL", "STAFF_JWT_SECRET"):
+    for name in (
+        "APP_ENV",
+        "DATABASE_URL",
+        "APP_VERSION",
+        "LOG_LEVEL",
+        "STAFF_JWT_SECRET",
+        "STAY_JWT_SECRET",
+        "ROOM_CODE_PEPPER",
+    ):
         monkeypatch.delenv(name, raising=False)
     return monkeypatch
 
@@ -40,6 +48,8 @@ def test_reads_valid_environment(clean_env: pytest.MonkeyPatch) -> None:
     clean_env.setenv("DATABASE_URL", "postgresql+asyncpg://u:p@db:5432/hotel")
     clean_env.setenv("APP_VERSION", "abc123")
     clean_env.setenv("STAFF_JWT_SECRET", "s" * 40)
+    clean_env.setenv("STAY_JWT_SECRET", "t" * 40)
+    clean_env.setenv("ROOM_CODE_PEPPER", "p" * 40)
     settings = load_settings()
     assert settings.app_env == "prod"
     assert settings.app_version == "abc123"
@@ -52,6 +62,8 @@ def test_lazy_module_app_is_built_from_environment(clean_env: pytest.MonkeyPatch
     clean_env.setenv("APP_ENV", "prod")
     clean_env.setenv("DATABASE_URL", "postgresql+asyncpg://u:p@db:5432/hotel")
     clean_env.setenv("STAFF_JWT_SECRET", "s" * 40)
+    clean_env.setenv("STAY_JWT_SECRET", "t" * 40)
+    clean_env.setenv("ROOM_CODE_PEPPER", "p" * 40)
     clean_env.setattr(main_module, "_app", None)
     built = main_module.app
     assert built is main_module.app
@@ -71,4 +83,6 @@ def test_secret_is_not_printed(clean_env: pytest.MonkeyPatch) -> None:
     clean_env.setenv("APP_ENV", "dev")
     clean_env.setenv("DATABASE_URL", "postgresql+asyncpg://u:p@db:5432/hotel")
     clean_env.setenv("STAFF_JWT_SECRET", "s" * 40)
+    clean_env.setenv("STAY_JWT_SECRET", "t" * 40)
+    clean_env.setenv("ROOM_CODE_PEPPER", "p" * 40)
     assert "s" * 40 not in repr(load_settings())

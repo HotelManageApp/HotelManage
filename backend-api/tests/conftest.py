@@ -21,6 +21,8 @@ TEST_DATABASE_URL = os.environ.get(
     "postgresql+asyncpg://hotel:hotel_dev_only@localhost:5432/hotel_test",
 )
 TEST_STAFF_JWT_SECRET = "test-staff-secret-" + "x" * 32
+TEST_STAY_JWT_SECRET = "test-stay-secret-" + "y" * 32
+TEST_ROOM_CODE_PEPPER = "test-room-pepper-" + "z" * 32
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 # Tables whose rows are part of the schema itself (seeded by migrations); never truncated.
@@ -33,6 +35,8 @@ def make_settings(**overrides: object) -> Settings:
         "database_url": TEST_DATABASE_URL,
         "app_version": "test-sha",
         "staff_jwt_secret": TEST_STAFF_JWT_SECRET,
+        "stay_jwt_secret": TEST_STAY_JWT_SECRET,
+        "room_code_pepper": TEST_ROOM_CODE_PEPPER,
         "_env_file": None,
     }
     values.update(overrides)

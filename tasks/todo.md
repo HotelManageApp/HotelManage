@@ -83,7 +83,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 3 — Stay access (D03–D05) · spec: SPEC-stay-access
 
-- [ ] **T12 · Room/stay models, codes, tokens** · D03 · BE (AI hỗ trợ) · M · Deps: T07
+- [x] **T12 · Room/stay models, codes, tokens** · D03 · BE (AI hỗ trợ) · M · Deps: T07
   - Accept: migration `room`, `stay`, `stay_session` (+ unique có điều kiện); `codes.py` (bảng 31 ký tự, `normalize_code`, HMAC pepper); `tokens.py` (`typ=stay`, secret riêng)
   - Verify: BE `tests/unit/stay_access`
   - Files: `modules/stay_access/{models,codes,tokens}.py`, migration

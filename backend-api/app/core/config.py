@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     staff_refresh_token_hours: int = Field(default=12, ge=1, le=72)
     admin_web_origins: list[str] = ["http://localhost:3000"]
 
+    # Guest access (spec/SPEC-stay-access.md). Never reuse the staff secret.
+    stay_jwt_secret: SecretStr = Field(min_length=32)
+    room_code_pepper: SecretStr = Field(min_length=32)
+    stay_grace_hours: int = Field(default=6, ge=0, le=48)
+    max_devices_per_stay: int = Field(default=6, ge=1, le=20)
+
     @field_validator("database_url")
     @classmethod
     def _require_asyncpg(cls, value: str) -> str:
