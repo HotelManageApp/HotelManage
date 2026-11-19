@@ -5,7 +5,7 @@ Missing or invalid required variables stop the app at startup with a message tha
 
 from typing import Any, Literal
 
-from pydantic import Field, SecretStr, ValidationError, field_validator
+from pydantic import Field, SecretStr, ValidationError, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AppEnv = Literal["dev", "test", "prod"]
@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     fcm_project_id: str | None = None
     fcm_credentials_file: str | None = None
     notifications_worker_enabled: bool = True
+
+    @model_validator(mode="after")
+    def _fcm_needs_project_and_credentials(self) -> "Settings":
+        if self.fcm_sender == "fcm" and not (self.fcm_project_id and self.fcm_credentials_file):
+            raise ValueError("FCM_SENDER=fcm needs FCM_PROJECT_ID and FCM_CREDENTIALS_FILE")
+        return self
 
     @field_validator("database_url")
     @classmethod

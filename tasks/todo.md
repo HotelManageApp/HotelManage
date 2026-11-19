@@ -133,7 +133,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/notifications/test_outbox.py`
   - Files: `modules/notifications/{api,models,outbox_worker,senders}.py`, `templates/`, migration
 
-- [ ] **T20 · FcmSender + fcm-token API** · D07 · AI→BE · M · Deps: T19
+- [x] **T20 · FcmSender + fcm-token API** · D07 · AI→BE · M · Deps: T19
   - Accept: FCM HTTP v1 qua `google-auth`; xử lý `UNREGISTERED`/retry 2-10-30 s/`FAILED`; `PUT/DELETE /guest/me/fcm-token`; chụp token cho `STAY/CLOSED`
   - Verify: BE `tests/integration/notifications/test_fcm.py`
   - Files: `modules/notifications/{senders,router_guest}.py`, `stay_access/service.py` (chụp token)

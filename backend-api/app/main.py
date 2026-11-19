@@ -16,7 +16,10 @@ from app.core.db import create_engine, create_sessionmaker
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.request_context import RequestContextMiddleware
+from app.modules.notifications import hooks as notification_hooks
+from app.modules.notifications.fcm import FcmSender, ServiceAccountTokens
 from app.modules.notifications.outbox_worker import OutboxWorker
+from app.modules.notifications.router_guest import router as fcm_token_router
 from app.modules.notifications.senders import LogSender, PushSender
 from app.modules.staff_auth.router import router as staff_auth_router
 from app.modules.stay_access.router_guest import router as guest_router
@@ -26,15 +29,19 @@ API_V1_PREFIX = "/api/v1"
 
 
 def build_push_sender(settings: Settings) -> PushSender:
-    """FCM_SENDER=log writes pushes to the log (dev default); fcm is added in T20."""
-    if settings.fcm_sender == "log":
-        return LogSender()
-    raise ValueError(f"unsupported FCM_SENDER {settings.fcm_sender!r}")
+    """FCM_SENDER=log writes pushes to the log (dev default); fcm sends through Firebase."""
+    if settings.fcm_sender == "fcm" and settings.fcm_project_id and settings.fcm_credentials_file:
+        return FcmSender(
+            project_id=settings.fcm_project_id,
+            access_token=ServiceAccountTokens(settings.fcm_credentials_file),
+        )
+    return LogSender()
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or load_settings()
     configure_logging(settings.log_level)
+    notification_hooks.register()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -71,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(staff_auth_router)
     api_v1.include_router(reception_router)
     api_v1.include_router(guest_router)
+    api_v1.include_router(fcm_token_router)
     app.include_router(api_v1)
     return app
 

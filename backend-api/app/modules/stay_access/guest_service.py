@@ -100,7 +100,7 @@ async def login_with_code(
             StaySession.device_id == device_id,
             StaySession.revoked_at.is_(None),
         )
-        .values(revoked_at=now, revoke_reason=RevokeReason.LOGOUT)
+        .values(revoked_at=now, revoke_reason=RevokeReason.LOGOUT, fcm_token=None)
     )
     active = await db.scalar(
         select(func.count())
@@ -157,6 +157,6 @@ async def logout(db: AsyncSession, session_id: uuid.UUID) -> None:
     await db.execute(
         update(StaySession)
         .where(StaySession.id == session_id, StaySession.revoked_at.is_(None))
-        .values(revoked_at=datetime.now(UTC), revoke_reason=RevokeReason.LOGOUT)
+        .values(revoked_at=datetime.now(UTC), revoke_reason=RevokeReason.LOGOUT, fcm_token=None)
     )
     await db.commit()

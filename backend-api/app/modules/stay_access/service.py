@@ -161,7 +161,7 @@ async def revoke_sessions(
     await db.execute(
         update(StaySession)
         .where(StaySession.stay_id == stay_id, StaySession.revoked_at.is_(None))
-        .values(revoked_at=now, revoke_reason=reason)
+        .values(revoked_at=now, revoke_reason=reason, fcm_token=None)
     )
 
 
@@ -180,8 +180,8 @@ async def _open_stay_for_update(db: AsyncSession, stay_id: uuid.UUID) -> tuple[S
 async def close_stay(db: AsyncSession, stay_id: uuid.UUID, closed_by: Staff) -> Stay:
     """The only way a stay ends (desk check-out here, express checkout in T45).
 
-    One transaction: stay CLOSED, code lookup cleared, every guest session revoked, room to
-    CLEANING, then the registered on-stay-closed hooks. Any failure rolls everything back.
+    One transaction: stay CLOSED, code lookup cleared, room to CLEANING, the registered
+    on-stay-closed hooks, then every guest session revoked. Any failure rolls everything back.
     """
     now = datetime.now(UTC)
     stay, room = await _open_stay_for_update(db, stay_id)
@@ -189,10 +189,11 @@ async def close_stay(db: AsyncSession, stay_id: uuid.UUID, closed_by: Staff) -> 
     stay.closed_at = now
     stay.closed_by = closed_by.id
     stay.room_code_lookup = None
-    await revoke_sessions(db, stay.id, RevokeReason.CHECKOUT, now)
     room.status = RoomStatus.CLEANING
     try:
+        # Hooks run before sessions are revoked, so notifications can still see device tokens.
         await events.run_on_stay_closed(db, stay.id)
+        await revoke_sessions(db, stay.id, RevokeReason.CHECKOUT, now)
         await db.commit()
     except Exception:
         await db.rollback()
