@@ -60,5 +60,87 @@
   "notificationChannelDescription": "Trạng thái đơn đồ ăn, dọn phòng và trả phòng",
   "@notificationChannelName": {
     "description": "Android notification channel for request status pushes"
-  }
+  },
+  "homeOrderFood": "Đặt đồ ăn",
+  "homeOrderFoodHint": "Thực đơn phục vụ tại phòng",
+  "menuTitle": "Thực đơn",
+  "menuAll": "Tất cả",
+  "menuSearch": "Tìm món",
+  "menuClosed": "Bếp mở cửa {hours}. Hiện chưa nhận đơn.",
+  "@menuClosed": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "menuCheckoutPending": "Quý khách đang chờ trả phòng nên không đặt thêm món được.",
+  "menuSoldOut": "Tạm hết",
+  "menuAdd": "Thêm {name}",
+  "@menuAdd": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "menuRemoveOne": "Bớt {name}",
+  "@menuRemoveOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "menuEmpty": "Không có món phù hợp",
+  "menuLoadError": "Không tải được thực đơn",
+  "cartButton": "Giỏ hàng ({count})",
+  "@cartButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartTitle": "Giỏ hàng",
+  "cartEmpty": "Giỏ hàng đang trống",
+  "cartLineNote": "Ghi chú cho món (VD: ít cay)",
+  "cartOrderNote": "Ghi chú cho đơn",
+  "cartUnavailable": "Món này hiện không phục vụ, vui lòng bỏ khỏi giỏ",
+  "cartRemove": "Bỏ {name}",
+  "@cartRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartEstimate": "Tạm tính: {total}",
+  "@cartEstimate": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cartEstimateHint": "Tổng tiền chính xác do khách sạn xác nhận khi đặt.",
+  "cartPlace": "Đặt đơn",
+  "cartFull": "Mỗi món tối đa 20 phần, mỗi đơn tối đa 20 món",
+  "orderPlacedTitle": "Đã gửi đơn",
+  "orderPlacedTotal": "Tổng cộng: {total}",
+  "@orderPlacedTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPlacedHint": "Bếp sẽ xác nhận trong ít phút. Quý khách sẽ nhận thông báo khi trạng thái đổi.",
+  "ok": "Đóng",
+  "errorKitchenClosed": "Bếp đang tạm ngừng nhận đơn. Vui lòng thử lại sau.",
+  "errorItemUnavailable": "Một số món vừa hết, đã đánh dấu trong giỏ.",
+  "errorTooManyPending": "Quý khách đang có nhiều đơn chờ xác nhận, vui lòng đợi Bếp xử lý.",
+  "errorCheckoutPending": "Quý khách đang chờ trả phòng nên không đặt thêm món được.",
+  "errorOrderNetwork": "Mất kết nối. Bấm \"Đặt đơn\" lần nữa để thử lại — đơn sẽ không bị gửi trùng.",
+  "errorOrderFailed": "Không đặt được đơn, vui lòng thử lại."
 }

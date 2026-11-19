@@ -7,6 +7,7 @@ import 'package:hotel_guest/app/router.dart';
 import 'package:hotel_guest/app/theme.dart';
 import 'package:hotel_guest/core/providers.dart';
 import 'package:hotel_guest/features/notifications/notifications_controller.dart';
+import 'package:hotel_guest/features/room_service/cart_controller.dart';
 import 'package:hotel_guest/l10n/generated/app_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -28,9 +29,11 @@ class _HotelGuestAppState extends ConsumerState<HotelGuestApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Keeps push wired to the session for the app's lifetime.
+    // Keep push and the cart wired to the session for the app's lifetime
+    // (the cart is restored per stay and wiped on sign-out).
     ref
       ..listen(notificationsProvider, (_, _) {})
+      ..listen(cartProvider, (_, _) {})
       ..listen(pendingRouteProvider, (_, route) {
         if (route == null) return;
         _router.go(route);

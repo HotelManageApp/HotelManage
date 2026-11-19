@@ -5,6 +5,7 @@ import 'package:hotel_guest/core/errors.dart';
 import 'package:hotel_guest/core/providers.dart';
 import 'package:hotel_guest/features/stay_access/session_store.dart';
 import 'package:hotel_guest/features/stay_access/stay_repository.dart';
+import 'package:hotel_guest/features/stay_access/token_claims.dart';
 
 /// Why the guest is on the welcome screen (shown as a one-line notice).
 enum SignedOutReason { none, stayClosed, sessionEnded }
@@ -20,9 +21,12 @@ class SignedOut extends SessionState {
 }
 
 class SignedIn extends SessionState {
-  const new(this.stay);
+  const new(this.stay, {this.stayId});
 
   final GuestStay stay;
+
+  /// From the token's `stay_id` claim; a local key only (see token_claims).
+  final String? stayId;
 }
 
 final sessionStoreProvider = Provider<SessionStore>(
@@ -52,7 +56,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     if (token == null) return const SignedOut();
     api.token = token;
     try {
-      return SignedIn(await _repo.me());
+      return SignedIn(await _repo.me(), stayId: stayIdFromToken(token));
     } on AppException catch (error) {
       if (!error.isUnauthorized) rethrow;
       await _forget();
@@ -69,7 +73,9 @@ class SessionController extends AsyncNotifier<SessionState> {
     );
     await _store.writeToken(result.token);
     ref.read(apiClientProvider).token = result.token;
-    state = AsyncData(SignedIn(result.stay));
+    state = AsyncData(
+      SignedIn(result.stay, stayId: stayIdFromToken(result.token)),
+    );
   }
 
   Future<void> logout() async {

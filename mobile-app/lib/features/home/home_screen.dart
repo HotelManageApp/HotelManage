@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/l10n/generated/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -44,6 +45,17 @@ class HomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(l10n.homeCheckout(checkout)),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              key: const Key('tile-order-food'),
+              leading: const Icon(Icons.room_service),
+              title: Text(l10n.homeOrderFood),
+              subtitle: Text(l10n.homeOrderFoodHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/menu'),
+            ),
+          ),
           if (stay.checkoutPending) ...[
             const SizedBox(height: 12),
             Card(

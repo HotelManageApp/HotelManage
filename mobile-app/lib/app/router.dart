@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/features/home/home_screen.dart';
+import 'package:hotel_guest/features/room_service/cart_screen.dart';
+import 'package:hotel_guest/features/room_service/menu_screen.dart';
 import 'package:hotel_guest/features/stay_access/qr_scan_screen.dart';
 import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/features/welcome/welcome_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area,
+/// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area, `/menu` and
+/// `/cart` room service,
 /// `/requests/<type>/<id>` where a tapped notification leads.
 /// The session decides where you may be; any 401 sends you back to `/`.
 GoRouter buildRouter(WidgetRef ref) {
@@ -30,6 +33,8 @@ GoRouter buildRouter(WidgetRef ref) {
       GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/scan', builder: (context, state) => const QrScanScreen()),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/menu', builder: (context, state) => const MenuScreen()),
+      GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
       // Request detail screens come with their modules (room service,
       // housekeeping, checkout). Until a type has one, a notification opens
       // the home screen (SPEC-notifications).

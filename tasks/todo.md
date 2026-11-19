@@ -185,7 +185,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `kitchen/menu|reception/orders`
   - Files: `kitchen/menu/`, `reception/orders/`, `reception/settings/`, `components/kitchen/MenuTable.tsx`
 
-- [ ] **T30 · App menu + cart + place order** · D07–D08 · APP · M · Deps: T18, T25
+- [x] **T30 · App menu + cart + place order** · D07–D08 · APP · M · Deps: T18, T25
   - Accept: tab nhóm + tìm kiếm, "Tạm hết", băng ngoài giờ; giỏ theo `stay_id`; `Idempotency-Key` một lần mỗi lần bấm; tổng từ response; xử lý `ITEM_UNAVAILABLE`
   - Verify: APP `test/room_service`
   - Files: `lib/features/room_service/{menu_screen,cart_controller,room_service_repository}.dart`
