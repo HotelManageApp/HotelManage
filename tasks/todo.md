@@ -71,7 +71,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/test_cli.py`; chạy `uv run python -m app.cli seed-dev`
   - Files: `app/cli.py`
 
-- [ ] **T11 · Web login + role areas** · D02–D03 · WEB · M · Deps: T04 (mock), T08
+- [x] **T11 · Web login + role areas** · D02–D03 · WEB · M · Deps: T04 (mock), T08
   - Accept: trang login; `AuthProvider` (token trong bộ nhớ, refresh khi tải trang/trước hạn, `401` → refresh 1 lần); 3 vùng theo vai trò + trang `403`; layout chung
   - Verify: WEB `auth`; thủ công SC 1, 6, 7 của staff-auth
   - Files: `src/app/[locale]/login/`, `src/app/[locale]/(staff)/layout.tsx`, `src/lib/auth/`, `tests/auth/`

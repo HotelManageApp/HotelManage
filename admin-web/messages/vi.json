@@ -20,5 +20,54 @@
     "error": "Lỗi",
     "unreachable": "Không kết nối được tới máy chủ",
     "back": "Về trang chủ"
+  },
+  "Login": {
+    "title": "Đăng nhập nhân viên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập",
+    "submitting": "Đang đăng nhập…",
+    "errorInvalidCredentials": "Email hoặc mật khẩu không đúng",
+    "errorTooManyAttempts": "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau {minutes} phút.",
+    "errorInvalidInput": "Vui lòng nhập email và mật khẩu hợp lệ",
+    "errorNetwork": "Không kết nối được tới máy chủ",
+    "errorUnknown": "Đã có lỗi xảy ra, vui lòng thử lại"
+  },
+  "Staff": {
+    "loading": "Đang tải…",
+    "account": "Tài khoản",
+    "logout": "Đăng xuất",
+    "forbiddenTitle": "Không có quyền truy cập",
+    "forbiddenBody": "Trang này thuộc bộ phận khác.",
+    "backToMyArea": "Về trang của tôi"
+  },
+  "Roles": {
+    "RECEPTION": "Lễ tân",
+    "KITCHEN": "Bếp",
+    "HOUSEKEEPING": "Buồng phòng"
+  },
+  "Areas": {
+    "empty": "Chưa có yêu cầu nào",
+    "reception": {
+      "title": "Lễ tân"
+    },
+    "kitchen": {
+      "title": "Bếp"
+    },
+    "housekeeping": {
+      "title": "Buồng phòng"
+    }
+  },
+  "Account": {
+    "title": "Đổi mật khẩu",
+    "current": "Mật khẩu hiện tại",
+    "new": "Mật khẩu mới",
+    "repeat": "Nhập lại mật khẩu mới",
+    "submit": "Lưu",
+    "tooShort": "Mật khẩu mới cần ít nhất {min} ký tự",
+    "mismatch": "Mật khẩu nhập lại không khớp",
+    "changed": "Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất.",
+    "wrongCurrent": "Mật khẩu hiện tại không đúng",
+    "failed": "Không đổi được mật khẩu, vui lòng thử lại"
   }
 }

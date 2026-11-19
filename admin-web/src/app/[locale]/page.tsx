@@ -1,14 +1,7 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { setRequestLocale } from "next-intl/server";
+import { HomeRedirect } from "@/components/auth/HomeRedirect";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations("Home");
-
-  return (
-    <Link href="/health" className="text-blue-700 underline">
-      {t("systemStatus")}
-    </Link>
-  );
+  setRequestLocale((await params).locale);
+  return <HomeRedirect />;
 }

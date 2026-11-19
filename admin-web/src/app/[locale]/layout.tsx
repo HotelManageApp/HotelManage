@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 
@@ -37,14 +38,16 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className="min-h-screen">
         <NextIntlClientProvider>
-          <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-            <div>
-              <p className="font-semibold">{t("title")}</p>
-              <p className="text-xs text-slate-500">{t("tagline")}</p>
-            </div>
-            <LocaleSwitcher />
-          </header>
-          <main className="mx-auto max-w-3xl p-6">{children}</main>
+          <AuthProvider>
+            <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+              <div>
+                <p className="font-semibold">{t("title")}</p>
+                <p className="text-xs text-slate-500">{t("tagline")}</p>
+              </div>
+              <LocaleSwitcher />
+            </header>
+            <main className="mx-auto max-w-5xl p-6">{children}</main>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

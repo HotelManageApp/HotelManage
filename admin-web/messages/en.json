@@ -20,5 +20,54 @@
     "error": "Error",
     "unreachable": "Cannot reach the server",
     "back": "Back to home"
+  },
+  "Login": {
+    "title": "Staff sign-in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "errorInvalidCredentials": "Incorrect email or password",
+    "errorTooManyAttempts": "Too many failed attempts. Please try again in {minutes} minutes.",
+    "errorInvalidInput": "Please enter a valid email and password",
+    "errorNetwork": "Cannot reach the server",
+    "errorUnknown": "Something went wrong, please try again"
+  },
+  "Staff": {
+    "loading": "Loading…",
+    "account": "Account",
+    "logout": "Sign out",
+    "forbiddenTitle": "Access denied",
+    "forbiddenBody": "This page belongs to another department.",
+    "backToMyArea": "Go to my area"
+  },
+  "Roles": {
+    "RECEPTION": "Reception",
+    "KITCHEN": "Kitchen",
+    "HOUSEKEEPING": "Housekeeping"
+  },
+  "Areas": {
+    "empty": "No requests yet",
+    "reception": {
+      "title": "Reception"
+    },
+    "kitchen": {
+      "title": "Kitchen"
+    },
+    "housekeeping": {
+      "title": "Housekeeping"
+    }
+  },
+  "Account": {
+    "title": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "repeat": "Repeat new password",
+    "submit": "Save",
+    "tooShort": "The new password needs at least {min} characters",
+    "mismatch": "The passwords do not match",
+    "changed": "Password changed. Other devices have been signed out.",
+    "wrongCurrent": "The current password is incorrect",
+    "failed": "Could not change the password, please try again"
   }
 }

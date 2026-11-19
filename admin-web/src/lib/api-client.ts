@@ -16,6 +16,8 @@ export class ApiError extends Error {
   readonly requestId: string | null;
   /** Parsed response body, kept for endpoints whose error body is not an envelope (e.g. /health). */
   readonly body: unknown;
+  /** Seconds from the Retry-After header (429), when present. */
+  readonly retryAfterSeconds: number | null;
 
   constructor(
     status: number,
@@ -24,6 +26,7 @@ export class ApiError extends Error {
     details: ApiErrorDetail[] = [],
     requestId: string | null = null,
     body: unknown = undefined,
+    retryAfterSeconds: number | null = null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -32,6 +35,7 @@ export class ApiError extends Error {
     this.details = details;
     this.requestId = requestId;
     this.body = body;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -51,6 +55,7 @@ export interface ApiRequestOptions {
   headers?: Record<string, string>;
   signal?: AbortSignal;
   cache?: RequestCache;
+  credentials?: RequestCredentials;
 }
 
 function isEnvelope(value: unknown): value is {
@@ -93,6 +98,7 @@ export async function apiFetch<T>(
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
       signal: options.signal,
       cache: options.cache,
+      credentials: options.credentials,
     });
   } catch (cause) {
     const error = new ApiError(0, "NETWORK_ERROR", "Network request failed");
@@ -104,6 +110,9 @@ export async function apiFetch<T>(
   if (response.ok) return payload as T;
 
   const headerRequestId = response.headers.get("X-Request-ID");
+  const retryAfterHeader = Number(response.headers.get("Retry-After"));
+  const retryAfter =
+    Number.isFinite(retryAfterHeader) && retryAfterHeader > 0 ? retryAfterHeader : null;
   if (isEnvelope(payload)) {
     const { code, message, details, request_id } = payload.error;
     throw new ApiError(
@@ -113,6 +122,7 @@ export async function apiFetch<T>(
       details ?? [],
       request_id ?? headerRequestId,
       payload,
+      retryAfter,
     );
   }
   const fallback =
@@ -124,5 +134,6 @@ export async function apiFetch<T>(
     [],
     headerRequestId,
     payload,
+    retryAfter,
   );
 }
