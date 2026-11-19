@@ -138,7 +138,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/notifications/test_fcm.py`
   - Files: `modules/notifications/{senders,router_guest}.py`, `stay_access/service.py` (chụp token)
 
-- [ ] **T21 · SSE staff events + dev notify** · D07 · AI→BE · M · Deps: T19, T09
+- [x] **T21 · SSE staff events + dev notify** · D07 · AI→BE · M · Deps: T19, T09
   - Accept: `/staff/events` lọc theo vai trò, ping 15 s, đóng khi token hết hạn; `/dev/notify-test` chỉ khi `APP_ENV=dev`; latency commit→SSE < 1 s
   - Verify: BE `tests/integration/notifications/test_sse.py`
   - Files: `modules/notifications/{sse,router_dev}.py`

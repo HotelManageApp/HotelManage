@@ -19,8 +19,11 @@ from app.core.request_context import RequestContextMiddleware
 from app.modules.notifications import hooks as notification_hooks
 from app.modules.notifications.fcm import FcmSender, ServiceAccountTokens
 from app.modules.notifications.outbox_worker import OutboxWorker
+from app.modules.notifications.router_dev import router as dev_router
 from app.modules.notifications.router_guest import router as fcm_token_router
 from app.modules.notifications.senders import LogSender, PushSender
+from app.modules.notifications.sse import StaffEventHub
+from app.modules.notifications.sse import router as staff_events_router
 from app.modules.staff_auth.router import router as staff_auth_router
 from app.modules.stay_access.router_guest import router as guest_router
 from app.modules.stay_access.router_staff import router as reception_router
@@ -50,12 +53,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.sessionmaker = create_sessionmaker(engine)
         worker = OutboxWorker(app.state.sessionmaker, build_push_sender(settings))
         app.state.outbox_worker = worker
+        hub = StaffEventHub(settings.database_url.replace("postgresql+asyncpg://", "postgresql://"))
+        app.state.staff_event_hub = hub
         if settings.notifications_worker_enabled:
             worker.start()
         try:
             yield
         finally:
             await worker.stop()
+            await hub.close()
             await engine.dispose()
 
     is_prod = settings.app_env == "prod"
@@ -79,6 +85,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(reception_router)
     api_v1.include_router(guest_router)
     api_v1.include_router(fcm_token_router)
+    api_v1.include_router(staff_events_router)
+    if settings.app_env == "dev":
+        api_v1.include_router(dev_router)
     app.include_router(api_v1)
     return app
 
