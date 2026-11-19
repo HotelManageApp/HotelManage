@@ -16,6 +16,7 @@ from app.core.db import create_engine, create_sessionmaker
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.request_context import RequestContextMiddleware
+from app.modules.staff_auth.router import router as staff_auth_router
 
 API_V1_PREFIX = "/api/v1"
 
@@ -50,7 +51,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health_router)
     api_v1 = APIRouter(prefix=API_V1_PREFIX)
-    # Module routers are included here as modules are built (staff_auth, stay_access, ...).
+    # Module routers are included here as modules are built (stay_access, ...).
+    api_v1.include_router(staff_auth_router)
     app.include_router(api_v1)
     return app
 

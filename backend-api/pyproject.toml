@@ -47,6 +47,8 @@ addopts = "-ra"
 
 [tool.coverage.run]
 source = ["app"]
+# SQLAlchemy async runs code inside greenlets; without this, coverage misses those lines.
+concurrency = ["greenlet", "thread"]
 branch = true
 
 [tool.coverage.report]

@@ -3,8 +3,9 @@
 import asyncio
 from collections.abc import AsyncIterator
 from datetime import datetime
+from typing import Annotated
 
-from fastapi import Request
+from fastapi import Depends, Request
 from sqlalchemy import DateTime, MetaData, func, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -54,6 +55,9 @@ async def get_db(request: Request) -> AsyncIterator[AsyncSession]:
     """FastAPI dependency: one session per request."""
     async with request.app.state.sessionmaker() as session:
         yield session
+
+
+DbSession = Annotated[AsyncSession, Depends(get_db)]
 
 
 async def check_db(engine: AsyncEngine, timeout_seconds: float) -> bool:

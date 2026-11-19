@@ -56,7 +56,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/staff_auth tests/unit/core`
   - Files: `modules/staff_auth/{models,security}.py`, `core/rate_limit.py`, migration
 
-- [ ] **T08 · Staff auth endpoints** · D02 · BE · M · Deps: T07
+- [x] **T08 · Staff auth endpoints** · D02 · BE · M · Deps: T07
   - Accept: login/refresh (xoay vòng, phát hiện dùng lại)/logout/me/password; cookie đủ cờ, kiểm `Origin`; sai 5 lần → `429` + `Retry-After`; cùng thông báo cho sai email/mật khẩu
   - Verify: BE `tests/integration/staff_auth`
   - Files: `modules/staff_auth/{schemas,service,repository,router}.py`
