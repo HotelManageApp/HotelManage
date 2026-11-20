@@ -19,26 +19,82 @@ class ChatHistoryLine {
   final String text;
 }
 
+/// Buttons that open what the concierge just created (SPEC-concierge-actions).
+const entityTargets = {'OPEN_ORDER', 'OPEN_HOUSEKEEPING', 'OPEN_CHECKOUT'};
+
+/// "Xem đơn" / "Xem yêu cầu" under an answer: [target] is one of
+/// [entityTargets], [entityId] the order or request just created.
+class EntityAction {
+  const new({required this.target, required this.entityId});
+
+  final String target;
+  final String entityId;
+}
+
+/// A summary waiting for the guest's yes (an order, or express checkout).
+/// The numbers are the server's; the app only shows them.
+class PendingConfirmation {
+  const new({required this.id, required this.kind, required this.totalVnd});
+
+  static PendingConfirmation? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final id = json['id'];
+    final kind = json['kind'];
+    final summary = json['summary'];
+    if (id is! String || kind is! String) return null;
+    final total = summary is Map ? summary['total_vnd'] : null;
+    return PendingConfirmation(
+      id: id,
+      kind: kind,
+      totalVnd: total is int ? total : null,
+    );
+  }
+
+  final String id;
+
+  /// FOOD_ORDER or CHECKOUT.
+  final String kind;
+  final int? totalVnd;
+}
+
 class ChatReply {
   const new({
     required this.messageId,
     required this.text,
     required this.targets,
+    this.entityActions = const [],
+    this.pending,
   });
 
-  factory fromJson(Map<String, dynamic> json) => ChatReply(
-    messageId: json['message_id'] as String,
-    text: json['reply'] as String,
-    targets: [
-      for (final a in (json['suggested_actions'] as List?) ?? const [])
-        if (a is Map && chatTargets.contains(a['target']))
-          a['target'] as String,
-    ],
-  );
+  factory fromJson(Map<String, dynamic> json) {
+    final actions = (json['suggested_actions'] as List?) ?? const [];
+    return ChatReply(
+      messageId: json['message_id'] as String,
+      text: json['reply'] as String,
+      targets: [
+        for (final a in actions)
+          if (a is Map && chatTargets.contains(a['target']))
+            a['target'] as String,
+      ],
+      entityActions: [
+        for (final a in actions)
+          if (a is Map &&
+              entityTargets.contains(a['target']) &&
+              a['entity_id'] is String)
+            EntityAction(
+              target: a['target'] as String,
+              entityId: a['entity_id'] as String,
+            ),
+      ],
+      pending: PendingConfirmation.fromJson(json['pending_confirmation']),
+    );
+  }
 
   final String messageId;
   final String text;
   final List<String> targets;
+  final List<EntityAction> entityActions;
+  final PendingConfirmation? pending;
 }
 
 class HotelContact {
@@ -82,17 +138,23 @@ class ChatRepository {
   }
 
   /// [clientMessageId] stays the same when the guest retries after a network
-  /// failure, so the server stores the exchange once.
+  /// failure, so the server stores the exchange once. [confirmActionId] is
+  /// sent when the guest taps "Xác nhận" on a summary card.
   Future<ChatReply> ask(
     String message, {
     required String clientMessageId,
+    String? confirmActionId,
   }) async {
     _ai
       ..token = _api.token
       ..onUnauthorized = _api.onUnauthorized;
     final data = await _ai.post(
       '/api/v1/chat',
-      body: {'message': message, 'client_message_id': clientMessageId},
+      body: {
+        'message': message,
+        'client_message_id': clientMessageId,
+        'confirm_action_id': ?confirmActionId,
+      },
     );
     return ChatReply.fromJson(Map<String, dynamic>.from(data as Map));
   }

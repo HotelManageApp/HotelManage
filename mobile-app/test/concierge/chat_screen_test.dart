@@ -15,10 +15,11 @@ import '../room_service/fakes.dart';
 import '../stay_access/fakes.dart';
 
 class Ask {
-  const new(this.message, this.clientMessageId);
+  const new(this.message, this.clientMessageId, [this.confirmActionId]);
 
   final String message;
   final String clientMessageId;
+  final String? confirmActionId;
 }
 
 /// Scripted backend + ai-service for the chat.
@@ -41,8 +42,9 @@ class FakeChatRepository implements ChatRepository {
   Future<ChatReply> ask(
     String message, {
     required String clientMessageId,
+    String? confirmActionId,
   }) async {
-    asks.add(Ask(message, clientMessageId));
+    asks.add(Ask(message, clientMessageId, confirmActionId));
     final next = answers.removeAt(0);
     if (next is Completer<ChatReply>) return await next.future;
     if (next is AppException) throw next;

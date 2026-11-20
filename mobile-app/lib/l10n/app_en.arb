@@ -188,5 +188,15 @@
   "checkoutRejectedReason": "Reason: {reason}",
   "checkoutRejectedHint": "You can keep using the app and send a new request when you are ready.",
   "checkoutBackHome": "Back to home",
-  "checkoutNone": "No check-out request yet."
+  "checkoutNone": "No check-out request yet.",
+  "chatConfirmOrderTitle": "Confirm your order",
+  "chatConfirmCheckoutTitle": "Confirm check-out",
+  "chatConfirmTotal": "Total: {amount}",
+  "chatConfirm": "Confirm",
+  "chatEdit": "Change",
+  "chatConfirmMessage": "Confirm",
+  "chatConfirmExpired": "This summary has expired. Send your request again for a new one.",
+  "actionOpenOrder": "View order",
+  "actionOpenRequest": "View request",
+  "chatLookupOnly": "Waiting for check-out — look-up only"
 }

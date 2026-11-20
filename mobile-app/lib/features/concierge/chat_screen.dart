@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hotel_guest/features/concierge/chat_controller.dart';
 import 'package:hotel_guest/features/concierge/chat_text.dart';
+import 'package:hotel_guest/features/concierge/confirmation_card.dart';
 import 'package:hotel_guest/features/concierge/suggested_action_button.dart';
+import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/l10n/generated/app_localizations.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -19,6 +21,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
+  final _focus = FocusNode();
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void dispose() {
     _input.dispose();
     _scroll.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -53,6 +57,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final chat = ref.watch(chatProvider);
+    final session = ref.watch(sessionProvider).value;
+    final lookupOnly = session is SignedIn && session.stay.checkoutPending;
     ref.listen(chatProvider.select((c) => c.entries.length), (_, _) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _toBottom());
     });
@@ -92,7 +98,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ],
             ),
           for (final entry in chat.entries)
-            _EntryView(entry: entry, receptionPhone: chat.receptionPhone),
+            _EntryView(
+              entry: entry,
+              receptionPhone: chat.receptionPhone,
+              onEdit: _focus.requestFocus,
+            ),
           if (chat.waiting)
             Padding(
               padding: const EdgeInsets.all(8),
@@ -129,28 +139,43 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 4, 4, 8),
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        key: const Key('chat-input'),
-                        controller: _input,
-                        maxLength: 1000,
-                        minLines: 1,
-                        maxLines: 4,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _send(),
-                        decoration: InputDecoration(
-                          hintText: l10n.chatHint,
-                          counterText: '',
-                        ),
+                    if (lookupOnly)
+                      Text(
+                        l10n.chatLookupOnly,
+                        key: const Key('chat-lookup-only'),
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    ),
-                    IconButton(
-                      key: const Key('chat-send'),
-                      tooltip: l10n.chatSend,
-                      icon: const Icon(Icons.send),
-                      onPressed: chat.waiting || chat.loading ? null : _send,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            key: const Key('chat-input'),
+                            controller: _input,
+                            focusNode: _focus,
+                            maxLength: 1000,
+                            minLines: 1,
+                            maxLines: 4,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _send(),
+                            decoration: InputDecoration(
+                              hintText: l10n.chatHint,
+                              counterText: '',
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          key: const Key('chat-send'),
+                          tooltip: l10n.chatSend,
+                          icon: const Icon(Icons.send),
+                          onPressed: chat.waiting || chat.loading
+                              ? null
+                              : _send,
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -163,16 +188,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 }
 
 class _EntryView extends ConsumerWidget {
-  const new({required this.entry, required this.receptionPhone});
+  const new({
+    required this.entry,
+    required this.receptionPhone,
+    required this.onEdit,
+  });
 
   final ChatEntry entry;
   final String receptionPhone;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final launch = ref.read(linkLauncherProvider);
     final actions = [
+      for (final a in entry.entityActions) EntityActionButton(action: a),
       for (final t in entry.targets)
         SuggestedActionButton(target: t, receptionPhone: receptionPhone),
     ];
@@ -211,6 +242,8 @@ class _EntryView extends ConsumerWidget {
                 onLink: (url) => launch(Uri.parse(url)),
               ),
             ),
+            if (entry.pending != null)
+              ConfirmationCard(entry: entry, onEdit: onEdit),
             if (actions.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),

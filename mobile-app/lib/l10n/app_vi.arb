@@ -338,5 +338,15 @@
   "checkoutRejectedReason": "Lý do: {reason}",
   "checkoutRejectedHint": "Quý khách vẫn dùng app bình thường và có thể gửi lại yêu cầu khi sẵn sàng.",
   "checkoutBackHome": "Về trang chủ",
-  "checkoutNone": "Chưa có yêu cầu trả phòng."
+  "checkoutNone": "Chưa có yêu cầu trả phòng.",
+  "chatConfirmOrderTitle": "Xác nhận đơn đặt món",
+  "chatConfirmCheckoutTitle": "Xác nhận trả phòng",
+  "chatConfirmTotal": "Tổng: {amount}",
+  "chatConfirm": "Xác nhận",
+  "chatEdit": "Sửa lại",
+  "chatConfirmMessage": "Xác nhận",
+  "chatConfirmExpired": "Bản tóm tắt đã hết hạn. Quý khách nhắn lại để được tóm tắt mới.",
+  "actionOpenOrder": "Xem đơn",
+  "actionOpenRequest": "Xem yêu cầu",
+  "chatLookupOnly": "Đang chờ trả phòng — chỉ tra cứu"
 }

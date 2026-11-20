@@ -316,7 +316,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/concierge_actions/test_guards.py`; coverage `guards.py` ≥ 95%
   - Files: `concierge/guards.py`, `prompts/concierge.md`, `concierge/grounding.py`
 
-- [ ] **T52 · App confirmation card** · D18–D19 · APP · S · Deps: T42, T50
+- [x] **T52 · App confirmation card** · D18–D19 · APP · S · Deps: T42, T50
   - Accept: thẻ tóm tắt với "Xác nhận"/"Sửa lại", hết hạn → khóa; "Xem đơn"/"Xem yêu cầu"; ghi chú khi `CHECKOUT_PENDING`
   - Verify: APP `test/concierge`
   - Files: `lib/features/concierge/confirmation_card.dart`, `chat_screen.dart`
