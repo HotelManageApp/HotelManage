@@ -141,3 +141,17 @@ async def test_access_log_has_request_fields_and_no_token(
     assert access["status"] == 200
     assert access["method"] == "GET"
     assert isinstance(access["duration_ms"], float)
+
+
+# ---------- security headers (T54) ----------
+
+
+@pytest.mark.parametrize("path", ["/health", "/does-not-exist", "/_test/conflict", "/_test/boom"])
+async def test_every_response_carries_the_security_headers(
+    client: httpx.AsyncClient, path: str
+) -> None:
+    response = await client.get(path)
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert response.headers["cache-control"] == "no-store"

@@ -335,7 +335,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 6 — Release & field trial (D22–D27) · roadmap Sprint 4
 
-- [ ] **T54 · Security test pass** · D22–D23 · BE + AI · M · Deps: CP-F
+- [x] **T54 · Security test pass** · D22–D23 · BE + AI · M · Deps: CP-F
   - Accept: báo cáo `docs/security-report.md`: dò mã, IDOR, RBAC, JWT revoke, OWASP API Top 10, `pip-audit`/`npm audit`, gitleaks lịch sử; không còn lỗi High (sửa trên `release/*`)
   - Verify: báo cáo + test hồi quy cho mỗi lỗi tìm thấy
   - Files: `docs/security-report.md`, test liên quan

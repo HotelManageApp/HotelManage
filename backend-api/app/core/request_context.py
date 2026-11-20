@@ -3,6 +3,8 @@
 - Accepts a client `X-Request-ID` if it looks safe, otherwise generates a ULID.
 - Echoes the id in the `X-Request-ID` response header and binds it to every log line.
 - Unhandled exceptions become `500 INTERNAL_ERROR` without leaking the stack trace.
+- Adds the API security headers (nosniff, no framing, no referrer, no caching of personal
+  data); a response that sets its own Cache-Control (SSE) keeps it (T54 security pass).
 
 Written as plain ASGI (not BaseHTTPMiddleware) so streaming responses (SSE, T21)
 pass through untouched.
@@ -24,6 +26,20 @@ _VALID_REQUEST_ID = re.compile(r"[A-Za-z0-9-]{8,64}")
 _CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 logger = get_logger(__name__)
+
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+}
+DEFAULT_CACHE_CONTROL = "no-store"
+
+
+def add_security_headers(headers: MutableHeaders) -> None:
+    for name, value in SECURITY_HEADERS.items():
+        headers[name] = value
+    if "cache-control" not in headers:
+        headers["Cache-Control"] = DEFAULT_CACHE_CONTROL
 
 
 def new_ulid() -> str:
@@ -68,7 +84,9 @@ class RequestContextMiddleware:
             if message["type"] == "http.response.start":
                 response_started = True
                 status_code = message["status"]
-                MutableHeaders(scope=message)[REQUEST_ID_HEADER] = request_id
+                headers = MutableHeaders(scope=message)
+                headers[REQUEST_ID_HEADER] = request_id
+                add_security_headers(headers)
             await send(message)
 
         with structlog.contextvars.bound_contextvars(request_id=request_id):
