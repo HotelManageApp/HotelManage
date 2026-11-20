@@ -57,14 +57,20 @@ def build_push_sender(settings: Settings) -> PushSender:
     return LogSender()
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
-    settings = settings or load_settings()
-    configure_logging(settings.log_level)
+def register_module_hooks() -> None:
+    """Wire the cross-module hooks (stay closed, room vacant, bill lock…). Idempotent; also
+    used by the CLI so a stay it closes goes through the same steps as one closed by the API."""
     notification_hooks.register()
     room_service_jobs.register()
     housekeeping_hooks.register()
     concierge_hooks.register()
     checkout_hooks.register()
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or load_settings()
+    configure_logging(settings.log_level)
+    register_module_hooks()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:

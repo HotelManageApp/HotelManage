@@ -12,7 +12,13 @@ from app.core.errors import InvalidTransition, NotFound, ValidationFailed
 from app.modules.notifications.api import EntityType
 from app.modules.room_service import service, state
 from app.modules.room_service.models import FoodOrder, OrderStatus
-from app.modules.room_service.schemas import CreateOrder, OrderOut, order_out
+from app.modules.room_service.schemas import (
+    CreateOrder,
+    OrderLineOut,
+    OrderOut,
+    OrderPreview,
+    order_out,
+)
 from app.modules.shared.status_history import history_of
 from app.modules.stay_access.deps import ActiveStay, CurrentStay, StayContext, ensure_same_stay
 
@@ -59,6 +65,28 @@ async def place_order(
     if not created:
         response.status_code = status.HTTP_200_OK
     return order_out(order, ctx.lang)
+
+
+@router.post("/preview", response_model=OrderPreview)
+async def preview_order(
+    body: CreateOrder, ctx: ActiveStay, request: Request, db: DbSession
+) -> OrderPreview:
+    """Same body, same checks and same prices as placing the order, but nothing is written: the
+    concierge shows this summary and total before the guest confirms (SPEC-concierge-actions)."""
+    lines = [service.Line(line.item_id, line.quantity, line.note) for line in body.items]
+    priced = await service.check_order(db, ctx, lines, tz=request.app.state.settings.hotel_timezone)
+    items = [
+        OrderLineOut(
+            item_id=item.id,
+            name=item.name(ctx.lang),
+            quantity=line.quantity,
+            unit_price_vnd=item.price_vnd,
+            line_total_vnd=item.price_vnd * line.quantity,
+            note=line.note,
+        )
+        for line, item in priced
+    ]
+    return OrderPreview(items=items, total_vnd=sum(i.line_total_vnd for i in items))
 
 
 @router.get("", response_model=list[OrderOut])

@@ -94,6 +94,27 @@ async def ensure_kitchen_open(db: AsyncSession, tz: str) -> None:
         )
 
 
+async def check_order(
+    db: AsyncSession, ctx: StayContext, lines: list[Line], tz: str
+) -> list[tuple[Line, MenuItem]]:
+    """Every check an order goes through before it is created, and nothing else: the kitchen
+    is open, each dish is on the menu, the stay is under its pending-order limit. Shared by
+    `place_order` and the preview (SPEC-concierge-actions), so both refuse the same things."""
+    await ensure_kitchen_open(db, tz)
+    priced = await priced_lines(db, merge_lines(lines))
+    pending = await db.scalar(
+        select(func.count())
+        .select_from(FoodOrder)
+        .where(FoodOrder.stay_id == ctx.stay_id, FoodOrder.status == OrderStatus.PENDING)
+    )
+    if (pending or 0) >= MAX_PENDING_ORDERS:
+        raise Conflict(
+            "Quý khách đang có nhiều đơn chờ xác nhận, vui lòng đợi Bếp xử lý",
+            code="TOO_MANY_PENDING_ORDERS",
+        )
+    return priced
+
+
 async def place_order(
     db: AsyncSession,
     ctx: StayContext,
@@ -110,19 +131,7 @@ async def place_order(
         if existing is not None:
             return existing, False
 
-    await ensure_kitchen_open(db, tz)
-    priced = await priced_lines(db, merge_lines(lines))
-
-    pending = await db.scalar(
-        select(func.count())
-        .select_from(FoodOrder)
-        .where(FoodOrder.stay_id == ctx.stay_id, FoodOrder.status == OrderStatus.PENDING)
-    )
-    if (pending or 0) >= MAX_PENDING_ORDERS:
-        raise Conflict(
-            "Quý khách đang có nhiều đơn chờ xác nhận, vui lòng đợi Bếp xử lý",
-            code="TOO_MANY_PENDING_ORDERS",
-        )
+    priced = await check_order(db, ctx, lines, tz)
 
     order = FoodOrder(
         id=uuid.uuid4(),

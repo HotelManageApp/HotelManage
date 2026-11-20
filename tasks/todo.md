@@ -296,7 +296,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### concierge-actions · spec: SPEC-concierge-actions
 
-- [ ] **T48 · Order preview + dev stays seed** · D15 · BE · S · Deps: T25
+- [x] **T48 · Order preview + dev stays seed** · D15 · BE · S · Deps: T25
   - Accept: `POST /guest/orders/preview` dùng chung hàm kiểm tra, không ghi DB, tổng = tạo thật; CLI `seed-dev-stays` trả token stay A/B (chỉ dev)
   - Verify: BE `tests/integration/room_service/test_preview.py`
   - Files: `modules/room_service/router_guest.py`, `app/cli.py`

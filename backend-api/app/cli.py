@@ -9,10 +9,12 @@ import asyncio
 import csv
 import getpass
 import io
+import json
 import os
 import sys
+import uuid
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy import select
@@ -27,7 +29,11 @@ from app.modules.staff_auth.models import Staff, StaffRole
 from app.modules.staff_auth.schemas import MIN_PASSWORD_LENGTH
 from app.modules.staff_auth.security import hash_password
 from app.modules.stay_access import repository as stay_repository
-from app.modules.stay_access.models import Room
+from app.modules.stay_access import service as stay_service
+from app.modules.stay_access.guest_service import token_expiry
+from app.modules.stay_access.models import Room, RoomStatus, Stay, StaySession, StayStatus
+from app.modules.stay_access.schemas import CheckInRequest
+from app.modules.stay_access.tokens import encode_stay_token
 
 PasswordPrompt = Callable[[str], str]
 
@@ -36,6 +42,11 @@ DEV_STAFF = (
     ("kitchen@dev.local", "Bep (dev)", StaffRole.KITCHEN),
     ("housekeeping@dev.local", "Buong Phong (dev)", StaffRole.HOUSEKEEPING),
 )
+
+
+# Rooms used only by `seed-dev-stays` (the concierge eval's stay A and stay B).
+DEV_STAY_ROOMS = (("A", "DEV-A"), ("B", "DEV-B"))
+DEV_RECEPTION = DEV_STAFF[0][0]
 
 
 class CliError(Exception):
@@ -110,6 +121,86 @@ async def seed_dev(db: AsyncSession, settings: Settings, *, password: str | None
             await create_staff(db, email=email, name=name, role=role, password=password)
             created.append(email)
     return created
+
+
+async def _dev_actor(db: AsyncSession, settings: Settings, command: str) -> Staff:
+    if settings.app_env != "dev":
+        raise CliError(f"{command} only runs when APP_ENV=dev")
+    staff = await repository.get_staff_by_email(db, DEV_RECEPTION)
+    if staff is None:
+        raise CliError(f"run seed-dev first: {command} acts as {DEV_RECEPTION}")
+    return staff
+
+
+async def close_dev_stays(db: AsyncSession, settings: Settings) -> int:
+    """Close the dev rooms' open stays (through `close_stay`, like a real check-out) and make
+    the rooms vacant again. Returns how many stays were closed."""
+    from app.main import register_module_hooks  # the API's hooks, without importing it at load
+
+    staff = await _dev_actor(db, settings, "seed-dev-stays")
+    register_module_hooks()
+    closed = 0
+    for _, number in DEV_STAY_ROOMS:
+        room = await stay_repository.get_room_by_number(db, number)
+        if room is None:
+            continue
+        open_stay = await db.scalar(
+            select(Stay.id).where(
+                Stay.room_id == room.id,
+                Stay.status.in_((StayStatus.ACTIVE, StayStatus.CHECKOUT_PENDING)),
+            )
+        )
+        if open_stay is not None:
+            await stay_service.close_stay(db, open_stay, staff)
+            closed += 1
+        await db.refresh(room)
+        if room.status is RoomStatus.CLEANING:
+            await stay_service.mark_vacant(db, room.id)
+    return closed
+
+
+async def seed_dev_stays(db: AsyncSession, settings: Settings) -> list[dict[str, str]]:
+    """Two fresh stays (A in DEV-A, B in DEV-B) with one guest session each, for the concierge
+    eval (SPEC-concierge-actions, `/eval-bot`). Earlier dev stays are closed first. Dev only."""
+    staff = await _dev_actor(db, settings, "seed-dev-stays")
+    await close_dev_stays(db, settings)
+    now = datetime.now(UTC)
+    seeded = []
+    for label, number in DEV_STAY_ROOMS:
+        room = await stay_repository.get_room_by_number(db, number)
+        if room is None:
+            room = Room(number=number, room_type="DEV")
+            db.add(room)
+            await db.commit()
+        issued = await stay_service.check_in(
+            db,
+            settings,
+            staff,
+            CheckInRequest(
+                room_id=room.id,
+                guest_name=f"Dev guest {label}",
+                expected_checkout_at=now + timedelta(days=2),
+                room_charge_vnd=1_000_000,
+            ),
+        )
+        stay = issued.stay
+        session = StaySession(
+            id=uuid.uuid4(), stay_id=stay.id, device_id=f"dev-seed-{label}", lang="vi"
+        )
+        db.add(session)
+        await db.commit()
+        token = encode_stay_token(
+            session_id=session.id,
+            stay_id=stay.id,
+            room_id=stay.room_id,
+            expires_at=token_expiry(stay, settings),
+            secret=settings.stay_jwt_secret.get_secret_value(),
+            now=now,
+        )
+        seeded.append(
+            {"label": label, "room_number": number, "stay_id": str(stay.id), "token": token}
+        )
+    return seeded
 
 
 async def seed_rooms(db: AsyncSession, path: Path) -> tuple[int, int]:
@@ -217,6 +308,14 @@ def _parser() -> argparse.ArgumentParser:
     rooms = commands.add_parser("seed-rooms", help="create rooms from a CSV file")
     rooms.add_argument("--from-file", required=True, type=Path)
 
+    dev_stays = commands.add_parser(
+        "seed-dev-stays",
+        help="check in dev stays A and B and print their guest tokens as JSON (APP_ENV=dev only)",
+    )
+    dev_stays.add_argument(
+        "--close", action="store_true", help="only close the dev stays (clean-up after a run)"
+    )
+
     menu = commands.add_parser("seed-menu", help="create menu categories and dishes from a CSV")
     kb = commands.add_parser("seed-kb", help="load hotel info, knowledge base and places (YAML)")
     kb.add_argument("--from-file", required=True, type=Path)
@@ -258,6 +357,12 @@ async def run(
                     db, settings, password=os.environ.get("DEV_STAFF_PASSWORD")
                 )
                 out("created: " + (", ".join(created) if created else "nothing (already seeded)"))
+            elif args.command == "seed-dev-stays":
+                if args.close:
+                    out(f"dev stays closed: {await close_dev_stays(db, settings)}")
+                else:
+                    # Printed for the eval fixture to read; dev-only tokens of throwaway stays.
+                    out(json.dumps(await seed_dev_stays(db, settings)))
             elif args.command == "seed-rooms":
                 made, skipped = await seed_rooms(db, args.from_file)
                 out(f"rooms created: {made}, already existed: {skipped}")
