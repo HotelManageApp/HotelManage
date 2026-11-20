@@ -1,0 +1,342 @@
+{
+  "@@locale": "vi",
+  "appTitle": "Dịch vụ phòng",
+  "welcomeTitle": "Chào mừng Quý khách",
+  "welcomeSubtitle": "Gọi đồ ăn, dọn phòng và hỏi Concierge ngay trên điện thoại.",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
+  "serverChecking": "Đang kiểm tra kết nối…",
+  "serverOnline": "Đã kết nối máy chủ",
+  "serverDegraded": "Máy chủ đang gặp sự cố",
+  "serverUnreachable": "Không kết nối được máy chủ",
+  "retry": "Thử lại",
+  "loginCodeLabel": "Mã phòng trên phiếu nhận phòng",
+  "loginSubmit": "Đăng nhập",
+  "loginSubmitting": "Đang đăng nhập…",
+  "loginScanQr": "Quét mã QR",
+  "loginHelp": "Mã gồm 8 ký tự, Lễ tân đưa cho Quý khách khi nhận phòng.",
+  "loginInvalidCode": "Mã phòng không hợp lệ hoặc đã hết hạn",
+  "loginTooManyDevices": "Phòng đã đăng nhập trên quá nhiều thiết bị. Vui lòng liên hệ Lễ tân.",
+  "loginRateLimited": "Quý khách đã thử quá nhiều lần. Vui lòng thử lại sau {minutes} phút.",
+  "@loginRateLimited": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "loginFailed": "Không đăng nhập được, vui lòng thử lại",
+  "scanInvalidQr": "Đây không phải mã QR của phiếu nhận phòng",
+  "noticeStayClosed": "Cảm ơn Quý khách đã lưu trú. Hẹn gặp lại!",
+  "noticeSessionEnded": "Phiên lưu trú đã kết thúc hoặc mã đã được cấp lại. Vui lòng liên hệ Lễ tân.",
+  "homeRoom": "Phòng {room}",
+  "@homeRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Xin chào, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingAnonymous": "Xin chào Quý khách",
+  "homeCheckout": "Trả phòng dự kiến: {when}",
+  "@homeCheckout": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "homeCheckoutPending": "Yêu cầu trả phòng của Quý khách đang được Lễ tân xử lý.",
+  "logout": "Đăng xuất",
+  "notificationChannelName": "Cập nhật yêu cầu",
+  "notificationChannelDescription": "Trạng thái đơn đồ ăn, dọn phòng và trả phòng",
+  "@notificationChannelName": {
+    "description": "Android notification channel for request status pushes"
+  },
+  "homeOrderFood": "Đặt đồ ăn",
+  "homeOrderFoodHint": "Thực đơn phục vụ tại phòng",
+  "menuTitle": "Thực đơn",
+  "menuAll": "Tất cả",
+  "menuSearch": "Tìm món",
+  "menuClosed": "Bếp mở cửa {hours}. Hiện chưa nhận đơn.",
+  "@menuClosed": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "menuCheckoutPending": "Quý khách đang chờ trả phòng nên không đặt thêm món được.",
+  "menuSoldOut": "Tạm hết",
+  "menuAdd": "Thêm {name}",
+  "@menuAdd": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "menuRemoveOne": "Bớt {name}",
+  "@menuRemoveOne": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "menuEmpty": "Không có món phù hợp",
+  "menuLoadError": "Không tải được thực đơn",
+  "cartButton": "Giỏ hàng ({count})",
+  "@cartButton": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartTitle": "Giỏ hàng",
+  "cartEmpty": "Giỏ hàng đang trống",
+  "cartLineNote": "Ghi chú cho món (VD: ít cay)",
+  "cartOrderNote": "Ghi chú cho đơn",
+  "cartUnavailable": "Món này hiện không phục vụ, vui lòng bỏ khỏi giỏ",
+  "cartRemove": "Bỏ {name}",
+  "@cartRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartEstimate": "Tạm tính: {total}",
+  "@cartEstimate": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "cartEstimateHint": "Tổng tiền chính xác do khách sạn xác nhận khi đặt.",
+  "cartPlace": "Đặt đơn",
+  "cartFull": "Mỗi món tối đa 20 phần, mỗi đơn tối đa 20 món",
+  "orderPlacedTitle": "Đã gửi đơn",
+  "orderPlacedTotal": "Tổng cộng: {total}",
+  "@orderPlacedTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPlacedHint": "Bếp sẽ xác nhận trong ít phút. Quý khách sẽ nhận thông báo khi trạng thái đổi.",
+  "ok": "Đóng",
+  "errorKitchenClosed": "Bếp đang tạm ngừng nhận đơn. Vui lòng thử lại sau.",
+  "errorItemUnavailable": "Một số món vừa hết, đã đánh dấu trong giỏ.",
+  "errorTooManyPending": "Quý khách đang có nhiều đơn chờ xác nhận, vui lòng đợi Bếp xử lý.",
+  "errorCheckoutPending": "Quý khách đang chờ trả phòng nên không đặt thêm món được.",
+  "errorOrderNetwork": "Mất kết nối. Bấm \"Đặt đơn\" lần nữa để thử lại — đơn sẽ không bị gửi trùng.",
+  "errorOrderFailed": "Không đặt được đơn, vui lòng thử lại.",
+  "ordersTitle": "Đơn đồ ăn của tôi",
+  "ordersEmpty": "Quý khách chưa có đơn nào",
+  "ordersLoadError": "Không tải được đơn",
+  "homeMyOrders": "Đơn của tôi",
+  "homeOpenOrders": "{count, plural, =1{1 đơn đang xử lý} other{{count} đơn đang xử lý}}",
+  "@homeOpenOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "orderTitle": "Đơn lúc {time}",
+  "@orderTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "orderStatusPENDING": "Chờ Bếp xác nhận",
+  "orderStatusCONFIRMED": "Bếp đã nhận",
+  "orderStatusPREPARING": "Đang nấu",
+  "orderStatusDELIVERING": "Đang mang lên phòng",
+  "orderStatusCOMPLETED": "Đã giao",
+  "orderStatusCANCELLED": "Đã hủy",
+  "orderEta": "Dự kiến khoảng {minutes} phút",
+  "@orderEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "orderCancelledReason": "Lý do: {reason}",
+  "@orderCancelledReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "orderTotal": "Tổng cộng: {total}",
+  "@orderTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderNote": "Ghi chú: {note}",
+  "@orderNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "orderCancel": "Hủy đơn",
+  "orderCancelQuestion": "Quý khách chắc chắn muốn hủy đơn này?",
+  "orderCancelYes": "Hủy đơn",
+  "orderCancelNo": "Không",
+  "orderCancelled": "Đã hủy đơn",
+  "orderCancelTooLate": "Bếp đã nhận đơn nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
+  "orderCancelFailed": "Không hủy được đơn, vui lòng thử lại.",
+  "homeHousekeeping": "Dọn phòng & đồ dùng",
+  "homeHousekeepingHint": "Gọi dọn phòng, thêm khăn, nước…",
+  "homeOpenHousekeeping": "{count, plural, =1{1 yêu cầu buồng phòng đang xử lý} other{{count} yêu cầu buồng phòng đang xử lý}}",
+  "@homeOpenHousekeeping": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hkTitle": "Dọn phòng & đồ dùng",
+  "hkDnd": "Không làm phiền",
+  "hkDndHint": "Nhân viên sẽ không gõ cửa phòng Quý khách",
+  "hkDndFailed": "Không đổi được chế độ Không làm phiền, vui lòng thử lại.",
+  "hkCleaning": "Dọn phòng",
+  "hkCleaningOpen": "Quý khách đã có một yêu cầu dọn phòng đang xử lý.",
+  "hkViewRequest": "Xem yêu cầu",
+  "hkNow": "Ngay bây giờ",
+  "hkAtTime": "Chọn giờ",
+  "hkTime": "Giờ mong muốn",
+  "hkNoSlots": "Không còn khung giờ trước giờ trả phòng",
+  "hkNote": "Ghi chú",
+  "hkSendCleaning": "Gọi dọn phòng",
+  "hkCleaningClearsDnd": "Gọi dọn phòng sẽ tắt chế độ Không làm phiền.",
+  "hkAmenities": "Thêm đồ dùng",
+  "hkOtherNeedsNote": "Vui lòng ghi rõ đồ dùng cần thêm",
+  "hkSendAmenities": "Gửi yêu cầu đồ dùng",
+  "hkMyRequests": "Yêu cầu của tôi",
+  "hkSent": "Đã gửi yêu cầu",
+  "hkCheckoutPending": "Quý khách đang chờ trả phòng nên không gửi thêm yêu cầu được.",
+  "hkErrorOpenCleaning": "Quý khách đã có một yêu cầu dọn phòng đang xử lý.",
+  "hkErrorTooMany": "Quý khách đang có nhiều yêu cầu đồ dùng chưa xong, vui lòng đợi.",
+  "hkErrorInvalid": "Thông tin yêu cầu chưa hợp lệ (giờ hẹn phải trong 24 giờ tới và trước giờ trả phòng).",
+  "hkErrorNetwork": "Mất kết nối. Bấm gửi lần nữa để thử lại — yêu cầu sẽ không bị gửi trùng.",
+  "hkErrorFailed": "Không gửi được yêu cầu, vui lòng thử lại.",
+  "amenityTOWEL": "Khăn tắm",
+  "amenityWATER": "Nước suối",
+  "amenityTOILETRIES": "Đồ vệ sinh cá nhân",
+  "amenityPILLOW": "Gối",
+  "amenityBLANKET": "Chăn",
+  "amenitySLIPPERS": "Dép",
+  "amenityOTHER": "Khác",
+  "hkTypeCLEANING": "Dọn phòng",
+  "hkTypeAMENITY": "Đồ dùng",
+  "hkStatusREQUESTED": "Chờ nhân viên nhận",
+  "hkStatusASSIGNED": "Đã có nhân viên nhận",
+  "hkStatusIN_PROGRESS": "Đang thực hiện",
+  "hkStatusDONE": "Đã xong",
+  "hkStatusCANCELLED": "Đã hủy",
+  "hkAssignee": "Người phụ trách: {name}",
+  "@hkAssignee": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "hkWhenAsap": "Càng sớm càng tốt",
+  "hkWhenAt": "Hẹn lúc {time}",
+  "@hkWhenAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hkRequestsEmpty": "Quý khách chưa có yêu cầu nào",
+  "hkCancel": "Hủy yêu cầu",
+  "hkCancelQuestion": "Quý khách chắc chắn muốn hủy yêu cầu này?",
+  "hkCancelled": "Đã hủy yêu cầu",
+  "hkCancelTooLate": "Nhân viên đã nhận việc nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
+  "hkCancelFailed": "Không hủy được yêu cầu, vui lòng thử lại.",
+  "homeConcierge": "Hỏi Concierge",
+  "homeConciergeHint": "Giờ ăn sáng, Wi-Fi, điểm tham quan…",
+  "chatTitle": "Concierge",
+  "chatIntro": "Xin chào! Tôi có thể giúp gì cho Quý khách?",
+  "chatQuick1": "Mấy giờ ăn sáng?",
+  "chatQuick2": "Mật khẩu Wi-Fi là gì?",
+  "chatQuick3": "Gần đây có gì chơi?",
+  "chatHint": "Nhập câu hỏi…",
+  "chatSend": "Gửi",
+  "chatTyping": "Concierge đang trả lời…",
+  "chatFailed": "Chưa gửi được. Chạm để gửi lại.",
+  "chatRetry": "Gửi lại",
+  "chatSlowDown": "Quý khách gửi hơi nhanh, vui lòng thử lại sau {seconds} giây.",
+  "@chatSlowDown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSlowDownNoTime": "Quý khách gửi hơi nhanh, vui lòng thử lại sau ít phút.",
+  "chatBusy": "Hệ thống đang bận, Quý khách vui lòng thử lại hoặc gọi Lễ tân.",
+  "chatDisabled": "Trợ lý ảo đang tạm tắt. Quý khách vui lòng liên hệ Lễ tân.",
+  "chatLoadError": "Không tải được cuộc trò chuyện",
+  "actionRoomService": "Đặt đồ ăn",
+  "actionHousekeeping": "Dọn phòng & đồ dùng",
+  "actionMyRequests": "Đơn của tôi",
+  "actionCallReception": "Gọi Lễ tân",
+  "homeExpressCheckout": "Trả phòng nhanh",
+  "homeExpressCheckoutHint": "Xem tạm tính và gửi yêu cầu trả phòng",
+  "homeCheckoutLastRejected": "Yêu cầu trước chưa được duyệt: {reason}",
+  "homeCheckoutCard": "Yêu cầu trả phòng",
+  "homeLockedDuringCheckout": "Tạm khóa trong khi chờ trả phòng",
+  "checkoutTitle": "Trả phòng nhanh",
+  "checkoutEstimateLabel": "Tạm tính — Lễ tân sẽ đối soát",
+  "checkoutFinalBill": "Hóa đơn đã chốt",
+  "checkoutTotal": "Tổng cộng",
+  "checkoutOpenOrders": "{count, plural, =1{Còn 1 đơn đồ ăn đang xử lý, chưa tính vào tạm tính. Lễ tân chốt hóa đơn sau khi đơn được giao.} other{Còn {count} đơn đồ ăn đang xử lý, chưa tính vào tạm tính. Lễ tân chốt hóa đơn sau khi các đơn được giao.}}",
+  "checkoutRatingLabel": "Quý khách hài lòng với kỳ lưu trú chứ? (không bắt buộc)",
+  "checkoutStars": "{count} sao",
+  "checkoutNoteLabel": "Góp ý (không bắt buộc)",
+  "checkoutConfirmHint": "Sau khi gửi, Quý khách không đặt món hay gọi dọn phòng được nữa. Lễ tân sẽ đối soát và báo khi hóa đơn sẵn sàng.",
+  "checkoutSubmit": "Xác nhận trả phòng",
+  "checkoutSubmitFailed": "Không gửi được yêu cầu, vui lòng thử lại.",
+  "checkoutLoadError": "Không tải được thông tin trả phòng, kéo xuống để thử lại.",
+  "checkoutStatusTitle": "Trả phòng",
+  "checkoutStatusRequested": "Đang chờ Lễ tân đối soát",
+  "checkoutStatusVerified": "Hóa đơn đã sẵn sàng",
+  "checkoutStatusCompleted": "Đã trả phòng",
+  "checkoutStatusRejected": "Yêu cầu chưa được duyệt",
+  "checkoutStepSent": "Đã gửi",
+  "checkoutStepVerified": "Đã đối soát",
+  "checkoutStepCompleted": "Hoàn tất",
+  "checkoutRequestedHint": "Lễ tân đang đối soát hóa đơn. Quý khách sẽ nhận thông báo khi xong.",
+  "checkoutVerifiedHint": "Mời Quý khách xem hóa đơn và xuống quầy Lễ tân để thanh toán.",
+  "checkoutRejectedReason": "Lý do: {reason}",
+  "checkoutRejectedHint": "Quý khách vẫn dùng app bình thường và có thể gửi lại yêu cầu khi sẵn sàng.",
+  "checkoutBackHome": "Về trang chủ",
+  "checkoutNone": "Chưa có yêu cầu trả phòng."
+}
