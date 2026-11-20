@@ -38,7 +38,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: APP `test/`; `flutter run --dart-define-from-file=env/dev.json` lên emulator
   - Files: `lib/main.dart`, `lib/app/`, `lib/core/{api_client,config,errors}.dart`, `lib/l10n/`, `test/`
 
-- [ ] **T06 · CI workflows** · D01 · AI · M · Deps: T02–T05
+- [x] **T06 · CI workflows** · D01 · AI · M · Deps: T02–T05
   - Accept: 4 workflow theo path filter (lệnh khớp `CLAUDE.md`) + `security.yml` gitleaks; backend dùng service postgres
   - Verify: PR chỉ đổi `admin-web/**` → chỉ `admin-web` + `security` chạy; PR có chuỗi giống API key → đỏ
   - Files: `.github/workflows/{backend-api,ai-service,admin-web,mobile-app,security}.yml`

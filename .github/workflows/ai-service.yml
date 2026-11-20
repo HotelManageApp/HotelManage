@@ -1,0 +1,45 @@
+name: ai-service
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths: ["ai-service/**", ".github/workflows/ai-service.yml"]
+  push:
+    branches: [develop, main]
+    paths: ["ai-service/**", ".github/workflows/ai-service.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ai-service
+
+jobs:
+  lint-test:
+    name: ai-service / lint + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: ai-service/uv.lock
+
+      - name: Install dependencies (locked)
+        run: uv sync --frozen
+
+      # Commands must match the table in CLAUDE.md. CI never calls a real LLM (FakeLLMClient only).
+      - name: Lint
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Test (coverage >= 70%)
+        run: uv run pytest -q --cov=app --cov-fail-under=70
