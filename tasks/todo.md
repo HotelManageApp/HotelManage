@@ -284,7 +284,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/express_checkout/`; coverage ≥ 85%
   - Files: `modules/express_checkout/{state,service,router_guest,router_staff,jobs}.py`, `stay_access/deps.py`, `docs/domain-rules.md`
 
-- [ ] **T46 · Web checkout desk** · D16–D17 · WEB · M · Deps: T45
+- [x] **T46 · Web checkout desk** · D16–D17 · WEB · M · Deps: T45
   - Accept: hàng đợi, bảng đối soát (phụ phí/giảm giá, sửa tiền phòng), chốt khóa khi còn đơn mở, in K80, chọn thanh toán, hoàn tất/từ chối; nút "Xem hóa đơn" ở stay detail
   - Verify: WEB `checkout`
   - Files: `reception/checkout/`, `components/checkout/{BillTable,ChargeForm,PrintableBill}.tsx`

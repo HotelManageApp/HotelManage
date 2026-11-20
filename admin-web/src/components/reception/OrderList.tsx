@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormatter, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -26,7 +27,9 @@ export function OrderList() {
   const format = useFormatter();
   const { authFetch } = useAuth();
   const [status, setStatus] = useState<OrderStatus | "">("");
-  const [room, setRoom] = useState("");
+  // `?room=101` (e.g. from the checkout desk) pre-fills the room filter.
+  const params = useSearchParams();
+  const [room, setRoom] = useState(params?.get("room") ?? "");
   const [orders, setOrders] = useState<StaffOrder[] | null>(null);
   const [selected, setSelected] = useState<StaffOrder | null>(null);
   const [reason, setReason] = useState("");

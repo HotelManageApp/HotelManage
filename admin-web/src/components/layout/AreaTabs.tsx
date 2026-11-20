@@ -9,6 +9,7 @@ const TABS: Record<Area, { href: string; key: string }[]> = {
     { href: "/reception", key: "rooms" },
     { href: "/reception/orders", key: "orders" },
     { href: "/reception/housekeeping", key: "housekeeping" },
+    { href: "/reception/checkout", key: "checkout" },
     { href: "/reception/knowledge", key: "knowledge" },
     { href: "/reception/settings", key: "settings" },
   ],

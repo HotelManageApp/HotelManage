@@ -109,6 +109,60 @@ describe("StayDetail", () => {
     await waitFor(() => expect(nav.push).toHaveBeenCalledWith("/reception"));
   });
 
+  it("links to the bill and sends a blocked check-out to the open express request", async () => {
+    const fetchMock = mockBackend({
+      ...signedIn,
+      "GET /api/v1/stays/s1": () => json(STAY),
+      "POST /api/v1/stays/s1/checkout": () =>
+        json(
+          {
+            error: {
+              code: "CHECKOUT_REQUEST_OPEN",
+              message: "x",
+              details: [{ checkout_request_id: "q7" }],
+              request_id: "r",
+            },
+          },
+          409,
+        ),
+    });
+    renderWithAuth(<StayDetail stayId="s1" />);
+    expect(await screen.findByRole("link", { name: "Xem hóa đơn" })).toHaveAttribute(
+      "href",
+      "/reception/stays/s1/bill",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Check-out" }));
+    await userEvent.click(
+      within(screen.getByRole("alertdialog", { name: "Check-out" })).getByRole("button", {
+        name: "Xác nhận",
+      }),
+    );
+    expect(await screen.findByText(/đang có yêu cầu trả phòng nhanh/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Mở yêu cầu trả phòng" })).toHaveAttribute(
+      "href",
+      "/reception/checkout/q7",
+    );
+    expect(nav.push).not.toHaveBeenCalled();
+    expect(bodyOf(fetchMock, "/stays/s1/checkout", "POST")).toBeNull();
+  });
+
+  it("reports any other check-out failure", async () => {
+    mockBackend({
+      ...signedIn,
+      "GET /api/v1/stays/s1": () => json(STAY),
+      "POST /api/v1/stays/s1/checkout": () => envelope(500, "INTERNAL"),
+    });
+    renderWithAuth(<StayDetail stayId="s1" />);
+    await userEvent.click(await screen.findByRole("button", { name: "Check-out" }));
+    await userEvent.click(
+      within(screen.getByRole("alertdialog", { name: "Check-out" })).getByRole("button", {
+        name: "Xác nhận",
+      }),
+    );
+    expect(await screen.findByText("Không trả phòng được, vui lòng thử lại")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Mở yêu cầu trả phòng" })).not.toBeInTheDocument();
+  });
+
   it("is read-only once the stay is closed", async () => {
     mockBackend({ ...signedIn, "GET /api/v1/stays/s1": () => json({ ...STAY, status: "CLOSED" }) });
     renderWithAuth(<StayDetail stayId="s1" />);

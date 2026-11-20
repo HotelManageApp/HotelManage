@@ -144,7 +144,11 @@
     "reissueQuestion": "The old code stops working and every guest device is signed out. Continue?",
     "checkoutAction": "Check out",
     "checkoutQuestion": "The guest is signed out of the app at once and the room moves to cleaning. Continue?",
-    "loadFailed": "Could not load the stay, please try again"
+    "loadFailed": "Could not load the stay, please try again",
+    "viewBill": "View bill",
+    "checkoutRequestOpen": "This room has an express check-out request; please handle it there.",
+    "openCheckoutRequest": "Open the check-out request",
+    "checkoutFailed": "Could not check out, please try again"
   },
   "RoomManager": {
     "back": "← Room board",
@@ -217,7 +221,8 @@
       "orders": "Food orders",
       "settings": "Settings",
       "housekeeping": "Housekeeping",
-      "knowledge": "Concierge info"
+      "knowledge": "Concierge info",
+      "checkout": "Check-out"
     },
     "kitchen": {
       "queue": "Order queue",
@@ -461,5 +466,74 @@
     "saved": "Hotel information saved",
     "invalid": "The information is not valid",
     "saveError": "Could not save, please try again"
+  },
+  "Checkout": {
+    "queueTitle": "Check-out requests",
+    "queueEmpty": "No requests waiting",
+    "finished": "Handled in the last 24 hours ({count})",
+    "loading": "Loading…",
+    "loadError": "Could not load the data",
+    "roomLabel": "Room {room}",
+    "sentAgo": "sent {minutes} min ago",
+    "openOrders": "{count} food orders still in progress",
+    "status": {
+      "CHECKOUT_REQUESTED": "Waiting for review",
+      "BILLING_VERIFIED": "Bill verified",
+      "COMPLETED": "Checked out",
+      "REJECTED": "Rejected"
+    },
+    "back": "← Check-out requests",
+    "backToStay": "← Stay",
+    "deskTitle": "Bill for room {room}",
+    "billTitle": "Current bill",
+    "billLockedTitle": "Verified bill",
+    "noBill": "No bill (the stay is closed)",
+    "line": {
+      "ROOM": "Room",
+      "FOOD": "Food",
+      "EXTRA": "Extra",
+      "DISCOUNT": "Discount"
+    },
+    "total": "Total",
+    "delete": "Delete",
+    "deleteCharge": "Delete {name}",
+    "roomCharge": "Room charge (₫)",
+    "saveRoomCharge": "Save room charge",
+    "addCharge": "Add item",
+    "chargeKind": "Type",
+    "chargeDescription": "Description",
+    "chargePlaceholder": "e.g. Minibar 2 beers, late check-out",
+    "chargeAmount": "Amount (₫)",
+    "verify": "Verify bill",
+    "verifiedDone": "Bill verified; the guest has been notified",
+    "openOrdersBlock": "Food orders are still in progress; the bill cannot be verified yet.",
+    "seeOrders": "See the room's orders",
+    "print": "Print bill",
+    "printTitle": "CHECK-OUT BILL",
+    "room": "Room",
+    "paidBy": "Paid by",
+    "paymentMethod": "Payment method",
+    "choosePayment": "— Choose —",
+    "payment": {
+      "CASH": "Cash",
+      "BANK_TRANSFER": "Bank transfer",
+      "CARD": "Card",
+      "OTHER": "Other"
+    },
+    "complete": "Complete check-out",
+    "completeQuestion": "Complete check-out of room {room}? Every guest phone is signed out at once and the room goes to cleaning.",
+    "completedDone": "Check-out completed",
+    "rejectOpen": "Reject request",
+    "rejectReason": "Reason (shown to the guest)",
+    "reject": "Reject",
+    "rejected": "Rejected; the guest can use the app as before",
+    "rejectReasonShown": "Rejected: {reason}",
+    "cancel": "Cancel",
+    "stale": "The request was just updated by someone else and has been reloaded",
+    "billLocked": "The bill is verified and can no longer change (reject to verify again)",
+    "negativeTotal": "The discount is larger than the bill",
+    "invalid": "The information is not valid",
+    "actionFailed": "Could not do that, please try again",
+    "stayClosed": "The stay has ended"
   }
 }

@@ -25,6 +25,8 @@ export function StayDetail({ stayId }: { stayId: string }) {
   const [loadFailed, setLoadFailed] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [slip, setSlip] = useState<SlipData | null>(null);
+  // Set when a desk check-out is refused because an express request is open.
+  const [openRequestId, setOpenRequestId] = useState<string | null>(null);
   const [form, setForm] = useState({
     guestName: "",
     guestCount: 1,
@@ -93,8 +95,21 @@ export function StayDetail({ stayId }: { stayId: string }) {
   }
 
   async function checkout() {
-    await authFetch(`/api/v1/stays/${stayId}/checkout`, { method: "POST" });
-    router.push("/reception");
+    setMessage(null);
+    try {
+      await authFetch(`/api/v1/stays/${stayId}/checkout`, { method: "POST" });
+      router.push("/reception");
+    } catch (err) {
+      // An express checkout request is open: it has to be finished (or rejected) there.
+      if (err instanceof ApiError && err.code === "CHECKOUT_REQUEST_OPEN") {
+        const id = err.details.find((d) => "checkout_request_id" in d) as
+          { checkout_request_id?: string } | undefined;
+        setOpenRequestId(id?.checkout_request_id ?? null);
+        setMessage({ ok: false, text: t("checkoutRequestOpen") });
+      } else {
+        setMessage({ ok: false, text: t("checkoutFailed") });
+      }
+    }
   }
 
   const input = "mt-1 w-full rounded border border-slate-300 px-3 py-2";
@@ -179,8 +194,20 @@ export function StayDetail({ stayId }: { stayId: string }) {
         </p>
       )}
 
+      {openRequestId && (
+        <Link href={`/reception/checkout/${openRequestId}`} className="text-sm underline">
+          {t("openCheckoutRequest")}
+        </Link>
+      )}
+
       {!closed && (
         <div className="flex flex-wrap items-start gap-4">
+          <Link
+            href={`/reception/stays/${stayId}/bill`}
+            className="rounded border border-teal-700 px-4 py-2 text-teal-800"
+          >
+            {t("viewBill")}
+          </Link>
           <ConfirmAction
             tone="primary"
             label={t("reissue")}

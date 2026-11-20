@@ -7,6 +7,12 @@ import type { StaffOrder } from "@/lib/orders/types";
 import { envelope, json, mockBackend, renderWithAuth, session } from "../auth/helpers";
 import { renderStaffScreen, sseRoute } from "../realtime/sse";
 
+const search = vi.hoisted(() => ({ value: "" }));
+vi.mock("next/navigation", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("next/navigation")>()),
+  useSearchParams: () => new URLSearchParams(search.value),
+}));
+
 const RECEPTIONIST = {
   id: "r-1",
   email: "le.tan@hotel.test",
@@ -56,7 +62,10 @@ const bodyOf = (fetchMock: Fetch, suffix: string) => {
   return call ? JSON.parse(String((call[1] as RequestInit).body)) : undefined;
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  search.value = "";
+});
 
 describe("OrderList", () => {
   it("lists orders with guest, total and overdue, and filters by status and room", async () => {
@@ -81,6 +90,19 @@ describe("OrderList", () => {
       expect(urls(fetchMock, "/api/v1/orders")).toContain("?status=PENDING&room=101"),
     );
     expect(urls(fetchMock, "/api/v1/orders")[0]).toBe("");
+  });
+
+  it("starts filtered by the room in the address (link from the checkout desk)", async () => {
+    search.value = "room=101";
+    const fetchMock = mockBackend({
+      ...signedIn,
+      "GET /api/v1/staff/events": sseRoute().handler,
+      "GET /api/v1/orders": () => json([order()]),
+    });
+    renderStaffScreen(<OrderList />);
+    expect(await screen.findByLabelText("Phòng")).toHaveValue("101");
+    await screen.findByTestId("order-row-o1");
+    expect(urls(fetchMock, "/api/v1/orders")[0]).toBe("?room=101");
   });
 
   it("shows details with history and cancels with a reason", async () => {

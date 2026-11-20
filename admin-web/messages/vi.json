@@ -144,7 +144,11 @@
     "reissueQuestion": "Mã cũ sẽ mất hiệu lực và mọi thiết bị của khách sẽ bị đăng xuất. Tiếp tục?",
     "checkoutAction": "Check-out",
     "checkoutQuestion": "Khách sẽ bị đăng xuất khỏi ứng dụng ngay và phòng chuyển sang chờ dọn. Tiếp tục?",
-    "loadFailed": "Không tải được thông tin, vui lòng thử lại"
+    "loadFailed": "Không tải được thông tin, vui lòng thử lại",
+    "viewBill": "Xem hóa đơn",
+    "checkoutRequestOpen": "Phòng đang có yêu cầu trả phòng nhanh, vui lòng xử lý yêu cầu đó.",
+    "openCheckoutRequest": "Mở yêu cầu trả phòng",
+    "checkoutFailed": "Không trả phòng được, vui lòng thử lại"
   },
   "RoomManager": {
     "back": "← Sơ đồ phòng",
@@ -217,7 +221,8 @@
       "orders": "Đơn đồ ăn",
       "settings": "Cài đặt",
       "housekeeping": "Buồng phòng",
-      "knowledge": "Thông tin Concierge"
+      "knowledge": "Thông tin Concierge",
+      "checkout": "Trả phòng"
     },
     "kitchen": {
       "queue": "Hàng đợi đơn",
@@ -461,5 +466,74 @@
     "saved": "Đã lưu thông tin khách sạn",
     "invalid": "Thông tin chưa hợp lệ",
     "saveError": "Không lưu được, vui lòng thử lại"
+  },
+  "Checkout": {
+    "queueTitle": "Yêu cầu trả phòng",
+    "queueEmpty": "Không có yêu cầu nào đang chờ",
+    "finished": "Đã xử lý trong 24 giờ qua ({count})",
+    "loading": "Đang tải…",
+    "loadError": "Không tải được dữ liệu",
+    "roomLabel": "Phòng {room}",
+    "sentAgo": "gửi {minutes} phút trước",
+    "openOrders": "{count} đơn đồ ăn chưa giao xong",
+    "status": {
+      "CHECKOUT_REQUESTED": "Chờ đối soát",
+      "BILLING_VERIFIED": "Đã chốt hóa đơn",
+      "COMPLETED": "Đã trả phòng",
+      "REJECTED": "Đã từ chối"
+    },
+    "back": "← Yêu cầu trả phòng",
+    "backToStay": "← Kỳ lưu trú",
+    "deskTitle": "Hóa đơn phòng {room}",
+    "billTitle": "Hóa đơn tạm tính",
+    "billLockedTitle": "Hóa đơn đã chốt",
+    "noBill": "Không có hóa đơn (kỳ lưu trú đã đóng)",
+    "line": {
+      "ROOM": "Phòng",
+      "FOOD": "Đồ ăn",
+      "EXTRA": "Phụ phí",
+      "DISCOUNT": "Giảm giá"
+    },
+    "total": "Tổng cộng",
+    "delete": "Xóa",
+    "deleteCharge": "Xóa {name}",
+    "roomCharge": "Tiền phòng (₫)",
+    "saveRoomCharge": "Lưu tiền phòng",
+    "addCharge": "Thêm khoản",
+    "chargeKind": "Loại",
+    "chargeDescription": "Mô tả",
+    "chargePlaceholder": "VD: Minibar 2 bia, Trả phòng trễ",
+    "chargeAmount": "Số tiền (₫)",
+    "verify": "Chốt hóa đơn",
+    "verifiedDone": "Đã chốt hóa đơn, khách đã được báo",
+    "openOrdersBlock": "Còn đơn đồ ăn chưa giao xong, chưa chốt được hóa đơn.",
+    "seeOrders": "Xem đơn của phòng",
+    "print": "In hóa đơn",
+    "printTitle": "HÓA ĐƠN TRẢ PHÒNG",
+    "room": "Phòng",
+    "paidBy": "Thanh toán",
+    "paymentMethod": "Hình thức thanh toán",
+    "choosePayment": "— Chọn —",
+    "payment": {
+      "CASH": "Tiền mặt",
+      "BANK_TRANSFER": "Chuyển khoản",
+      "CARD": "Thẻ",
+      "OTHER": "Khác"
+    },
+    "complete": "Hoàn tất trả phòng",
+    "completeQuestion": "Hoàn tất trả phòng {room}? Mọi điện thoại của khách sẽ bị đăng xuất ngay và phòng chuyển sang chờ dọn.",
+    "completedDone": "Đã hoàn tất trả phòng",
+    "rejectOpen": "Từ chối yêu cầu",
+    "rejectReason": "Lý do từ chối (khách sẽ thấy)",
+    "reject": "Từ chối",
+    "rejected": "Đã từ chối, khách dùng app bình thường trở lại",
+    "rejectReasonShown": "Lý do từ chối: {reason}",
+    "cancel": "Thôi",
+    "stale": "Yêu cầu vừa được người khác cập nhật, đã tải lại",
+    "billLocked": "Hóa đơn đã chốt, không sửa được nữa (từ chối để chốt lại)",
+    "negativeTotal": "Giảm giá lớn hơn tổng hóa đơn",
+    "invalid": "Thông tin chưa hợp lệ",
+    "actionFailed": "Không thực hiện được, vui lòng thử lại",
+    "stayClosed": "Kỳ lưu trú đã kết thúc"
   }
 }
