@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.logging import get_logger
@@ -132,7 +132,9 @@ class OutboxWorker:
                     select(NotificationOutbox)
                     .where(
                         NotificationOutbox.delivery_status == DeliveryStatus.PENDING,
-                        NotificationOutbox.next_attempt_at <= datetime.now(UTC),
+                        # The database's own clock: next_attempt_at is set by it too (server
+                        # default now()), so app/database clock skew cannot hide due rows.
+                        NotificationOutbox.next_attempt_at <= func.clock_timestamp(),
                     )
                     .order_by(NotificationOutbox.created_at)
                     .limit(self._batch)

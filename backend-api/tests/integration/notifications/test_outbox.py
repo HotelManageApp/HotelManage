@@ -136,7 +136,9 @@ async def test_worker_sends_to_every_active_device_in_its_language(db: AsyncSess
     data = by_token["tok-vi"].data
     assert set(data) == {"type", "entity_id", "status", "title_key", "occurred_at"}
     assert data["type"] == "STAY" and data["status"] == "TEST" and data["title_key"] == "STAY.TEST"
-    assert "Tran Thi B" not in json.dumps(data) and "101" not in json.dumps(data)
+    # No value is the room number or carries the guest name. (A substring check on the whole
+    # JSON was flaky: the random entity_id or the timestamp's microseconds can contain "101".)
+    assert all(value != "101" and "Tran Thi B" not in value for value in data.values())
 
     row = (await _outbox(db))[0]
     assert row.delivery_status == DeliveryStatus.SENT and row.attempts == 1 and row.sent_at
