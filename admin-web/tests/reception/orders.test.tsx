@@ -1,5 +1,6 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type * as Navigation from "next/navigation";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { OrderList } from "@/components/reception/OrderList";
 import { RoomServiceSettingsForm } from "@/components/reception/RoomServiceSettingsForm";
@@ -9,7 +10,7 @@ import { renderStaffScreen, sseRoute } from "../realtime/sse";
 
 const search = vi.hoisted(() => ({ value: "" }));
 vi.mock("next/navigation", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("next/navigation")>()),
+  ...(await importOriginal<typeof Navigation>()),
   useSearchParams: () => new URLSearchParams(search.value),
 }));
 
