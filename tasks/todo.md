@@ -33,12 +33,12 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `api-client|i18n`
   - Files: `src/app/[locale]/`, `src/lib/api-client.ts`, `src/i18n/`, `messages/{vi,en}.json`, `tests/`
 
-- [ ] **T05 · mobile-app skeleton** · D01 · APP · M · Deps: T01
+- [x] **T05 · mobile-app skeleton** · D01 · APP · M · Deps: T01
   - Accept: Riverpod, go_router, dio `ApiClient` map lỗi → `AppException`, ARB vi/en, màn chào gọi `/health`, `env/*.example.json`
   - Verify: APP `test/`; `flutter run --dart-define-from-file=env/dev.json` lên emulator
   - Files: `lib/main.dart`, `lib/app/`, `lib/core/{api_client,config,errors}.dart`, `lib/l10n/`, `test/`
 
-- [ ] **T06 · CI workflows** · D01 · AI · M · Deps: T02–T05
+- [x] **T06 · CI workflows** · D01 · AI · M · Deps: T02–T05
   - Accept: 4 workflow theo path filter (lệnh khớp `CLAUDE.md`) + `security.yml` gitleaks; backend dùng service postgres
   - Verify: PR chỉ đổi `admin-web/**` → chỉ `admin-web` + `security` chạy; PR có chuỗi giống API key → đỏ
   - Files: `.github/workflows/{backend-api,ai-service,admin-web,mobile-app,security}.yml`
@@ -113,7 +113,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `reception/stay`
   - Files: `reception/stays/[id]/`, `components/reception/`
 
-- [ ] **T18 · App login (code/QR) + home** · D04–D05 · APP · M · Deps: T05, T15
+- [x] **T18 · App login (code/QR) + home** · D04–D05 · APP · M · Deps: T05, T15
   - Accept: nhập mã `XXXX-XXXX` + quét QR (`mobile_scanner`, đúng scheme); token + `device_id` trong secure storage; `401` → về màn chào; `429` hiện thời gian chờ; trang chủ
   - Verify: APP `test/stay_access`
   - Files: `lib/features/stay_access/`, `lib/features/home/home_screen.dart`
@@ -148,7 +148,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `realtime`
   - Files: `src/lib/realtime/`, `components/layout/{ConnectionIndicator,SoundToggle}.tsx`
 
-- [ ] **T23 · App FCM** · D06–D08 · APP · M · Deps: T18, T20
+- [x] **T23 · App FCM** · D06–D08 · APP · M · Deps: T18, T20
   - Accept: Firebase init, xin quyền Android 13+, gửi token + `onTokenRefresh`; channel `requests`; foreground notification + làm mới provider; chạm → route `/requests/<type>/<id>`
   - Verify: APP `test/notifications`; thủ công SC 1–3 của notifications trên máy thật
   - Files: `lib/features/notifications/`, `android/` (cấu hình)
@@ -185,12 +185,12 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `kitchen/menu|reception/orders`
   - Files: `kitchen/menu/`, `reception/orders/`, `reception/settings/`, `components/kitchen/MenuTable.tsx`
 
-- [ ] **T30 · App menu + cart + place order** · D07–D08 · APP · M · Deps: T18, T25
+- [x] **T30 · App menu + cart + place order** · D07–D08 · APP · M · Deps: T18, T25
   - Accept: tab nhóm + tìm kiếm, "Tạm hết", băng ngoài giờ; giỏ theo `stay_id`; `Idempotency-Key` một lần mỗi lần bấm; tổng từ response; xử lý `ITEM_UNAVAILABLE`
   - Verify: APP `test/room_service`
   - Files: `lib/features/room_service/{menu_screen,cart_controller,room_service_repository}.dart`
 
-- [ ] **T31 · App order list/detail** · D09 · APP · S · Deps: T30, T23
+- [x] **T31 · App order list/detail** · D09 · APP · S · Deps: T30, T23
   - Accept: danh sách + chi tiết có thanh tiến trình, hủy khi `PENDING`; route push; tự làm mới 15 s; thẻ "Đang xử lý" ở trang chủ
   - Verify: APP `test/room_service`
   - Files: `lib/features/room_service/{order_list_screen,order_detail_screen}.dart`, `home_screen.dart`
@@ -217,7 +217,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `housekeeping`
   - Files: `housekeeping/page.tsx`, `reception/housekeeping/`, `components/housekeeping/`, `RoomBoard.tsx`
 
-- [ ] **T36 · App housekeeping** · D09–D10 · APP · M · Deps: T23, T32
+- [x] **T36 · App housekeeping** · D09–D10 · APP · M · Deps: T23, T32
   - Accept: nút dọn phòng (ASAP/khung giờ), bộ chọn đồ dùng 1–5 ("Khác" bắt buộc ghi chú), công tắc DND, danh sách/chi tiết, hủy khi `REQUESTED`
   - Verify: APP `test/housekeeping`
   - Files: `lib/features/housekeeping/`
@@ -253,7 +253,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `knowledge`
   - Files: `reception/knowledge/`, `reception/settings/`
 
-- [ ] **T42 · App chat screen** · D11–D13 · APP · M · Deps: T40 (mock trước)
+- [x] **T42 · App chat screen** · D11–D13 · APP · M · Deps: T40 (mock trước)
   - Accept: bong bóng + markdown giới hạn, gợi ý nhanh, nút `suggested_actions`, link chỉ tên miền cho phép, `429/503/504` → câu dự phòng, retry cùng `client_message_id`
   - Verify: APP `test/concierge`
   - Files: `lib/features/concierge/{chat_screen,chat_controller,suggested_action_button}.dart`
@@ -290,7 +290,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `checkout`
   - Files: `reception/checkout/`, `components/checkout/{BillTable,ChargeForm,PrintableBill}.tsx`
 
-- [ ] **T47 · App express checkout** · D16–D17 · APP · M · Deps: T45
+- [x] **T47 · App express checkout** · D16–D17 · APP · M · Deps: T45
   - Accept: màn tạm tính + sao + xác nhận; màn theo dõi + hóa đơn snapshot + lý do từ chối; khóa đặt món/dọn phòng khi `CHECKOUT_PENDING`; `401 STAY_CLOSED` → lời cảm ơn
   - Verify: APP `test/express_checkout`
   - Files: `lib/features/express_checkout/`, `home_screen.dart`, `core/api_client.dart`
@@ -317,7 +317,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/concierge_actions/test_guards.py`; coverage `guards.py` ≥ 95%
   - Files: `concierge/guards.py`, `prompts/concierge.md`, `concierge/grounding.py`
 
-- [ ] **T52 · App confirmation card** · D18–D19 · APP · S · Deps: T42, T50
+- [x] **T52 · App confirmation card** · D18–D19 · APP · S · Deps: T42, T50
   - Accept: thẻ tóm tắt với "Xác nhận"/"Sửa lại", hết hạn → khóa; "Xem đơn"/"Xem yêu cầu"; ghi chú khi `CHECKOUT_PENDING`
   - Verify: APP `test/concierge`
   - Files: `lib/features/concierge/confirmation_card.dart`, `chat_screen.dart`

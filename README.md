@@ -82,7 +82,10 @@ Settings → Branches → Add branch ruleset (hoặc Branch protection rule):
 
 **`main`**
 - Require a pull request before merging, Require approvals: 1
-- Require status checks to pass (chọn các job CI sau khi T06 chạy lần đầu)
+- Require status checks to pass: `security / secret scan` (luôn chạy). Các job theo package
+  (`backend-api / lint + test`, `ai-service / lint + test`, `admin-web / lint + test + build`,
+  `mobile-app / analyze + test`) chỉ chạy khi PR đụng tới package đó (path filter), nên không đặt
+  chúng là *required* — GitHub sẽ chờ mãi job không chạy. Reviewer kiểm tra chúng xanh trước khi duyệt.
 - Restrict who can push / bypass: chỉ tài khoản Tech Lead
 - Block force pushes, Restrict deletions
 

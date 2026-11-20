@@ -1,0 +1,32 @@
+name: security
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secret-scan:
+    # CONSTRAINTS C1.5: no secrets in the repository. Runs on every PR, whatever it touches.
+    name: security / secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # scan the whole history, not just the last commit
+
+      - name: gitleaks
+        run: >-
+          docker run --rm -v "${{ github.workspace }}:/repo" -w /repo
+          ghcr.io/gitleaks/gitleaks:v8.21.2
+          git . --redact --verbose --exit-code 1
