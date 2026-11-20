@@ -1,7 +1,8 @@
 /// Build-time configuration, passed with
 /// `--dart-define-from-file=env/<env>.json`.
 class AppConfig {
-  const new({required this.apiBaseUrl, required this.appEnv});
+  const new({required this.apiBaseUrl, required this.appEnv, String? aiBaseUrl})
+    : aiBaseUrl = aiBaseUrl ?? apiBaseUrl;
 
   /// Reads values compiled in via `--dart-define`.
   ///
@@ -10,6 +11,7 @@ class AppConfig {
     return AppConfig.fromMap(const {
       'API_BASE_URL': String.fromEnvironment('API_BASE_URL'),
       'APP_ENV': String.fromEnvironment('APP_ENV'),
+      'AI_BASE_URL': String.fromEnvironment('AI_BASE_URL'),
     });
   }
 
@@ -28,11 +30,20 @@ class AppConfig {
     if (!const ['dev', 'test', 'prod'].contains(env)) {
       throw StateError('Invalid APP_ENV "$env" (expected dev, test or prod)');
     }
-    return AppConfig(apiBaseUrl: values['API_BASE_URL']!, appEnv: env);
+    final ai = values['AI_BASE_URL'] ?? '';
+    return AppConfig(
+      apiBaseUrl: values['API_BASE_URL']!,
+      appEnv: env,
+      aiBaseUrl: ai.isEmpty ? null : ai,
+    );
   }
 
   final String apiBaseUrl;
   final String appEnv;
+
+  /// ai-service (`POST /api/v1/chat`). Optional: without it the app calls the
+  /// API host, for deployments where a reverse proxy routes /api/v1/chat.
+  final String aiBaseUrl;
 
   bool get isProd => appEnv == 'prod';
 }

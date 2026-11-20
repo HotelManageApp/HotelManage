@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hotel_guest/features/concierge/chat_screen.dart';
 import 'package:hotel_guest/features/home/home_screen.dart';
 import 'package:hotel_guest/features/housekeeping/hk_requests_screen.dart';
 import 'package:hotel_guest/features/housekeeping/housekeeping_screen.dart';
@@ -38,6 +39,7 @@ GoRouter buildRouter(WidgetRef ref) {
       GoRoute(path: '/scan', builder: (context, state) => const QrScanScreen()),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/menu', builder: (context, state) => const MenuScreen()),
+      GoRoute(path: '/chat', builder: (context, state) => const ChatScreen()),
       GoRoute(path: '/cart', builder: (context, state) => const CartScreen()),
       GoRoute(
         path: '/orders',

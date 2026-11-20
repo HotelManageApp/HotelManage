@@ -279,5 +279,33 @@
   "hkCancelQuestion": "Quý khách chắc chắn muốn hủy yêu cầu này?",
   "hkCancelled": "Đã hủy yêu cầu",
   "hkCancelTooLate": "Nhân viên đã nhận việc nên không hủy được nữa. Vui lòng liên hệ Lễ tân nếu cần.",
-  "hkCancelFailed": "Không hủy được yêu cầu, vui lòng thử lại."
+  "hkCancelFailed": "Không hủy được yêu cầu, vui lòng thử lại.",
+  "homeConcierge": "Hỏi Concierge",
+  "homeConciergeHint": "Giờ ăn sáng, Wi-Fi, điểm tham quan…",
+  "chatTitle": "Concierge",
+  "chatIntro": "Xin chào! Tôi có thể giúp gì cho Quý khách?",
+  "chatQuick1": "Mấy giờ ăn sáng?",
+  "chatQuick2": "Mật khẩu Wi-Fi là gì?",
+  "chatQuick3": "Gần đây có gì chơi?",
+  "chatHint": "Nhập câu hỏi…",
+  "chatSend": "Gửi",
+  "chatTyping": "Concierge đang trả lời…",
+  "chatFailed": "Chưa gửi được. Chạm để gửi lại.",
+  "chatRetry": "Gửi lại",
+  "chatSlowDown": "Quý khách gửi hơi nhanh, vui lòng thử lại sau {seconds} giây.",
+  "@chatSlowDown": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSlowDownNoTime": "Quý khách gửi hơi nhanh, vui lòng thử lại sau ít phút.",
+  "chatBusy": "Hệ thống đang bận, Quý khách vui lòng thử lại hoặc gọi Lễ tân.",
+  "chatDisabled": "Trợ lý ảo đang tạm tắt. Quý khách vui lòng liên hệ Lễ tân.",
+  "chatLoadError": "Không tải được cuộc trò chuyện",
+  "actionRoomService": "Đặt đồ ăn",
+  "actionHousekeeping": "Dọn phòng & đồ dùng",
+  "actionMyRequests": "Đơn của tôi",
+  "actionCallReception": "Gọi Lễ tân"
 }

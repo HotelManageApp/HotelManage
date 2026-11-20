@@ -56,6 +56,16 @@ class HomeScreen extends ConsumerWidget {
           const _OpenOrdersCard(),
           Card(
             child: ListTile(
+              key: const Key('tile-concierge'),
+              leading: const Icon(Icons.support_agent),
+              title: Text(l10n.homeConcierge),
+              subtitle: Text(l10n.homeConciergeHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/chat'),
+            ),
+          ),
+          Card(
+            child: ListTile(
               key: const Key('tile-order-food'),
               leading: const Icon(Icons.room_service),
               title: Text(l10n.homeOrderFood),

@@ -253,7 +253,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `knowledge`
   - Files: `reception/knowledge/`, `reception/settings/`
 
-- [ ] **T42 · App chat screen** · D11–D13 · APP · M · Deps: T40 (mock trước)
+- [x] **T42 · App chat screen** · D11–D13 · APP · M · Deps: T40 (mock trước)
   - Accept: bong bóng + markdown giới hạn, gợi ý nhanh, nút `suggested_actions`, link chỉ tên miền cho phép, `429/503/504` → câu dự phòng, retry cùng `client_message_id`
   - Verify: APP `test/concierge`
   - Files: `lib/features/concierge/{chat_screen,chat_controller,suggested_action_button}.dart`

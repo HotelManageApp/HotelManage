@@ -21,3 +21,10 @@ Structure: `lib/app` (app, router, theme) · `lib/core` (config, ApiClient, erro
   Firebase Installation ID to `PUT /api/v1/guest/me/fcm-token`.
 - Channel `requests` (high importance). Tapping a notification opens `/requests/<type>/<id>`, or home while that
   type has no detail screen.
+
+## Concierge chat
+
+- `AI_BASE_URL` (optional build setting) points at ai-service, e.g. `http://10.0.2.2:8001` from the emulator.
+  Without it the app sends `/api/v1/chat` to `API_BASE_URL` (a reverse proxy routes it in production).
+- History and hotel info come straight from backend-api; links in answers open only for `https://maps.google.com`
+  and `https://maps.app.goo.gl`.
