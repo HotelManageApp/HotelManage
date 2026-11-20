@@ -6,7 +6,13 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.hotel_settings import HotelSettings
-from app.modules.room_service.models import MenuCategory, MenuItem
+from app.modules.room_service.models import (
+    FoodOrder,
+    MenuCategory,
+    MenuItem,
+    OrderItem,
+    OrderStatus,
+)
 from app.modules.staff_auth.models import Staff, StaffRole
 from app.modules.staff_auth.security import encode_access_token, hash_password
 from app.modules.stay_access.models import Room, RoomStatus, Stay, StaySession, StayStatus
@@ -173,3 +179,32 @@ async def create_menu(db: AsyncSession) -> dict[str, MenuItem]:
     for item in items.values():
         await db.refresh(item)
     return items
+
+
+async def add_food_order(
+    db: AsyncSession, stay: Stay, status: OrderStatus, items: list[tuple[MenuItem, int]]
+) -> FoodOrder:
+    """An order written straight to the database (prices copied from the menu items)."""
+    order = FoodOrder(
+        stay_id=stay.id,
+        room_id=stay.room_id,
+        status=status,
+        total_vnd=sum(item.price_vnd * qty for item, qty in items),
+        source="APP",
+    )
+    order.items = [
+        OrderItem(
+            menu_item_id=item.id,
+            position=i,
+            name_vi=item.name_vi,
+            name_en=item.name_en,
+            unit_price_vnd=item.price_vnd,
+            quantity=qty,
+            line_total_vnd=item.price_vnd * qty,
+        )
+        for i, (item, qty) in enumerate(items)
+    ]
+    db.add(order)
+    await db.commit()
+    await db.refresh(order)
+    return order

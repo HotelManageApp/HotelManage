@@ -279,7 +279,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/express_checkout tests/integration/express_checkout/test_bill.py`
   - Files: `modules/express_checkout/{models,billing,router_staff}.py`, migration
 
-- [ ] **T45 · Checkout flow + domain-rules update** · D16 · BE · M · Deps: T44
+- [x] **T45 · Checkout flow + domain-rules update** · D16 · BE · M · Deps: T44
   - Accept: guest preview/create/current; `transition` + verify/complete/reject (snapshot, `OPEN_ORDERS_EXIST`, `payment_method`); complete gọi `close_stay`; quầy `409 CHECKOUT_REQUEST_OPEN`; `401` body `STAY_CLOSED`; push/nhắc; **sửa `docs/domain-rules.md` §5**
   - Verify: BE `tests/integration/express_checkout/`; coverage ≥ 85%
   - Files: `modules/express_checkout/{state,service,router_guest,router_staff,jobs}.py`, `stay_access/deps.py`, `docs/domain-rules.md`

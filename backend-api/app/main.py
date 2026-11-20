@@ -21,6 +21,8 @@ from app.modules.concierge_data import hooks as concierge_hooks
 from app.modules.concierge_data.router_guest import router as guest_kb_router
 from app.modules.concierge_data.router_staff import router as knowledge_router
 from app.modules.express_checkout import hooks as checkout_hooks
+from app.modules.express_checkout import jobs as checkout_jobs
+from app.modules.express_checkout.router_guest import router as checkout_guest_router
 from app.modules.express_checkout.router_staff import router as checkout_staff_router
 from app.modules.housekeeping import hooks as housekeeping_hooks
 from app.modules.housekeeping import jobs as housekeeping_jobs
@@ -74,6 +76,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         scheduler = Scheduler(app.state.sessionmaker)
         scheduler.add(room_service_jobs.OVERDUE_JOB)
         scheduler.add(housekeeping_jobs.OVERDUE_JOB)
+        scheduler.add(checkout_jobs.OVERDUE_JOB)
         app.state.scheduler = scheduler
         hub = StaffEventHub(settings.database_url.replace("postgresql+asyncpg://", "postgresql://"))
         app.state.staff_event_hub = hub
@@ -118,6 +121,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(guest_kb_router)
     api_v1.include_router(knowledge_router)
     api_v1.include_router(checkout_staff_router)
+    api_v1.include_router(checkout_guest_router)
     if settings.app_env == "dev":
         api_v1.include_router(dev_router)
     app.include_router(api_v1)

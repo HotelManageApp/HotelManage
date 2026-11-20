@@ -60,3 +60,14 @@ async def get_stay_food_total(db: AsyncSession, stay_id: uuid.UUID) -> FoodBill:
         total_vnd=sum(o.total_vnd for o in orders),
         open_orders=await count_open_orders(db, stay_id),
     )
+
+
+async def open_order_ids(db: AsyncSession, stay_id: uuid.UUID) -> list[uuid.UUID]:
+    """Orders still in progress, oldest first (express checkout links to them)."""
+    return list(
+        await db.scalars(
+            select(FoodOrder.id)
+            .where(FoodOrder.stay_id == stay_id, FoodOrder.status.in_(OPEN_ORDER_STATUSES))
+            .order_by(FoodOrder.created_at)
+        )
+    )

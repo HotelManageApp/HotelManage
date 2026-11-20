@@ -42,5 +42,13 @@
   "HOUSEKEEPING.CANCELLED": {
     "title": "Request cancelled",
     "body": "Your housekeeping request was cancelled. Open the app to see why."
+  },
+  "CHECKOUT.BILLING_VERIFIED": {
+    "title": "Your bill is ready",
+    "body": "Please review the bill in the app and come to the front desk."
+  },
+  "CHECKOUT.REJECTED": {
+    "title": "Check-out request not approved",
+    "body": "Open the app to see why."
   }
 }

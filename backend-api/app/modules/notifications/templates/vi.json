@@ -42,5 +42,13 @@
   "HOUSEKEEPING.CANCELLED": {
     "title": "Yêu cầu đã bị hủy",
     "body": "Yêu cầu buồng phòng đã bị hủy. Mở ứng dụng để xem lý do."
+  },
+  "CHECKOUT.BILLING_VERIFIED": {
+    "title": "Hóa đơn đã sẵn sàng",
+    "body": "Mời Quý khách xem hóa đơn trên ứng dụng và xuống quầy Lễ tân."
+  },
+  "CHECKOUT.REJECTED": {
+    "title": "Yêu cầu trả phòng chưa được duyệt",
+    "body": "Mở ứng dụng để xem lý do."
   }
 }

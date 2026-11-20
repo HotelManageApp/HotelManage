@@ -9,10 +9,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.express_checkout.models import CheckoutRequest, CheckoutStatus, StayCharge
-from app.modules.room_service.models import FoodOrder, MenuItem, OrderItem, OrderStatus
+from app.modules.room_service.models import OrderStatus
 from app.modules.staff_auth.models import StaffRole
 from app.modules.stay_access.models import Stay, StayStatus
-from tests.factories import create_menu, create_staff, create_stay, staff_headers
+from tests.factories import add_food_order, create_menu, create_staff, create_stay, staff_headers
 
 
 @pytest.fixture
@@ -23,34 +23,6 @@ async def reception(db: AsyncSession) -> dict[str, str]:
 @pytest.fixture
 async def stay(db: AsyncSession) -> Stay:
     return await create_stay(db)
-
-
-async def add_order(
-    db: AsyncSession, stay: Stay, status: OrderStatus, items: list[tuple[MenuItem, int]]
-) -> FoodOrder:
-    order = FoodOrder(
-        stay_id=stay.id,
-        room_id=stay.room_id,
-        status=status,
-        total_vnd=sum(item.price_vnd * qty for item, qty in items),
-        source="APP",
-    )
-    order.items = [
-        OrderItem(
-            menu_item_id=item.id,
-            position=i,
-            name_vi=item.name_vi,
-            name_en=item.name_en,
-            unit_price_vnd=item.price_vnd,
-            quantity=qty,
-            line_total_vnd=item.price_vnd * qty,
-        )
-        for i, (item, qty) in enumerate(items)
-    ]
-    db.add(order)
-    await db.commit()
-    await db.refresh(order)
-    return order
 
 
 async def lock(db: AsyncSession, stay: Stay, status: CheckoutStatus) -> CheckoutRequest:
@@ -75,10 +47,10 @@ async def test_bill_counts_completed_orders_and_live_charges(
     client: httpx.AsyncClient, db: AsyncSession, stay: Stay, reception: dict
 ) -> None:
     menu = await create_menu(db)
-    done = await add_order(db, stay, OrderStatus.COMPLETED, [(menu["pho"], 2)])
-    await add_order(db, stay, OrderStatus.CANCELLED, [(menu["cam"], 5)])
-    await add_order(db, stay, OrderStatus.DELIVERING, [(menu["cam"], 1)])
-    await add_order(db, stay, OrderStatus.PENDING, [(menu["pho"], 1)])
+    done = await add_food_order(db, stay, OrderStatus.COMPLETED, [(menu["pho"], 2)])
+    await add_food_order(db, stay, OrderStatus.CANCELLED, [(menu["cam"], 5)])
+    await add_food_order(db, stay, OrderStatus.DELIVERING, [(menu["cam"], 1)])
+    await add_food_order(db, stay, OrderStatus.PENDING, [(menu["pho"], 1)])
 
     minibar = await client.post(
         charges_url(stay),

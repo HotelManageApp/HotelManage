@@ -92,17 +92,31 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CHECKOUT_REQUESTED: GUEST gửi yêu cầu (app/chatbot)
-    CHECKOUT_REQUESTED --> BILLING_VERIFIED: RECEPTION đối soát hóa đơn (phòng + đồ ăn + phụ phí)
-    BILLING_VERIFIED --> COMPLETED: RECEPTION duyệt hoàn tất
+    [*] --> CHECKOUT_REQUESTED: GUEST gửi yêu cầu (app/chatbot, guest_confirmed=true)
+    CHECKOUT_REQUESTED --> BILLING_VERIFIED: RECEPTION chốt hóa đơn (phòng + đồ ăn + phụ phí − giảm giá)
+    BILLING_VERIFIED --> COMPLETED: RECEPTION duyệt hoàn tất (bắt buộc hình thức thanh toán)
     CHECKOUT_REQUESTED --> REJECTED: RECEPTION (bắt buộc lý do, VD còn nợ)
+    BILLING_VERIFIED --> REJECTED: RECEPTION (bắt buộc lý do, VD khách không đồng ý hóa đơn)
     COMPLETED --> [*]
     REJECTED --> [*]
 ```
 
-- Khi `COMPLETED`: `stay.status = CLOSED`, **revoke ngay** mọi `stay_session`, phòng → `CLEANING`, tự tạo housekeeping `CLEANING`.
-- Khi `CHECKOUT_REQUESTED`: `stay.status = CHECKOUT_PENDING`; khách vẫn xem được trạng thái nhưng không tạo đơn mới.
-- Chỉ `RECEPTION` thao tác các bước của Express Checkout.
+| Chuyển | GUEST | RECEPTION | KITCHEN | HOUSEKEEPING |
+|---|:-:|:-:|:-:|:-:|
+| tạo → `CHECKOUT_REQUESTED` | ✅ | | | |
+| `CHECKOUT_REQUESTED → BILLING_VERIFIED → COMPLETED` | | ✅ | | |
+| `CHECKOUT_REQUESTED → REJECTED`, `BILLING_VERIFIED → REJECTED` | | ✅ | | |
+
+- Mỗi stay tối đa **một** yêu cầu đang mở (`CHECKOUT_REQUESTED` hoặc `BILLING_VERIFIED`).
+- Khi `CHECKOUT_REQUESTED`: `stay.status = CHECKOUT_PENDING`; khách vẫn xem được trạng thái và hóa đơn nhưng không tạo đơn/yêu cầu mới (`409`).
+- `→ BILLING_VERIFIED` chỉ khi không còn đơn đồ ăn đang mở (`409 OPEN_ORDERS_EXIST` kèm danh sách đơn). Hóa đơn được chụp lại
+  (`bill_snapshot`) và **khóa**: không sửa phụ phí/giảm giá hay tiền phòng nữa (`409 BILL_LOCKED`) cho tới khi yêu cầu bị từ chối.
+- Khi `COMPLETED`: đóng stay bằng **cùng một hàm** với trả phòng tại quầy — `stay.status = CLOSED`, **revoke ngay** mọi
+  `stay_session` (request sau đó → `401`, `reason = STAY_CLOSED`), phòng → `CLEANING`, hủy yêu cầu còn chờ, tạo việc `TURNOVER`
+  (mục 2, 4), xóa lịch sử chat, gửi một lời cảm ơn (không gửi thêm push riêng cho `COMPLETED`).
+- Khi `REJECTED`: `stay.status = ACTIVE`; khách thấy lý do, dùng app bình thường và gửi yêu cầu mới được.
+- Trả phòng tại quầy khi stay đang có yêu cầu mở → `409 CHECKOUT_REQUEST_OPEN` (xử lý yêu cầu đó trước).
+- Tổng tiền do backend tính (`build_bill`); số tiền không bao giờ nhận từ client. Chỉ `RECEPTION` thao tác các bước.
 
 ## 6. Ma trận phân việc tổng hợp
 

@@ -9,7 +9,7 @@ from app.core.db import DbSession
 from app.core.errors import NotFound
 from app.modules.staff_auth.deps import require_roles
 from app.modules.staff_auth.models import Staff, StaffRole
-from app.modules.stay_access import repository, service
+from app.modules.stay_access import events, repository, service
 from app.modules.stay_access.models import Stay, StayStatus
 from app.modules.stay_access.schemas import (
     CheckInRequest,
@@ -102,6 +102,7 @@ async def reissue_code(
 
 @router.post("/stays/{stay_id}/checkout", response_model=StayOut)
 async def checkout(stay_id: uuid.UUID, staff: Reception, db: DbSession) -> StayOut:
+    await events.run_desk_checkout_guards(db, stay_id)
     stay = await service.close_stay(db, stay_id, staff)
     room = await repository.get_room(db, stay.room_id)
     return stay_out(stay, room.number if room else "")

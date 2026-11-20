@@ -67,3 +67,21 @@ async def bill_locked(db: AsyncSession, stay_id: uuid.UUID) -> bool:
         if await check(db, stay_id):
             return True
     return False
+
+
+# ---------- desk check-out guard ----------
+# Called before a check-out at the desk (not before close_stay itself, which express checkout
+# also uses). A guard raises to refuse, e.g. while an express checkout request is open.
+DeskCheckoutGuard = Callable[[AsyncSession, uuid.UUID], Awaitable[None]]
+_desk_checkout_guards: list[DeskCheckoutGuard] = []
+
+
+def register_desk_checkout_guard(guard: DeskCheckoutGuard) -> DeskCheckoutGuard:
+    if guard not in _desk_checkout_guards:
+        _desk_checkout_guards.append(guard)
+    return guard
+
+
+async def run_desk_checkout_guards(db: AsyncSession, stay_id: uuid.UUID) -> None:
+    for guard in list(_desk_checkout_guards):
+        await guard(db, stay_id)
