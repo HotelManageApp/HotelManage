@@ -20,6 +20,7 @@ dev = [
     "pytest-cov>=5.0",
     "httpx>=0.27",
     "ruff>=0.6",
+    "pyyaml>=6.0",
 ]
 
 [tool.uv]
@@ -40,7 +41,12 @@ select = ["E", "F", "I", "B", "UP", "S", "ASYNC"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-addopts = "-ra"
+# Live evals call a paid LLM: opt in with `-m live` (or `-m eval_bot`); never in CI.
+addopts = "-ra -m 'not live'"
+markers = [
+    "live: calls a real LLM (needs LLM_PROVIDER and its key); run with -m live",
+    "eval_bot: scenarios used by the /eval-bot command",
+]
 
 [tool.coverage.run]
 source = ["app"]

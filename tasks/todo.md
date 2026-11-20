@@ -259,6 +259,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Files: `lib/features/concierge/{chat_screen,chat_controller,suggested_action_button}.dart`
 
 - [ ] **T43 · Guide eval set** · D13 · AI · S · Deps: T40
+  - Trạng thái: bộ câu + runner + grader đã có (HMA-43); **chưa chạy live** — cần `LLM_PROVIDER` + API key để đo 95% / 0 bịa / p95
   - Accept: `guide_cases.yaml` ≥ 20 câu (vi/en/ko, ngoài KB, câu dẫn bịa); ≥ 95% đúng, 0 bịa; p95 < 8 s
   - Verify: `uv run pytest -q -m live tests/eval/test_guide.py`; `/eval-bot` S1
   - Files: `tests/eval/{guide_cases.yaml,test_guide.py}`

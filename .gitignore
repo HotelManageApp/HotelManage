@@ -52,3 +52,6 @@ mobile-app/android/app/release/
 .DS_Store
 Thumbs.db
 *.log
+
+# ai-service live eval reports
+ai-service/tests/eval/reports/
