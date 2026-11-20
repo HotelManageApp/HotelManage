@@ -202,6 +202,9 @@ async def test_verify_needs_no_open_orders_then_freezes_the_bill(
     assert blocked.json()["error"]["details"] == [{"order_id": str(delivering.id)}]
     detail = (await client.get(f"{REQUESTS}/{request_id}", headers=reception)).json()
     assert detail["open_order_ids"] == [str(delivering.id)]
+    assert detail["open_orders"] == 1
+    queue = (await client.get(REQUESTS, headers=reception)).json()
+    assert queue[0]["open_orders"] == 1, "the queue card warns about open orders"
     assert detail["bill_is_snapshot"] is False
 
     await db.execute(
@@ -411,6 +414,7 @@ async def test_queue_and_detail(
     assert [r["id"] for r in queue] == [request_id]
     assert queue[0]["room_number"] == "101" and queue[0]["guest_name"] == "Tran Thi B"
     assert queue[0]["overdue"] is False
+    assert queue[0]["open_orders"] == 0
     filtered = (
         await client.get(REQUESTS, params={"status": "COMPLETED"}, headers=reception)
     ).json()

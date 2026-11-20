@@ -21,7 +21,7 @@ from app.modules.express_checkout.models import (
     StayCharge,
 )
 from app.modules.notifications.api import EntityType
-from app.modules.room_service.api import open_order_ids
+from app.modules.room_service.api import open_order_counts, open_order_ids
 from app.modules.room_service.schemas import HistoryEntry
 from app.modules.shared.status_history import history_of
 from app.modules.staff_auth.deps import require_roles
@@ -143,6 +143,7 @@ class RequestOut(BaseModel):
     rejected_at: datetime | None
     version: int
     overdue: bool
+    open_orders: int = 0  # food orders still in progress: verification is blocked while > 0
 
 
 class RequestDetail(RequestOut):
@@ -201,7 +202,11 @@ async def list_requests(
             )
         )
     rows = (await db.execute(stmt.order_by(CheckoutRequest.created_at).limit(200))).all()
-    return [_out(r, number, guest) for r, number, guest in rows]
+    counts = await open_order_counts(db, [r.stay_id for r, _, _ in rows])
+    return [
+        _out(r, number, guest).model_copy(update={"open_orders": counts.get(r.stay_id, 0)})
+        for r, number, guest in rows
+    ]
 
 
 async def _detail(db: DbSession, request_id: uuid.UUID) -> RequestDetail:
@@ -237,7 +242,8 @@ async def _detail(db: DbSession, request_id: uuid.UUID) -> RequestDetail:
         for h in await history_of(db, EntityType.CHECKOUT.value, request.id)
     ]
     return RequestDetail(
-        **_out(request, number, guest).model_dump(),
+        **_out(request, number, guest).model_dump(exclude={"open_orders"}),
+        open_orders=len(pending),
         bill=bill,
         bill_is_snapshot=snapshot,
         open_order_ids=pending,

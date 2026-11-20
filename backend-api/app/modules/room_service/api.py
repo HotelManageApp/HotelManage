@@ -71,3 +71,15 @@ async def open_order_ids(db: AsyncSession, stay_id: uuid.UUID) -> list[uuid.UUID
             .order_by(FoodOrder.created_at)
         )
     )
+
+
+async def open_order_counts(db: AsyncSession, stay_ids: list[uuid.UUID]) -> dict[uuid.UUID, int]:
+    """Orders still in progress per stay, in one query (stays without any are left out)."""
+    if not stay_ids:
+        return {}
+    rows = await db.execute(
+        select(FoodOrder.stay_id, func.count())
+        .where(FoodOrder.stay_id.in_(stay_ids), FoodOrder.status.in_(OPEN_ORDER_STATUSES))
+        .group_by(FoodOrder.stay_id)
+    )
+    return {stay_id: count for stay_id, count in rows.all()}
