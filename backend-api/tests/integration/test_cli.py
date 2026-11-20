@@ -1,13 +1,15 @@
+import json
 from collections.abc import Iterator
 
 import httpx
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import cli
 from app.modules.staff_auth.models import Staff, StaffRefreshToken
 from app.modules.staff_auth.security import verify_password
+from app.modules.stay_access.models import Room, RoomStatus, Stay, StayStatus
 from tests.conftest import make_settings
 from tests.factories import DEFAULT_PASSWORD, create_staff
 
@@ -180,3 +182,47 @@ async def test_reset_password_checks_the_account_before_prompting(db: AsyncSessi
 
     with pytest.raises(cli.CliError, match="no staff account"):
         await _run("reset-password", "--email", "ghost@hotel.vn", prompt=no_prompt)
+
+
+async def test_seed_dev_stays_only_in_dev_and_after_seed_dev(db: AsyncSession) -> None:
+    with pytest.raises(cli.CliError, match="APP_ENV=dev"):
+        await _run("seed-dev-stays", env="test")
+    with pytest.raises(cli.CliError, match="seed-dev first"):
+        await _run("seed-dev-stays", env="dev")
+
+
+async def test_seed_dev_stays_prints_working_tokens_and_cleans_up(
+    client: httpx.AsyncClient, db: AsyncSession
+) -> None:
+    await create_staff(db, email=cli.DEV_RECEPTION)
+
+    first = json.loads((await _run("seed-dev-stays", env="dev"))[0])
+    assert [(s["label"], s["room_number"]) for s in first] == [("A", "DEV-A"), ("B", "DEV-B")]
+    assert first[0]["stay_id"] != first[1]["stay_id"]
+    for seeded in first:
+        me = await client.get(
+            "/api/v1/guest/me", headers={"Authorization": f"Bearer {seeded['token']}"}
+        )
+        assert me.status_code == 200
+        assert me.json()["room_number"] == seeded["room_number"]
+
+    # A second run starts from fresh stays: the previous ones are closed like a check-out.
+    second = json.loads((await _run("seed-dev-stays", env="dev"))[0])
+    old = await client.get(
+        "/api/v1/guest/me", headers={"Authorization": f"Bearer {first[0]['token']}"}
+    )
+    assert old.status_code == 401
+    new = await client.get(
+        "/api/v1/guest/me", headers={"Authorization": f"Bearer {second[0]['token']}"}
+    )
+    assert new.status_code == 200
+
+    assert await _run("seed-dev-stays", "--close", env="dev") == ["dev stays closed: 2"]
+    db.expire_all()
+    rooms = (await db.execute(select(Room.number, Room.status).order_by(Room.number))).all()
+    assert rooms == [("DEV-A", RoomStatus.VACANT), ("DEV-B", RoomStatus.VACANT)]
+    open_stays = await db.scalar(
+        select(func.count()).select_from(Stay).where(Stay.status != StayStatus.CLOSED)
+    )
+    assert open_stays == 0
+    assert await _run("seed-dev-stays", "--close", env="dev") == ["dev stays closed: 0"]

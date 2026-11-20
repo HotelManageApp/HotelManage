@@ -32,6 +32,13 @@ class OrderLineOut(BaseModel):
     note: str | None
 
 
+class OrderPreview(BaseModel):
+    """What an order with this body would be, priced by the server; nothing is stored."""
+
+    items: list[OrderLineOut]
+    total_vnd: int
+
+
 class HistoryEntry(BaseModel):
     from_status: str | None
     to_status: str
