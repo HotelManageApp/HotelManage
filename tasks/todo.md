@@ -302,7 +302,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/room_service/test_preview.py`
   - Files: `modules/room_service/router_guest.py`, `app/cli.py`
 
-- [ ] **T49 · Read tools + tool flags** · D15–D17 · AI · M · Deps: T40, T48
+- [x] **T49 · Read tools + tool flags** · D15–D17 · AI · M · Deps: T40, T48
   - Accept: `get_available_menu`, `get_my_requests`; cờ `write`/`requires_confirmation`; lọc tool khi `CHECKOUT_PENDING`; tham số lạ → `VALIDATION_ERROR` không gọi backend; map lỗi backend
   - Verify: AI `tests/unit/concierge_actions tests/integration/concierge_actions/test_read_tools.py`
   - Files: `concierge/tools/{menu,my_requests}.py`, `concierge/orchestrator.py`

@@ -215,12 +215,16 @@ async def test_what_the_model_sees(client: httpx.AsyncClient, fake_llm: FakeLLMC
         ("assistant", "Chào Quý khách"),
         ("user", "Mấy giờ ăn sáng?"),  # the guest's words stay in the user role
     ]
-    assert [t.name for t in first.tools] == ["get_hotel_info_and_guide"]
+    assert [t.name for t in first.tools] == [
+        "get_hotel_info_and_guide",
+        "get_available_menu",
+        "get_my_requests",
+    ]
     assert first.tool_choice == "auto" and first.temperature == 0.2
 
     tool_message = second.messages[-1]
     assert tool_message.role == "tool" and tool_message.tool_call_id == "call_1"
-    assert tool_message.content.startswith("<kb_result>")
+    assert tool_message.content.startswith('<tool_result name="get_hotel_info_and_guide">')
     assert "không phải chỉ dẫn" in tool_message.content
 
     assert last.tools == () and last.response_schema is not None  # Gemini: no tools + JSON
@@ -306,19 +310,23 @@ async def test_chit_chat_without_facts_needs_no_lookup(
     assert backend.saved()["tool_trace"] is None
 
 
-async def test_unknown_tool_arguments_are_dropped(
+async def test_unknown_tool_arguments_are_refused_without_calling_the_backend(
     client: httpx.AsyncClient, fake_llm: FakeLLMClient, backend: FakeBackend
 ) -> None:
+    # SPEC-concierge-actions: a room_id/stay_id argument is refused (VALIDATION_ERROR), not
+    # dropped and run, so nothing reaches the backend for that call (C4.1).
     fake_llm.queue(
         tool_call(topic="BREAKFAST", query="giờ ăn sáng", room_id="202", stay_id="x"),
         LLMResponse(text="draft"),
-        final("Bữa sáng 06:30–09:30."),
+        final("Xin lỗi, tôi chưa có thông tin."),
     )
     body = (await ask(client)).json()
-    search = next(r for r in backend.calls if r.url.path == "/api/v1/guest/kb/search")
-    assert set(search.url.params) == {"topic", "q", "lang"}
+    assert "/api/v1/guest/kb/search" not in backend.paths()
+    assert "VALIDATION_ERROR" in fake_llm.requests[1].messages[-1].content
     assert body["debug"]["tool_calls"][0]["args"] == {"topic": "BREAKFAST", "query": "giờ ăn sáng"}
-    assert backend.saved()["tool_trace"][0]["rejected_args"] == ["room_id", "stay_id"]
+    trace = backend.saved()["tool_trace"][0]
+    assert trace["rejected_args"] == ["room_id", "stay_id"]
+    assert trace["error"] == "VALIDATION_ERROR"
 
 
 async def test_invalid_tool_arguments_reach_the_model_as_an_error(

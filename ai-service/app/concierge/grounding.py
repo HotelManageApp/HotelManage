@@ -78,7 +78,8 @@ def _source_facts(sources: list[str]) -> set[Fact]:
         # Bare numbers in structured data ("distance_km": 1.2, "price_vnd": 65000).
         for km in re.findall(r'"distance_km":\s*(\d+(?:\.\d+)?)', source):
             found.add(Fact("distance", str(round(float(km) * 1000))))
-        for price in re.findall(r'"(?:price|amount|total)_vnd":\s*(\d+)', source):
+        # Any *_vnd field: price_vnd, unit_price_vnd, line_total_vnd, total_vnd, amount_vnd.
+        for price in re.findall(r'"(?:\w+_)?(?:price|amount|total)_vnd":\s*(\d+)', source):
             found.add(Fact("price", price))
     return found
 

@@ -7,7 +7,8 @@ app. Errors are mapped to a few exceptions the orchestrator turns into HTTP answ
     401 from backend         -> BackendUnauthorized   (the chat answers 401)
     429 from backend         -> BackendRateLimited    (429 with the same Retry-After)
     timeout / network / 5xx  -> BackendUnavailable    (503)
-    other 4xx                -> BackendError          (a bug on our side; logged, 502)
+    other 4xx                -> BackendError          (outside a tool: 502; a tool maps it to
+                                                       its error code, see concierge/tools/base)
 
 The token is never logged and never put in an exception message.
 """
@@ -126,7 +127,10 @@ class BackendClient:
         if response.status_code >= 500:
             logger.warning("backend_error", path=path, status=response.status_code)
             raise BackendUnavailable(response.status_code, code, message)
-        logger.error("backend_rejected", path=path, status=response.status_code, code=code)
+        # 404/409 are business answers a tool passes on (no request yet, dish sold out…);
+        # any other 4xx means ai-service sent something wrong.
+        log = logger.info if response.status_code in (404, 409) else logger.error
+        log("backend_rejected", path=path, status=response.status_code, code=code)
         raise BackendError(response.status_code, code, message)
 
     # ---------- guest endpoints ----------
@@ -190,6 +194,27 @@ class BackendClient:
             token,
             params={"topic": topic, "q": query, "lang": lang},
         )
+
+    async def menu(
+        self, token: str, *, category: str | None = None, search: str | None = None
+    ) -> dict[str, Any]:
+        params = {k: v for k, v in (("category", category), ("search", search)) if v}
+        return await self._call("GET", "/api/v1/guest/menu", token, params=params or None)
+
+    async def my_orders(self, token: str) -> list[dict[str, Any]]:
+        return await self._call("GET", "/api/v1/guest/orders", token)
+
+    async def my_housekeeping(self, token: str) -> list[dict[str, Any]]:
+        return await self._call("GET", "/api/v1/guest/housekeeping-requests", token)
+
+    async def current_checkout(self, token: str) -> dict[str, Any] | None:
+        """The stay's latest checkout request, or None when there is none (404)."""
+        try:
+            return await self._call("GET", "/api/v1/guest/checkout-requests/current", token)
+        except BackendError as exc:
+            if exc.status == 404:
+                return None
+            raise
 
 
 def _envelope(response: httpx.Response) -> dict[str, Any]:

@@ -1,7 +1,8 @@
 """One concierge turn (SPEC-concierge-guide, "Vòng xử lý LLM" and "Kiểm tra grounding").
 
-    1. tool rounds (≤ 3): the model may call get_hotel_info_and_guide; results go back as data
-       inside <kb_result>, with an explicit "no information" note when found=false;
+    1. tool rounds (≤ 3): the model may call the tools the stay may use (registry.available:
+       no write tool while CHECKOUT_PENDING); results go back as data inside <tool_result>,
+       with an explicit "no information" note when the knowledge base found nothing;
     2. a final turn without tools asks for {reply, suggested_actions} as JSON (Gemini cannot mix
        tools and JSON output);
     3. grounding: facts but no tool call -> one more round forced to call the tool; facts that
@@ -17,7 +18,8 @@ from pathlib import Path
 from typing import Any
 
 from app.concierge import grounding
-from app.concierge.tools import guide
+from app.concierge.tools import guide, registry
+from app.concierge.tools.base import Tool, ToolRun, error, execute
 from app.core.backend_client import BackendClient, ChatLine, GuestContext, HotelInfo
 from app.core.logging import get_logger
 from app.llm.base import LLMClient, LLMRequest, Message, ToolCall
@@ -50,7 +52,7 @@ NOT_FOUND_NOTE = (
 )
 FINAL_NOTE = (
     "Now write the answer for the guest as JSON with 'reply' and 'suggested_actions'. "
-    "Use only facts from the <kb_result> data above."
+    "Use only facts from the <tool_result> data above."
 )
 FALLBACK = {
     "vi": (
@@ -73,7 +75,7 @@ class Turn:
     reply: str
     suggested_actions: list[dict[str, str]]
     grounded: bool
-    tool_runs: list[guide.ToolRun] = field(default_factory=list)
+    tool_runs: list[ToolRun] = field(default_factory=list)
     forced_tool: bool = False
 
     def trace(self) -> list[dict[str, Any]]:
@@ -97,8 +99,16 @@ def fallback_reply(lang: str, phone: str) -> str:
 
 
 class Orchestrator:
-    def __init__(self, llm: LLMClient, backend: BackendClient, *, timezone_name: str) -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        backend: BackendClient,
+        *,
+        timezone_name: str,
+        tools: tuple[Tool, ...] = registry.ALL_TOOLS,
+    ) -> None:
         self._llm, self._backend, self._tz = llm, backend, timezone_name
+        self._tools = tools
         self._prompt = load_prompt()
 
     def _system(self, info: HotelInfo, guest: GuestContext, now: datetime) -> str:
@@ -129,7 +139,8 @@ class Orchestrator:
             conversation.append(Message(role=role, content=line.content))
         conversation.append(Message(role="user", content=message))
 
-        runs = await self._tool_rounds(conversation, token, guest.lang, choice="auto")
+        tools = registry.available(guest.status, self._tools)
+        runs = await self._tool_rounds(conversation, token, guest, tools, choice="auto")
         reply, targets = await self._final(conversation)
         turn = Turn(
             reply=reply, suggested_actions=suggested(targets), grounded=True, tool_runs=runs
@@ -139,7 +150,7 @@ class Orchestrator:
         if not turn.tool_runs and grounding.has_facts(turn.reply):
             turn.forced_tool = True
             turn.tool_runs = await self._tool_rounds(
-                conversation, token, guest.lang, choice="required", rounds=1
+                conversation, token, guest, tools, choice="required", rounds=1
             )
             turn.reply, targets = await self._final(conversation)
             turn.suggested_actions = suggested(targets)
@@ -163,41 +174,54 @@ class Orchestrator:
         self,
         conversation: list[Message],
         token: str,
-        lang: str,
+        guest: GuestContext,
+        tools: tuple[Tool, ...],
         *,
         choice: str,
         rounds: int = MAX_TOOL_ROUNDS,
-    ) -> list[guide.ToolRun]:
-        runs: list[guide.ToolRun] = []
+    ) -> list[ToolRun]:
+        offered = registry.by_name(tools)
+        known = registry.by_name(self._tools)
+        runs: list[ToolRun] = []
         for round_index in range(rounds):
             response = await self._llm.generate(
                 LLMRequest(
                     messages=tuple(conversation),
-                    tools=(guide.SPEC,),
+                    tools=tuple(t.spec for t in tools),
                     tool_choice="required" if choice == "required" and round_index == 0 else "auto",
                     temperature=TEMPERATURE,
                 )
             )
-            calls = [c for c in response.tool_calls if c.name == guide.SPEC.name]
+            calls = list(response.tool_calls)
             if not calls:
                 return runs
             conversation.append(
                 Message(role="assistant", content=response.text, tool_calls=tuple(calls))
             )
             for call in calls:
-                run = await guide.run(self._backend, token, call.arguments, lang)
+                tool = offered.get(call.name)
+                if tool is not None:
+                    run = await execute(tool, self._backend, token, call.arguments, guest.lang)
+                else:
+                    # Not offered: a write tool while CHECKOUT_PENDING, or a made-up name.
+                    code = "STAY_CHECKOUT_PENDING" if call.name in known else "VALIDATION_ERROR"
+                    logger.warning("tool_not_offered", tool=call.name)
+                    run = ToolRun(call.name, {}, error(code, "tool not available"))
                 runs.append(run)
                 conversation.append(self._tool_message(call, run))
         return runs
 
     @staticmethod
-    def _tool_message(call: ToolCall, run: guide.ToolRun) -> Message:
+    def _tool_message(call: ToolCall, run: ToolRun) -> Message:
         payload = json.dumps(run.output, ensure_ascii=False)
-        note = "" if run.found else f"\n{NOT_FOUND_NOTE}"
+        empty_kb = run.name == guide.SPEC.name and not guide.found(run.output)
+        note = f"\n{NOT_FOUND_NOTE}" if empty_kb else ""
         return Message(
             role="tool",
             tool_call_id=call.id,
-            content=f"<kb_result>\n{payload}\n</kb_result>\n{DATA_NOTE}{note}",
+            content=(
+                f'<tool_result name="{run.name}">\n{payload}\n</tool_result>\n{DATA_NOTE}{note}'
+            ),
         )
 
     async def _final(self, conversation: list[Message]) -> tuple[str, Any]:

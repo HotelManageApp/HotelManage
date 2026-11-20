@@ -1,15 +1,12 @@
 """`get_hotel_info_and_guide` (docs/chatbot-tools-spec.md §4.1): read-only knowledge-base lookup."""
 
-from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.core.backend_client import BackendClient, BackendError, BackendUnauthorized
-from app.core.logging import get_logger
+from app.concierge.tools.base import Tool
+from app.core.backend_client import BackendClient
 from app.llm.base import ToolSpec
-
-logger = get_logger(__name__)
 
 Topic = Literal[
     "BREAKFAST",
@@ -58,65 +55,22 @@ SPEC = ToolSpec(
 )
 
 
-@dataclass
-class ToolRun:
-    """One executed call, kept for grounding and for the stored tool trace (no token)."""
-
-    name: str
-    args: dict[str, Any]
-    output: dict[str, Any]
-    rejected_args: list[str] = field(default_factory=list)
-
-    @property
-    def found(self) -> bool:
-        return bool(self.output.get("ok") and self.output.get("data", {}).get("found"))
-
-    def trace(self) -> dict[str, Any]:
-        data = self.output.get("data") or {}
-        return {
-            "tool": self.name,
-            "args": self.args,
-            "found": self.found,
-            "kb_ids": [e.get("id") for e in data.get("entries", []) if e.get("id")],
-            "places": [p.get("name") for p in data.get("places", [])],
-            **({"rejected_args": self.rejected_args} if self.rejected_args else {}),
-        }
-
-
-def clean_args(raw: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
-    """Drop arguments the schema does not know (room_id included), log them, keep the rest."""
-    known = set(SCHEMA["properties"])
-    rejected = sorted(k for k in raw if k not in known)
-    if rejected:
-        logger.warning("tool_arg_rejected", tool=SPEC.name, args=rejected)
-    return {k: v for k, v in raw.items() if k in known}, rejected
-
-
-async def run(backend: BackendClient, token: str, raw_args: dict[str, Any], lang: str) -> ToolRun:
-    args, rejected = clean_args(raw_args)
-    try:
-        parsed = GuideArgs.model_validate(args)
-    except ValidationError as exc:
-        fields = sorted({".".join(str(p) for p in e["loc"]) for e in exc.errors()})
-        return ToolRun(
-            SPEC.name,
-            args,
-            {"ok": False, "error": {"code": "VALIDATION_ERROR", "message": ", ".join(fields)}},
-            rejected,
-        )
-    try:
-        data = await backend.kb_search(
-            token, topic=parsed.topic, query=parsed.query, lang=parsed.lang or lang
-        )
-    except BackendUnauthorized:
-        raise  # the session ended mid-chat: the whole request answers 401
-    except BackendError as exc:
-        return ToolRun(
-            SPEC.name,
-            parsed.model_dump(exclude_none=True),
-            {"ok": False, "error": {"code": "UPSTREAM_ERROR", "message": exc.code}},
-            rejected,
-        )
-    return ToolRun(
-        SPEC.name, parsed.model_dump(exclude_none=True), {"ok": True, "data": data}, rejected
+async def _run(backend: BackendClient, token: str, args: GuideArgs, lang: str) -> dict[str, Any]:
+    return await backend.kb_search(
+        token, topic=args.topic, query=args.query, lang=args.lang or lang
     )
+
+
+def _summary(data: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "found": bool(data.get("found")),
+        "kb_ids": [e.get("id") for e in data.get("entries", []) if e.get("id")],
+        "places": [p.get("name") for p in data.get("places", [])],
+    }
+
+
+def found(output: dict[str, Any]) -> bool:
+    return bool(output.get("ok") and (output.get("data") or {}).get("found"))
+
+
+TOOL = Tool(spec=SPEC, args_model=GuideArgs, runner=_run, summarize=_summary)
