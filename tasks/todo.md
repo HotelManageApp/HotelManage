@@ -340,7 +340,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: báo cáo + test hồi quy cho mỗi lỗi tìm thấy
   - Files: `docs/security-report.md`, test liên quan
 
-- [ ] **T55 · Load test** · D23 · WEB · S · Deps: CP-F
+- [x] **T55 · Load test** · D23 · WEB · S · Deps: CP-F
   - Accept: kịch bản k6 50 khách đồng thời (đăng nhập, menu, đặt món, theo dõi); không 5xx; p95 API < 500 ms
   - Verify: `k6 run loadtest/guest_flow.js` + kết quả lưu `docs/load-test.md`
   - Files: `loadtest/guest_flow.js`, `docs/load-test.md`

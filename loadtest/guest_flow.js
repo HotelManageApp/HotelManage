@@ -12,6 +12,11 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 import { SharedArray } from "k6/data";
+import { Counter } from "k6/metrics";
+
+// 409 TOO_MANY_PENDING_ORDERS (5 pending orders per stay) is a business answer, not a failure.
+http.setResponseCallback(http.expectedStatuses(200, 201, 409));
+const serverErrors = new Counter("server_errors_5xx");
 
 const BASE = `${__ENV.BASE_URL || "http://localhost:8010"}/api/v1`;
 const tokens = new SharedArray("tokens", () =>
@@ -27,18 +32,26 @@ export const options = {
     },
   },
   thresholds: {
-    "http_req_failed{expected_response:false}": ["rate==0"],
+    http_req_failed: ["rate==0"],
+    server_errors_5xx: ["count==0"],
     checks: ["rate>0.99"],
     "http_req_duration{kind:api}": ["p(95)<500"],
     "http_req_duration{name:place_order}": ["p(95)<500"],
   },
 };
 
+function counted(response) {
+  if (response.status >= 500) serverErrors.add(1);
+  return response;
+}
+
 function get(path, token, name) {
-  return http.get(`${BASE}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    tags: { kind: "api", name },
-  });
+  return counted(
+    http.get(`${BASE}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      tags: { kind: "api", name },
+    }),
+  );
 }
 
 export default function () {
@@ -54,7 +67,7 @@ export default function () {
 
   if (items.length > 0 && menu.json("is_open_now")) {
     const dish = items[Math.floor(Math.random() * items.length)];
-    const order = http.post(
+    const order = counted(http.post(
       `${BASE}/guest/orders`,
       JSON.stringify({ items: [{ item_id: dish.item_id, quantity: 1 }] }),
       {
@@ -65,7 +78,7 @@ export default function () {
         },
         tags: { kind: "api", name: "place_order" },
       },
-    );
+    ));
     // 409 TOO_MANY_PENDING_ORDERS is the business limit (5 pending per stay), not an error.
     check(order, { "order 201/409": (r) => r.status === 201 || r.status === 409 });
     if (order.status === 201) {
