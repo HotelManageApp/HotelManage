@@ -22,7 +22,11 @@ import 'package:material_ui/material_ui.dart';
 /// The session decides where you may be; any 401 sends you back to `/`.
 GoRouter buildRouter(WidgetRef ref) {
   final refresh = ValueNotifier<int>(0);
-  ref.listen(sessionProvider, (_, _) => refresh.value++);
+  // listenManual, not listen: a listen made during a build is dropped when
+  // the app widget rebuilds (a language switch, for one), and then a sign-in
+  // or a 401 no longer moves the guest to the right screen. This one lives
+  // as long as the app widget (Riverpod closes it when the widget unmounts).
+  ref.listenManual(sessionProvider, (_, _) => refresh.value++);
 
   return GoRouter(
     initialLocation: '/',

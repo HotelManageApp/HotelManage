@@ -58,6 +58,23 @@ void main() {
     expect(find.text('Xin chào, Tran Thi B'), findsOneWidget);
   });
 
+  testWidgets('signing in after the app rebuilt still opens the home screen', (
+    tester,
+  ) async {
+    // Regression: the router followed the session through a listener tied to
+    // the app widget's build, so any rebuild (here a language switch) dropped
+    // it and a successful sign-in stayed on the welcome screen.
+    final repo = await pumpApp(tester);
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tiếng Việt'));
+    await tester.pumpAndSettle();
+    await enterCode(tester, 'k7m29xpq');
+
+    expect(repo.logins, hasLength(1));
+    expect(find.text('Phòng 101'), findsOneWidget);
+  });
+
   testWidgets('an incomplete code is caught before calling the server', (
     tester,
   ) async {
