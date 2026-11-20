@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { AreaTabs } from "@/components/layout/AreaTabs";
+import { HotelInfoForm } from "@/components/reception/HotelInfoForm";
 import { RoomServiceSettingsForm } from "@/components/reception/RoomServiceSettingsForm";
 
 export default async function ReceptionSettingsPage({
@@ -9,8 +10,9 @@ export default async function ReceptionSettingsPage({
 }) {
   setRequestLocale((await params).locale);
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       <AreaTabs area="reception" />
+      <HotelInfoForm />
       <RoomServiceSettingsForm />
     </div>
   );

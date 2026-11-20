@@ -248,7 +248,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/concierge tests/integration`
   - Files: `app/api/chat.py`, `app/concierge/{orchestrator,grounding}.py`, `tools/guide.py`, `prompts/concierge.md`
 
-- [ ] **T41 · Web knowledge management** · D11–D12 · WEB · M · Deps: T37
+- [x] **T41 · Web knowledge management** · D11–D12 · WEB · M · Deps: T37
   - Accept: tab KB/địa điểm, form song ngữ, công tắc xuất bản, ô "Thử hỏi" (không gọi LLM); thông tin khách sạn + bật/tắt chatbot ở settings
   - Verify: WEB `knowledge`
   - Files: `reception/knowledge/`, `reception/settings/`
