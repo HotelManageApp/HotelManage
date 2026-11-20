@@ -1,0 +1,80 @@
+# Sample knowledge base for a trial hotel — replace every value with the hotel's real information
+# before guests use the chatbot: the bot answers ONLY from this data (CONSTRAINTS C2).
+#   uv run python -m app.cli seed-kb --from-file seeds/kb.example.yaml
+# Topics: BREAKFAST FACILITIES SERVICES POLICIES WIFI TRANSPORT OTHER
+# Place categories: ATTRACTION FOOD_NEARBY TRANSPORT SHOPPING HEALTH
+# map_url: only https://maps.google.com/... or https://maps.app.goo.gl/... links are accepted.
+
+hotel:
+  hotel_name: Khách sạn Mẫu
+  reception_phone: "0900 000 000"
+  default_lang: vi
+  chat_enabled: true
+
+entries:
+  - topic: BREAKFAST
+    title_vi: Giờ ăn sáng
+    title_en: Breakfast hours
+    content_vi: Bữa sáng phục vụ từ 06:30 đến 09:30 tại nhà hàng tầng 1, đã bao gồm trong giá phòng.
+    content_en: Breakfast is served 06:30–09:30 in the ground-floor restaurant and is included in the room rate.
+  - topic: WIFI
+    title_vi: Wi-Fi miễn phí
+    title_en: Free Wi-Fi
+    content_vi: Mạng "Hotel-Guest", mật khẩu in trên phiếu nhận phòng. Liên hệ Lễ tân nếu không kết nối được.
+    content_en: Network "Hotel-Guest"; the password is printed on your check-in slip. Call reception if you cannot connect.
+  - topic: POLICIES
+    title_vi: Giờ nhận và trả phòng
+    title_en: Check-in and check-out times
+    content_vi: Nhận phòng từ 14:00, trả phòng trước 12:00. Trả phòng muộn tùy tình trạng phòng, vui lòng hỏi Lễ tân.
+    content_en: Check-in from 14:00, check-out by 12:00. Late check-out depends on availability; please ask reception.
+  - topic: POLICIES
+    title_vi: Không hút thuốc
+    title_en: Non-smoking
+    content_vi: Toàn bộ phòng nghỉ không hút thuốc. Khu vực hút thuốc ở sân sau tầng 1.
+    content_en: All rooms are non-smoking. The smoking area is in the back yard on the ground floor.
+  - topic: FACILITIES
+    title_vi: Hồ bơi và phòng gym
+    title_en: Swimming pool and gym
+    content_vi: Hồ bơi tầng thượng mở 06:00–21:00; phòng gym tầng 2 mở 24 giờ, dùng thẻ phòng để vào.
+    content_en: The rooftop pool is open 06:00–21:00; the 2nd-floor gym is open 24 hours with your room card.
+  - topic: SERVICES
+    title_vi: Giặt ủi
+    title_en: Laundry
+    content_vi: Gửi đồ giặt cho Lễ tân trước 10:00 để nhận lại trong ngày. Bảng giá đặt trong tủ quần áo.
+    content_en: Hand laundry to reception before 10:00 for same-day return. The price list is in the wardrobe.
+  - topic: TRANSPORT
+    title_vi: Đặt taxi và xe sân bay
+    title_en: Taxi and airport transfer
+    content_vi: Lễ tân đặt taxi hoặc xe đưa đón sân bay theo yêu cầu; vui lòng báo trước 3 giờ với xe sân bay.
+    content_en: Reception books taxis or airport transfers on request; please give 3 hours' notice for the airport.
+
+places:
+  - category: ATTRACTION
+    name: Chợ Bến Thành
+    description_vi: Chợ truyền thống, đi bộ khoảng 15 phút.
+    description_en: Traditional market, about 15 minutes on foot.
+    distance_km: 1.2
+    open_hours: "06:00–18:00"
+    map_url: https://maps.google.com/?q=Ben+Thanh+Market
+  - category: ATTRACTION
+    name: Nhà thờ Đức Bà
+    description_vi: Nhà thờ kiến trúc Pháp, đang trùng tu, xem được từ bên ngoài.
+    description_en: French-era cathedral under restoration; can be seen from outside.
+    distance_km: 1.8
+  - category: FOOD_NEARBY
+    name: Phở Hòa
+    description_vi: Quán phở lâu năm, đông khách buổi sáng.
+    description_en: Long-standing pho shop, busy in the morning.
+    distance_km: 0.6
+    open_hours: "06:00–22:00"
+  - category: TRANSPORT
+    name: Ga Metro Bến Thành
+    description_vi: Tuyến Metro số 1, đi bộ khoảng 10 phút.
+    description_en: Metro line 1, about 10 minutes on foot.
+    distance_km: 0.9
+  - category: HEALTH
+    name: Nhà thuốc Long Châu
+    description_vi: Nhà thuốc gần nhất.
+    description_en: Nearest pharmacy.
+    distance_km: 0.3
+    open_hours: "07:00–22:00"

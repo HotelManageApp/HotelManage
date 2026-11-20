@@ -18,7 +18,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: `docker compose up -d db` chạy; `git check-ignore backend-api/.env` khớp
   - Files: `docker-compose.yml`, `.gitignore`, `README.md`, `.github/pull_request_template.md`
 
-- [ ] **T02 · backend-api skeleton** · D01 · BE · M · Deps: T01
+- [x] **T02 · backend-api skeleton** · D01 · BE · M · Deps: T01
   - Accept: `create_app` + `Settings` (thiếu biến → không start); envelope lỗi + 422→400 + `X-Request-ID`; log JSON redact; `/health` 200/503; Alembic revision nền (`pgcrypto`, `citext`, `unaccent`, `hotel_settings`)
   - Verify: BE `tests/` (SC 2–6 của foundation), coverage ≥ 70%
   - Files: `app/main.py`, `app/core/{config,errors,logging,request_id,db}.py`, `app/api/health.py`, `migrations/`, `tests/`
@@ -51,22 +51,22 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 2 — Staff auth (D02–D03) · spec: SPEC-staff-auth
 
-- [ ] **T07 · Staff model, security, rate limiter** · D02 · BE · M · Deps: T02
+- [x] **T07 · Staff model, security, rate limiter** · D02 · BE · M · Deps: T02
   - Accept: migration `staff`, `staff_refresh_token`, `rate_limit_bucket`; `security.py` (argon2id, JWT encode/decode, `typ`, `ver`); `core/rate_limit.py`
   - Verify: BE `tests/unit/staff_auth tests/unit/core`
   - Files: `modules/staff_auth/{models,security}.py`, `core/rate_limit.py`, migration
 
-- [ ] **T08 · Staff auth endpoints** · D02 · BE · M · Deps: T07
+- [x] **T08 · Staff auth endpoints** · D02 · BE · M · Deps: T07
   - Accept: login/refresh (xoay vòng, phát hiện dùng lại)/logout/me/password; cookie đủ cờ, kiểm `Origin`; sai 5 lần → `429` + `Retry-After`; cùng thông báo cho sai email/mật khẩu
   - Verify: BE `tests/integration/staff_auth`
   - Files: `modules/staff_auth/{schemas,service,repository,router}.py`
 
-- [ ] **T09 · RBAC dependencies + route guard** · D03 · BE · S · Deps: T08
+- [x] **T09 · RBAC dependencies + route guard** · D03 · BE · S · Deps: T08
   - Accept: `current_staff`, `require_roles`; test quét router (endpoint thiếu phân quyền → đỏ); ma trận 3×3 `200/403`, token `typ=stay` → `401`
   - Verify: BE `tests/integration/test_route_guards.py tests/integration/staff_auth/test_rbac.py`
   - Files: `modules/staff_auth/deps.py`, `tests/integration/test_route_guards.py`
 
-- [ ] **T10 · Staff CLI** · D03 · BE · S · Deps: T07
+- [x] **T10 · Staff CLI** · D03 · BE · S · Deps: T07
   - Accept: `create-staff`, `set-active` (tăng `token_version`), `reset-password` (prompt ẩn), `seed-dev` chỉ khi `APP_ENV=dev`
   - Verify: BE `tests/unit/test_cli.py`; chạy `uv run python -m app.cli seed-dev`
   - Files: `app/cli.py`
@@ -83,22 +83,22 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ## Phase 3 — Stay access (D03–D05) · spec: SPEC-stay-access
 
-- [ ] **T12 · Room/stay models, codes, tokens** · D03 · BE (AI hỗ trợ) · M · Deps: T07
+- [x] **T12 · Room/stay models, codes, tokens** · D03 · BE (AI hỗ trợ) · M · Deps: T07
   - Accept: migration `room`, `stay`, `stay_session` (+ unique có điều kiện); `codes.py` (bảng 31 ký tự, `normalize_code`, HMAC pepper); `tokens.py` (`typ=stay`, secret riêng)
   - Verify: BE `tests/unit/stay_access`
   - Files: `modules/stay_access/{models,codes,tokens}.py`, migration
 
-- [ ] **T13 · Rooms + check-in API** · D04 · BE · M · Deps: T09, T12
+- [x] **T13 · Rooms + check-in API** · D04 · BE · M · Deps: T09, T12
   - Accept: CRUD `/rooms`, `POST /stays` (khóa hàng, phòng không `VACANT` → `409`, mã thô trả một lần), `GET/PATCH /stays`, CLI `seed-rooms`
   - Verify: BE `tests/integration/stay_access/test_checkin.py` (gồm check-in đồng thời)
   - Files: `modules/stay_access/{schemas,service,repository,router_staff}.py`, `seeds/rooms.example.csv`
 
-- [ ] **T14 · close_stay, reissue, checkout, hook** · D04 · BE · M · Deps: T13
+- [x] **T14 · close_stay, reissue, checkout, hook** · D04 · BE · M · Deps: T13
   - Accept: `close_stay()` dùng chung; `events.register_on_stay_closed`; `reissue-code`, `checkout`, `mark-vacant`; revoke trong cùng transaction
   - Verify: BE `tests/integration/stay_access/test_close_stay.py`
   - Files: `modules/stay_access/{service,events,router_staff}.py`
 
-- [ ] **T15 · Guest auth + current_stay** · D05 · BE · M · Deps: T14
+- [x] **T15 · Guest auth + current_stay** · D05 · BE · M · Deps: T14
   - Accept: `room-code`/`renew`/`logout`/`me`; `current_stay`, `current_active_stay`; rate limit IP/device; tối đa 6 session; **đủ test C5.1, C5.2**
   - Verify: BE `tests/integration/stay_access/test_guest_auth.py`; coverage `stay_access` ≥ 85%
   - Files: `modules/stay_access/{deps,router_guest}.py`
@@ -128,17 +128,17 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### notifications · spec: SPEC-notifications
 
-- [ ] **T19 · Outbox + emit_status_changed** · D06 · AI→BE · M · Deps: T14
+- [x] **T19 · Outbox + emit_status_changed** · D06 · AI→BE · M · Deps: T14
   - Accept: `notification_outbox`, cột `fcm_token`; `emit_status_changed` (outbox + `pg_notify`); worker `SKIP LOCKED`; `LogSender`/`FakePushSender`; mẫu vi/en; rollback → không có sự kiện
   - Verify: BE `tests/integration/notifications/test_outbox.py`
   - Files: `modules/notifications/{api,models,outbox_worker,senders}.py`, `templates/`, migration
 
-- [ ] **T20 · FcmSender + fcm-token API** · D07 · AI→BE · M · Deps: T19
+- [x] **T20 · FcmSender + fcm-token API** · D07 · AI→BE · M · Deps: T19
   - Accept: FCM HTTP v1 qua `google-auth`; xử lý `UNREGISTERED`/retry 2-10-30 s/`FAILED`; `PUT/DELETE /guest/me/fcm-token`; chụp token cho `STAY/CLOSED`
   - Verify: BE `tests/integration/notifications/test_fcm.py`
   - Files: `modules/notifications/{senders,router_guest}.py`, `stay_access/service.py` (chụp token)
 
-- [ ] **T21 · SSE staff events + dev notify** · D07 · AI→BE · M · Deps: T19, T09
+- [x] **T21 · SSE staff events + dev notify** · D07 · AI→BE · M · Deps: T19, T09
   - Accept: `/staff/events` lọc theo vai trò, ping 15 s, đóng khi token hết hạn; `/dev/notify-test` chỉ khi `APP_ENV=dev`; latency commit→SSE < 1 s
   - Verify: BE `tests/integration/notifications/test_sse.py`
   - Files: `modules/notifications/{sse,router_dev}.py`
@@ -155,22 +155,22 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### room-service · spec: SPEC-room-service
 
-- [ ] **T24 · Menu + status_history + settings** · D06 · BE · M · Deps: T15
+- [x] **T24 · Menu + status_history + settings** · D06 · BE · M · Deps: T15
   - Accept: migration menu, `status_history` dùng chung, cột `hotel_settings`; `GET /guest/menu` (shape = tool `get_available_menu`); CRUD menu `KITCHEN`; giờ phục vụ `RECEPTION`; `seed-menu`
   - Verify: BE `tests/integration/room_service/test_menu.py`
   - Files: `modules/room_service/{models,schemas,router_guest,router_staff}.py`, `modules/shared/status_history.py`, `seeds/menu.example.csv`
 
-- [ ] **T25 · Create order (guest)** · D07 · BE · M · Deps: T24
+- [x] **T25 · Create order (guest)** · D07 · BE · M · Deps: T24
   - Accept: `POST /guest/orders` đủ bảng quy tắc (chụp giá, `ITEM_UNAVAILABLE`, `KITCHEN_CLOSED`, 5 PENDING, `Idempotency-Key`, trường lạ `400`); list/detail/cancel của khách; `403` stay khác
   - Verify: BE `tests/integration/room_service/test_create_order.py`
   - Files: `modules/room_service/{service,repository,router_guest}.py`
 
-- [ ] **T26 · Order state machine + kitchen API** · D07–D08 · BE · M · Deps: T25, T19
+- [x] **T26 · Order state machine + kitchen API** · D07–D08 · BE · M · Deps: T25, T19
   - Accept: `state.py` + `transition`; `/orders/{id}/transition|cancel` có `version`; `emit_status_changed`; test bảng 36 cặp × 4 actor (C5.4)
   - Verify: BE `tests/unit/room_service tests/integration/room_service/test_transitions.py`
   - Files: `modules/room_service/{state,service,router_staff}.py`, `notifications/templates/`
 
-- [ ] **T27 · Order hooks, overdue, food total** · D08 · BE · S · Deps: T26
+- [x] **T27 · Order hooks, overdue, food total** · D08 · BE · S · Deps: T26
   - Accept: `on_stay_closed` hủy `PENDING/CONFIRMED`; job mỗi phút nhắc quá 10 phút một lần; `get_stay_food_total`, `count_open_orders`
   - Verify: BE `tests/integration/room_service/test_hooks.py`; coverage `room_service` ≥ 80%
   - Files: `modules/room_service/{api,jobs}.py`, migration (`overdue_notified_at`)
@@ -197,17 +197,17 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### housekeeping · spec: SPEC-housekeeping
 
-- [ ] **T32 · Housekeeping requests (guest) + DND** · D08 · BE · M · Deps: T24 (status_history), T15
+- [x] **T32 · Housekeeping requests (guest) + DND** · D08 · BE · M · Deps: T24 (status_history), T15
   - Accept: migration; `POST/GET/cancel /guest/housekeeping-requests` đủ bảng quy tắc (1 CLEANING mở, 3 AMENITY, `TURNOVER` → `400`, idempotency); `PUT /guest/me/do-not-disturb`
   - Verify: BE `tests/integration/housekeeping/test_guest.py`
   - Files: `modules/housekeeping/{models,schemas,service,repository,router_guest}.py`, migration
 
-- [ ] **T33 · Housekeeping state machine + staff API** · D09 · BE · M · Deps: T32, T19
+- [x] **T33 · Housekeeping state machine + staff API** · D09 · BE · M · Deps: T32, T19
   - Accept: `transition` với quy tắc "chỉ người được gán", trả lại việc, `version`; staff list (thứ tự ưu tiên)/detail/transition/cancel; emit + mẫu; nhắc quá 15 phút
   - Verify: BE `tests/unit/housekeeping tests/integration/housekeeping/test_staff.py`
   - Files: `modules/housekeeping/{state,router_staff,jobs}.py`, `notifications/templates/`
 
-- [ ] **T34 · TURNOVER + domain-rules update** · D10 · BE · S · Deps: T33, T14
+- [x] **T34 · TURNOVER + domain-rules update** · D10 · BE · S · Deps: T33, T14
   - Accept: `on_stay_closed` hủy yêu cầu mở + tạo `TURNOVER`; `TURNOVER DONE` → phòng `VACANT`; `mark-vacant` hủy `TURNOVER`; **sửa `docs/domain-rules.md` §2, §4**
   - Verify: BE `tests/integration/housekeeping/test_turnover.py`; coverage `housekeeping` ≥ 80%
   - Files: `modules/housekeeping/hooks.py`, `stay_access/service.py`, `docs/domain-rules.md`
@@ -228,12 +228,12 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### concierge-guide · spec: SPEC-concierge-guide
 
-- [ ] **T37 · KB data + search + staff CRUD** · D07–D08 · AI (BE code) · M · Deps: T15, T09
+- [x] **T37 · KB data + search + staff CRUD** · D07–D08 · AI (BE code) · M · Deps: T15, T09
   - Accept: migration `kb_entry`, `nearby_place` (tsvector unaccent); `GET /guest/kb/search` (shape tool §4.1, fallback theo topic); CRUD `RECEPTION`; `PATCH /settings/hotel`; `seed-kb`
   - Verify: BE `tests/integration/concierge_data/test_kb.py`
   - Files: `modules/concierge_data/{models,search,router_guest,router_staff}.py`, `seeds/kb.example.yaml`
 
-- [ ] **T38 · Chat history + quota** · D09 · AI (BE code) · S · Deps: T37
+- [x] **T38 · Chat history + quota** · D09 · AI (BE code) · S · Deps: T37
   - Accept: `chat_message`; `GET/POST /guest/chat/messages`; `POST /guest/chat/quota` (10/phút, 100/ngày); `GET /guest/hotel-info`; hook xóa khi đóng stay
   - Verify: BE `tests/integration/concierge_data/test_chat.py`
   - Files: `modules/concierge_data/{models,router_guest,hooks}.py`
@@ -275,12 +275,12 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### express-checkout · spec: SPEC-express-checkout
 
-- [ ] **T44 · Checkout models + build_bill** · D15 · BE · M · Deps: T27, T34
+- [x] **T44 · Checkout models + build_bill** · D15 · BE · M · Deps: T27, T34
   - Accept: migration `checkout_request`, `stay_charge`; `build_bill` (chỉ đơn COMPLETED, extras/discount, tổng âm → lỗi, `open_orders`); `GET /stays/{id}/bill`; charges API + `BILL_LOCKED`
   - Verify: BE `tests/unit/express_checkout tests/integration/express_checkout/test_bill.py`
   - Files: `modules/express_checkout/{models,billing,router_staff}.py`, migration
 
-- [ ] **T45 · Checkout flow + domain-rules update** · D16 · BE · M · Deps: T44
+- [x] **T45 · Checkout flow + domain-rules update** · D16 · BE · M · Deps: T44
   - Accept: guest preview/create/current; `transition` + verify/complete/reject (snapshot, `OPEN_ORDERS_EXIST`, `payment_method`); complete gọi `close_stay`; quầy `409 CHECKOUT_REQUEST_OPEN`; `401` body `STAY_CLOSED`; push/nhắc; **sửa `docs/domain-rules.md` §5**
   - Verify: BE `tests/integration/express_checkout/`; coverage ≥ 85%
   - Files: `modules/express_checkout/{state,service,router_guest,router_staff,jobs}.py`, `stay_access/deps.py`, `docs/domain-rules.md`
@@ -297,7 +297,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### concierge-actions · spec: SPEC-concierge-actions
 
-- [ ] **T48 · Order preview + dev stays seed** · D15 · BE · S · Deps: T25
+- [x] **T48 · Order preview + dev stays seed** · D15 · BE · S · Deps: T25
   - Accept: `POST /guest/orders/preview` dùng chung hàm kiểm tra, không ghi DB, tổng = tạo thật; CLI `seed-dev-stays` trả token stay A/B (chỉ dev)
   - Verify: BE `tests/integration/room_service/test_preview.py`
   - Files: `modules/room_service/router_guest.py`, `app/cli.py`
