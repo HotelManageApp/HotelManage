@@ -136,6 +136,8 @@ async def update_stay(db: AsyncSession, stay_id: uuid.UUID, body: StayUpdate) ->
     if stay.status == StayStatus.CLOSED:
         raise Conflict("Kỳ lưu trú đã kết thúc", code="STAY_CLOSED")
     changes = body.model_dump(exclude_unset=True)
+    if changes.get("room_charge_vnd") is not None and await events.bill_locked(db, stay.id):
+        raise Conflict("Hóa đơn đã được chốt, không sửa được tiền phòng nữa", code="BILL_LOCKED")
     if changes.get("expected_checkout_at") is not None and (
         changes["expected_checkout_at"] <= stay.checkin_at
     ):

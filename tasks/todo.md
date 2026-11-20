@@ -274,7 +274,7 @@ Lệnh kiểm tra dùng trong cột Verify:
 
 ### express-checkout · spec: SPEC-express-checkout
 
-- [ ] **T44 · Checkout models + build_bill** · D15 · BE · M · Deps: T27, T34
+- [x] **T44 · Checkout models + build_bill** · D15 · BE · M · Deps: T27, T34
   - Accept: migration `checkout_request`, `stay_charge`; `build_bill` (chỉ đơn COMPLETED, extras/discount, tổng âm → lỗi, `open_orders`); `GET /stays/{id}/bill`; charges API + `BILL_LOCKED`
   - Verify: BE `tests/unit/express_checkout tests/integration/express_checkout/test_bill.py`
   - Files: `modules/express_checkout/{models,billing,router_staff}.py`, migration

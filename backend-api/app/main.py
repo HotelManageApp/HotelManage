@@ -20,6 +20,8 @@ from app.core.request_context import RequestContextMiddleware
 from app.modules.concierge_data import hooks as concierge_hooks
 from app.modules.concierge_data.router_guest import router as guest_kb_router
 from app.modules.concierge_data.router_staff import router as knowledge_router
+from app.modules.express_checkout import hooks as checkout_hooks
+from app.modules.express_checkout.router_staff import router as checkout_staff_router
 from app.modules.housekeeping import hooks as housekeeping_hooks
 from app.modules.housekeeping import jobs as housekeeping_jobs
 from app.modules.housekeeping.router_guest import router as guest_housekeeping_router
@@ -60,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     room_service_jobs.register()
     housekeeping_hooks.register()
     concierge_hooks.register()
+    checkout_hooks.register()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -114,6 +117,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     api_v1.include_router(staff_housekeeping_router)
     api_v1.include_router(guest_kb_router)
     api_v1.include_router(knowledge_router)
+    api_v1.include_router(checkout_staff_router)
     if settings.app_env == "dev":
         api_v1.include_router(dev_router)
     app.include_router(api_v1)

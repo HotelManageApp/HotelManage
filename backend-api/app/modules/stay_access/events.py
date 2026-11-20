@@ -47,3 +47,23 @@ def register_on_room_marked_vacant(handler: RoomHandler) -> RoomHandler:
 async def run_on_room_marked_vacant(db: AsyncSession, room_id: uuid.UUID) -> None:
     for handler in list(_room_vacant_handlers):
         await handler(db, room_id)
+
+
+# ---------- bill lock ----------
+# express-checkout freezes the room charge once the bill is verified. stay_access asks through
+# this hook instead of importing that module.
+BillLockCheck = Callable[[AsyncSession, uuid.UUID], Awaitable[bool]]
+_bill_lock_checks: list[BillLockCheck] = []
+
+
+def register_bill_lock_check(check: BillLockCheck) -> BillLockCheck:
+    if check not in _bill_lock_checks:
+        _bill_lock_checks.append(check)
+    return check
+
+
+async def bill_locked(db: AsyncSession, stay_id: uuid.UUID) -> bool:
+    for check in list(_bill_lock_checks):
+        if await check(db, stay_id):
+            return True
+    return False
