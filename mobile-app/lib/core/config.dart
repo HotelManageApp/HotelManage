@@ -31,6 +31,15 @@ class AppConfig {
       throw StateError('Invalid APP_ENV "$env" (expected dev, test or prod)');
     }
     final ai = values['AI_BASE_URL'] ?? '';
+    if (env == 'prod') {
+      // Release builds talk to the hotel over HTTPS only: tokens travel in
+      // headers.
+      for (final url in [values['API_BASE_URL']!, if (ai.isNotEmpty) ai]) {
+        if (!url.startsWith('https://')) {
+          throw StateError('APP_ENV=prod needs https:// URLs, got "$url"');
+        }
+      }
+    }
     return AppConfig(
       apiBaseUrl: values['API_BASE_URL']!,
       appEnv: env,

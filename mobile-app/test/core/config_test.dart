@@ -35,4 +35,34 @@ void main() {
   test('fromEnvironment fails without --dart-define in tests', () {
     expect(AppConfig.fromEnvironment, throwsStateError);
   });
+
+  test('prod builds only accept https URLs', () {
+    expect(
+      () => AppConfig.fromMap({
+        'API_BASE_URL': 'http://api.hotel.vn',
+        'APP_ENV': 'prod',
+      }),
+      throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('https'),
+        ),
+      ),
+    );
+    expect(
+      () => AppConfig.fromMap({
+        'API_BASE_URL': 'https://api.hotel.vn',
+        'AI_BASE_URL': 'http://ai.hotel.vn',
+        'APP_ENV': 'prod',
+      }),
+      throwsStateError,
+    );
+    final ok = AppConfig.fromMap({
+      'API_BASE_URL': 'https://api.hotel.vn',
+      'APP_ENV': 'prod',
+    });
+    expect(ok.isProd, isTrue);
+    expect(ok.aiBaseUrl, 'https://api.hotel.vn');
+  });
 }
