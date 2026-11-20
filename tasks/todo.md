@@ -28,7 +28,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/`
   - Files: `app/main.py`, `app/core/`, `app/llm/{base,fake}.py`, `tests/`
 
-- [ ] **T04 · admin-web skeleton** · D01 · WEB · M · Deps: T01
+- [x] **T04 · admin-web skeleton** · D01 · WEB · M · Deps: T01
   - Accept: Next.js 15 strict TS, Tailwind, next-intl vi/en; `api-client` parse envelope lỗi; `/[locale]/health` hiện trạng thái backend
   - Verify: WEB `api-client|i18n`
   - Files: `src/app/[locale]/`, `src/lib/api-client.ts`, `src/i18n/`, `messages/{vi,en}.json`, `tests/`
@@ -71,7 +71,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/unit/test_cli.py`; chạy `uv run python -m app.cli seed-dev`
   - Files: `app/cli.py`
 
-- [ ] **T11 · Web login + role areas** · D02–D03 · WEB · M · Deps: T04 (mock), T08
+- [x] **T11 · Web login + role areas** · D02–D03 · WEB · M · Deps: T04 (mock), T08
   - Accept: trang login; `AuthProvider` (token trong bộ nhớ, refresh khi tải trang/trước hạn, `401` → refresh 1 lần); 3 vùng theo vai trò + trang `403`; layout chung
   - Verify: WEB `auth`; thủ công SC 1, 6, 7 của staff-auth
   - Files: `src/app/[locale]/login/`, `src/app/[locale]/(staff)/layout.tsx`, `src/lib/auth/`, `tests/auth/`
@@ -103,12 +103,12 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/stay_access/test_guest_auth.py`; coverage `stay_access` ≥ 85%
   - Files: `modules/stay_access/{deps,router_guest}.py`
 
-- [ ] **T16 · Web room board + check-in slip** · D04 · WEB · M · Deps: T11, T13
+- [x] **T16 · Web room board + check-in slip** · D04 · WEB · M · Deps: T11, T13
   - Accept: sơ đồ phòng theo màu/tầng; form check-in; phiếu mã + QR (`qrcode.react`) in K80/A6, đóng là mất mã
   - Verify: WEB `reception/checkin`
   - Files: `reception/rooms/`, `components/reception/{RoomBoard,CheckinForm,CheckinSlip}.tsx`
 
-- [ ] **T17 · Web stay detail + room management** · D05 · WEB · M · Deps: T14, T16
+- [x] **T17 · Web stay detail + room management** · D05 · WEB · M · Deps: T14, T16
   - Accept: gia hạn, sửa tiền phòng, cấp lại mã, check-out (hộp thoại xác nhận), đánh dấu đã dọn, thêm/sửa phòng
   - Verify: WEB `reception/stay`
   - Files: `reception/stays/[id]/`, `components/reception/`
@@ -143,7 +143,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/notifications/test_sse.py`
   - Files: `modules/notifications/{sse,router_dev}.py`
 
-- [ ] **T22 · Web realtime hook** · D06–D07 · WEB · M · Deps: T11 (T21 cho kiểm thử thật)
+- [x] **T22 · Web realtime hook** · D06–D07 · WEB · M · Deps: T11 (T21 cho kiểm thử thật)
   - Accept: `useStaffEvents` (fetch stream, backoff, `onReconnect`); chấm kết nối; toast theo bộ phận; bật âm báo
   - Verify: WEB `realtime`
   - Files: `src/lib/realtime/`, `components/layout/{ConnectionIndicator,SoundToggle}.tsx`
@@ -175,12 +175,12 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/room_service/test_hooks.py`; coverage `room_service` ≥ 80%
   - Files: `modules/room_service/{api,jobs}.py`, migration (`overdue_notified_at`)
 
-- [ ] **T28 · Web kitchen board** · D07–D08 · WEB · M · Deps: T22, T26
+- [x] **T28 · Web kitchen board** · D07–D08 · WEB · M · Deps: T22, T26
   - Accept: cột trạng thái, nút một chạm, từ chối có lý do, chọn thời gian dự kiến, viền đỏ quá hạn, cập nhật SSE
   - Verify: WEB `kitchen`
   - Files: `kitchen/page.tsx`, `components/kitchen/{OrderBoard,OrderCard,RejectDialog}.tsx`
 
-- [ ] **T29 · Web menu mgmt + reception orders** · D08–D09 · WEB · M · Deps: T24, T28
+- [x] **T29 · Web menu mgmt + reception orders** · D08–D09 · WEB · M · Deps: T24, T28
   - Accept: `/kitchen/menu` (công tắc còn món, sửa, lưu trữ, tạm ngưng); `/reception/orders` (lọc, chi tiết, hủy có lý do); `/reception/settings` giờ phục vụ
   - Verify: WEB `kitchen/menu|reception/orders`
   - Files: `kitchen/menu/`, `reception/orders/`, `reception/settings/`, `components/kitchen/MenuTable.tsx`
@@ -212,7 +212,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/housekeeping/test_turnover.py`; coverage `housekeeping` ≥ 80%
   - Files: `modules/housekeeping/hooks.py`, `stay_access/service.py`, `docs/domain-rules.md`
 
-- [ ] **T35 · Web housekeeping board + reception view** · D09–D10 · WEB · M · Deps: T22, T33
+- [x] **T35 · Web housekeeping board + reception view** · D09–D10 · WEB · M · Deps: T22, T33
   - Accept: tab "Việc chờ"/"Việc của tôi", nút theo trạng thái + người gán, nhãn DND, một cột ở 360px; `/reception/housekeeping` có cột người làm + hủy; biểu tượng DND/đang dọn trên sơ đồ phòng
   - Verify: WEB `housekeeping`
   - Files: `housekeeping/page.tsx`, `reception/housekeeping/`, `components/housekeeping/`, `RoomBoard.tsx`
@@ -248,7 +248,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/concierge tests/integration`
   - Files: `app/api/chat.py`, `app/concierge/{orchestrator,grounding}.py`, `tools/guide.py`, `prompts/concierge.md`
 
-- [ ] **T41 · Web knowledge management** · D11–D12 · WEB · M · Deps: T37
+- [x] **T41 · Web knowledge management** · D11–D12 · WEB · M · Deps: T37
   - Accept: tab KB/địa điểm, form song ngữ, công tắc xuất bản, ô "Thử hỏi" (không gọi LLM); thông tin khách sạn + bật/tắt chatbot ở settings
   - Verify: WEB `knowledge`
   - Files: `reception/knowledge/`, `reception/settings/`
@@ -285,7 +285,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: BE `tests/integration/express_checkout/`; coverage ≥ 85%
   - Files: `modules/express_checkout/{state,service,router_guest,router_staff,jobs}.py`, `stay_access/deps.py`, `docs/domain-rules.md`
 
-- [ ] **T46 · Web checkout desk** · D16–D17 · WEB · M · Deps: T45
+- [x] **T46 · Web checkout desk** · D16–D17 · WEB · M · Deps: T45
   - Accept: hàng đợi, bảng đối soát (phụ phí/giảm giá, sửa tiền phòng), chốt khóa khi còn đơn mở, in K80, chọn thanh toán, hoàn tất/từ chối; nút "Xem hóa đơn" ở stay detail
   - Verify: WEB `checkout`
   - Files: `reception/checkout/`, `components/checkout/{BillTable,ChargeForm,PrintableBill}.tsx`
