@@ -14,7 +14,7 @@ Chuẩn đối chiếu: `CONSTRAINTS.md` C3–C5, OWASP API Security Top 10 (202
 | Bí mật trong mã và lịch sử git | `gitleaks v8.21.2` (`git --log-opts=--all`, mọi nhánh; và `dir` cả cây làm việc) | Lịch sử: **0**. Cây làm việc: 4 khóa sinh tự động trong `admin-web/.next/` (build Next, đã nằm trong `.gitignore`) — không phải bí mật trong mã |
 | Lỗ hổng thư viện Python | `pip-audit` trên `uv export` của `backend-api`, `ai-service` | **0** |
 | Lỗ hổng thư viện JS | `npm audit --omit=dev` (`admin-web`) | **0**; devDependencies: xem F4 |
-| Thử tấn công trực tiếp | Script thăm dò 45 kiểm tra vào stack đang chạy (mã phòng, JWT, IDOR, RBAC, gán trường, lộ thông tin, CORS, header, giới hạn tài nguyên, log, thu hồi phiên) | 43/45 → 45/45 sau khi sửa F1, F2 |
+| Thử tấn công trực tiếp | Script thăm dò 45 kiểm tra vào stack đang chạy (mã phòng, JWT, IDOR, RBAC, gán trường, lộ thông tin, CORS, header, giới hạn tài nguyên, log, thu hồi phiên) | 43/45; sau khi sửa, 2 mục còn thiếu (header F1, F2) kiểm tra lại trực tiếp trên stack đều đạt. Không chạy lại trọn bộ vì IP thử đã bị khóa 1 giờ do chính các lần dò mã trước đó (đúng C4.3) |
 | Test tự động sẵn có | `pytest` backend (780), ai-service (305), `vitest` admin-web (104) — gồm C5.1–C5.4, cổng xác nhận, chống `room_id` | Đạt |
 
 ## 2. Kết quả theo yêu cầu
