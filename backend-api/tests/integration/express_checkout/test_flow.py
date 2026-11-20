@@ -18,6 +18,7 @@ from app.modules.notifications.models import NotificationOutbox
 from app.modules.room_service.models import MenuItem, OrderStatus
 from app.modules.staff_auth.models import StaffRole
 from app.modules.stay_access.models import Room, RoomStatus, Stay, StayStatus
+from app.modules.stay_access.service import close_stay
 from tests.factories import (
     add_food_order,
     create_menu,
@@ -481,3 +482,24 @@ async def test_only_reception_handles_requests(
             select(CheckoutRequest.status).where(CheckoutRequest.id == uuid.UUID(request_id))
         )
     ) is CheckoutStatus.CHECKOUT_REQUESTED
+
+
+async def test_a_stay_closed_another_way_leaves_no_open_request(
+    client: httpx.AsyncClient, db: AsyncSession, guest: Stayer, reception: dict
+) -> None:
+    # The dev CLI (seed-dev-stays --close) or an ops script closes the stay directly.
+    request_id = (await ask(client, guest)).json()["checkout_request_id"]
+    staff = await create_staff(db, email="ops@h.test", role=StaffRole.RECEPTION)
+    await close_stay(db, uuid.UUID(guest.stay_id), staff)
+
+    db.expire_all()
+    request = await db.get(CheckoutRequest, uuid.UUID(request_id), populate_existing=True)
+    assert request is not None
+    assert request.status is CheckoutStatus.REJECTED
+    assert request.reject_reason == "STAY_CLOSED"
+    queue = (await client.get(REQUESTS, headers=reception)).json()
+    assert all(q["status"] not in ("CHECKOUT_REQUESTED", "BILLING_VERIFIED") for q in queue), (
+        "nothing left waiting for reception"
+    )
+    detail = (await client.get(f"{REQUESTS}/{request_id}", headers=reception)).json()
+    assert detail["history"][-1]["by"] == "SYSTEM"
