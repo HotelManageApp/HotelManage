@@ -46,6 +46,18 @@ DEV_STAFF = (
 
 # Rooms used only by `seed-dev-stays` (the concierge eval's stay A and stay B).
 DEV_STAY_ROOMS = (("A", "DEV-A"), ("B", "DEV-B"))
+DEV_ROOM_PREFIX = "DEV-"
+MAX_DEV_STAYS = 200  # the load test (T55) uses 50
+
+
+def dev_stay_rooms(count: int) -> list[tuple[str, str]]:
+    """A and B first (the concierge eval), then L003, L004… (load tests)."""
+    if not 1 <= count <= MAX_DEV_STAYS:
+        raise CliError(f"--count must be between 1 and {MAX_DEV_STAYS}")
+    extra = [(f"L{n:03d}", f"{DEV_ROOM_PREFIX}L{n:03d}") for n in range(3, count + 1)]
+    return [*DEV_STAY_ROOMS, *extra][:count]
+
+
 DEV_RECEPTION = DEV_STAFF[0][0]
 
 
@@ -140,10 +152,8 @@ async def close_dev_stays(db: AsyncSession, settings: Settings) -> int:
     staff = await _dev_actor(db, settings, "seed-dev-stays")
     register_module_hooks()
     closed = 0
-    for _, number in DEV_STAY_ROOMS:
-        room = await stay_repository.get_room_by_number(db, number)
-        if room is None:
-            continue
+    rooms = await db.scalars(select(Room).where(Room.number.startswith(DEV_ROOM_PREFIX)))
+    for room in rooms.all():
         open_stay = await db.scalar(
             select(Stay.id).where(
                 Stay.room_id == room.id,
@@ -159,14 +169,18 @@ async def close_dev_stays(db: AsyncSession, settings: Settings) -> int:
     return closed
 
 
-async def seed_dev_stays(db: AsyncSession, settings: Settings) -> list[dict[str, str]]:
-    """Two fresh stays (A in DEV-A, B in DEV-B) with one guest session each, for the concierge
-    eval (SPEC-concierge-actions, `/eval-bot`). Earlier dev stays are closed first. Dev only."""
+async def seed_dev_stays(
+    db: AsyncSession, settings: Settings, *, count: int = 2
+) -> list[dict[str, str]]:
+    """Fresh stays with one guest session each: A in DEV-A and B in DEV-B for the concierge eval
+    (SPEC-concierge-actions, `/eval-bot`), plus DEV-L003… with --count for the load test (T55).
+    Earlier dev stays are closed first. Dev only."""
+    rooms_wanted = dev_stay_rooms(count)
     staff = await _dev_actor(db, settings, "seed-dev-stays")
     await close_dev_stays(db, settings)
     now = datetime.now(UTC)
     seeded = []
-    for label, number in DEV_STAY_ROOMS:
+    for label, number in rooms_wanted:
         room = await stay_repository.get_room_by_number(db, number)
         if room is None:
             room = Room(number=number, room_type="DEV")
@@ -315,6 +329,9 @@ def _parser() -> argparse.ArgumentParser:
     dev_stays.add_argument(
         "--close", action="store_true", help="only close the dev stays (clean-up after a run)"
     )
+    dev_stays.add_argument(
+        "--count", type=int, default=2, help="how many stays (A, B, then load-test rooms)"
+    )
 
     menu = commands.add_parser("seed-menu", help="create menu categories and dishes from a CSV")
     kb = commands.add_parser("seed-kb", help="load hotel info, knowledge base and places (YAML)")
@@ -362,7 +379,7 @@ async def run(
                     out(f"dev stays closed: {await close_dev_stays(db, settings)}")
                 else:
                     # Printed for the eval fixture to read; dev-only tokens of throwaway stays.
-                    out(json.dumps(await seed_dev_stays(db, settings)))
+                    out(json.dumps(await seed_dev_stays(db, settings, count=args.count)))
             elif args.command == "seed-rooms":
                 made, skipped = await seed_rooms(db, args.from_file)
                 out(f"rooms created: {made}, already existed: {skipped}")

@@ -226,3 +226,19 @@ async def test_seed_dev_stays_prints_working_tokens_and_cleans_up(
     )
     assert open_stays == 0
     assert await _run("seed-dev-stays", "--close", env="dev") == ["dev stays closed: 0"]
+
+
+async def test_seed_dev_stays_count_for_the_load_test(
+    client: httpx.AsyncClient, db: AsyncSession
+) -> None:
+    await create_staff(db, email=cli.DEV_RECEPTION)
+    stays = json.loads((await _run("seed-dev-stays", "--count", "5", env="dev"))[0])
+    assert [s["label"] for s in stays] == ["A", "B", "L003", "L004", "L005"]
+    assert [s["room_number"] for s in stays][2:] == ["DEV-L003", "DEV-L004", "DEV-L005"]
+    me = await client.get(
+        "/api/v1/guest/me", headers={"Authorization": f"Bearer {stays[4]['token']}"}
+    )
+    assert me.status_code == 200 and me.json()["room_number"] == "DEV-L005"
+    assert await _run("seed-dev-stays", "--close", env="dev") == ["dev stays closed: 5"]
+    with pytest.raises(cli.CliError, match="between 1 and 200"):
+        await _run("seed-dev-stays", "--count", "0", env="dev")
