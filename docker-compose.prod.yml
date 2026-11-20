@@ -1,0 +1,125 @@
+# Production / staging (T56). See docs/deploy.md.
+#
+#   docker compose -f docker-compose.prod.yml --env-file /etc/hotelapp/prod.env up -d --build
+#
+# Every secret comes from the environment of the host or platform (the --env-file above lives
+# outside the repository). Only Caddy publishes ports (80/443, HTTPS); the services talk on the
+# internal network. With a managed PostgreSQL, set DATABASE_URL and do not start `db`
+# (it is under the "local-db" profile).
+name: hotelapp-prod
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  db:
+    <<: *restart
+    profiles: ["local-db"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-hotel}
+      TZ: UTC
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-off: brings the schema to the latest migration, then exits. backend-api waits for it.
+  migrate:
+    build: ./backend-api
+    image: hotelapp/backend-api:${APP_VERSION:-latest}
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false  # only with --profile local-db
+    environment: &backend-env
+      APP_ENV: prod
+      APP_VERSION: ${APP_VERSION:-latest}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL (postgresql+asyncpg://...)}
+      HOTEL_TIMEZONE: ${HOTEL_TIMEZONE:-Asia/Ho_Chi_Minh}
+      STAFF_JWT_SECRET: ${STAFF_JWT_SECRET:?set STAFF_JWT_SECRET}
+      STAY_JWT_SECRET: ${STAY_JWT_SECRET:?set STAY_JWT_SECRET}
+      ROOM_CODE_PEPPER: ${ROOM_CODE_PEPPER:?set ROOM_CODE_PEPPER}
+      ADMIN_WEB_ORIGINS: '["https://${ADMIN_DOMAIN:?set ADMIN_DOMAIN}"]'
+      FCM_SENDER: ${FCM_SENDER:-fcm}
+      FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+      FCM_CREDENTIALS_FILE: ${FCM_CREDENTIALS_FILE:-/run/secrets/fcm.json}
+    restart: "no"
+
+  backend-api:
+    <<: *restart
+    build: ./backend-api
+    image: hotelapp/backend-api:${APP_VERSION:-latest}
+    environment:
+      <<: *backend-env
+      # Only Caddy and admin-web can reach this container (internal network), so their
+      # X-Forwarded-For is trusted: rate limits see the guest's real IP (security report F3).
+      FORWARDED_ALLOW_IPS: "*"
+    volumes:
+      - ${FCM_CREDENTIALS_HOST_FILE:-./infra/secrets/fcm.json}:/run/secrets/fcm.json:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  ai-service:
+    <<: *restart
+    build: ./ai-service
+    image: hotelapp/ai-service:${APP_VERSION:-latest}
+    environment:
+      APP_ENV: prod
+      APP_VERSION: ${APP_VERSION:-latest}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      HOTEL_TIMEZONE: ${HOTEL_TIMEZONE:-Asia/Ho_Chi_Minh}
+      BACKEND_INTERNAL_URL: http://backend-api:8000
+      LLM_PROVIDER: ${LLM_PROVIDER:?set LLM_PROVIDER (gemini|openai)}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+      CONCIERGE_SIGNING_KEY: ${CONCIERGE_SIGNING_KEY:?set CONCIERGE_SIGNING_KEY}
+      FORWARDED_ALLOW_IPS: "*"
+    depends_on:
+      - backend-api
+
+  admin-web:
+    <<: *restart
+    build:
+      context: ./admin-web
+      args:
+        BACKEND_URL: http://backend-api:8000
+    image: hotelapp/admin-web:${APP_VERSION:-latest}
+    depends_on:
+      - backend-api
+
+  caddy:
+    <<: *restart
+    image: caddy:2.8.4-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?set API_DOMAIN}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:?set ADMIN_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - backend-api
+      - ai-service
+      - admin-web
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

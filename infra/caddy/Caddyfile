@@ -1,0 +1,35 @@
+# HTTPS front door for production (T56). Caddy obtains and renews the certificates itself.
+#   API_DOMAIN    guest app + concierge   (https://api.<hotel>)
+#   ADMIN_DOMAIN  staff web               (https://admin.<hotel>)
+#   ACME_EMAIL    contact for Let's Encrypt
+{
+	email {$ACME_EMAIL}
+}
+
+(common) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+}
+
+{$API_DOMAIN} {
+	import common
+	encode gzip
+	# The concierge lives in ai-service; everything else under /api/v1 is backend-api.
+	handle /api/v1/chat {
+		reverse_proxy ai-service:8001
+	}
+	handle {
+		reverse_proxy backend-api:8000
+	}
+}
+
+{$ADMIN_DOMAIN} {
+	import common
+	# admin-web proxies /api/v1/* (incl. the staff SSE stream) to backend-api itself; no gzip and
+	# no buffering here so the stream is not held back.
+	reverse_proxy admin-web:3000 {
+		flush_interval -1
+	}
+}
