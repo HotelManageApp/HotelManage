@@ -3,6 +3,16 @@
 App dịch vụ phòng cho khách lưu trú tại khách sạn mini, homestay, boutique: khách đăng nhập bằng mã phòng, đặt đồ ăn,
 gọi dọn phòng, theo dõi trạng thái realtime và hỏi Chatbot AI; Lễ tân / Bếp / Buồng phòng xử lý trên Web quản trị.
 
+## Chạy thử nhanh (chỉ cần Docker Desktop)
+
+```bash
+docker compose -f docker-compose.demo.yml up -d --build
+```
+
+Mở http://localhost:3000 — tài khoản, app Android và kịch bản thử: [docs/demo.md](docs/demo.md).
+
+## Tài liệu
+
 - Quy tắc cho agent và lệnh thường dùng: [CLAUDE.md](CLAUDE.md)
 - Ràng buộc chất lượng: [CONSTRAINTS.md](CONSTRAINTS.md)
 - Spec từng module: [spec/](spec/) (bắt đầu từ [capability-map.md](spec/capability-map.md))

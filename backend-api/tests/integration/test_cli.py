@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import cli
+from app.core.hotel_settings import load_hotel_settings
 from app.modules.staff_auth.models import Staff, StaffRefreshToken
 from app.modules.staff_auth.security import verify_password
 from app.modules.stay_access.models import Room, RoomStatus, Stay, StayStatus
@@ -242,3 +243,20 @@ async def test_seed_dev_stays_count_for_the_load_test(
     assert await _run("seed-dev-stays", "--close", env="dev") == ["dev stays closed: 5"]
     with pytest.raises(cli.CliError, match="between 1 and 200"):
         await _run("seed-dev-stays", "--count", "0", env="dev")
+
+
+async def test_set_service_hours(db: AsyncSession) -> None:
+    assert await _run("set-service-hours", "--open", "07:00", "--close", "21:30") == [
+        "room service hours: 07:00-21:30"
+    ]
+    db.expire_all()
+    settings = await load_hotel_settings(db)
+    assert (settings.room_service_open.isoformat(), settings.room_service_close.isoformat()) == (
+        "07:00:00",
+        "21:30:00",
+    )
+    assert await _run("set-service-hours", "--open", "00:00", "--close", "00:00") == [
+        "room service hours: around the clock"
+    ]
+    with pytest.raises(cli.CliError, match="not a time"):
+        await _run("set-service-hours", "--open", "7h", "--close", "21:00")

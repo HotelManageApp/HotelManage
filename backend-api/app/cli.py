@@ -14,7 +14,7 @@ import os
 import sys
 import uuid
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from pathlib import Path
 
 from sqlalchemy import select
@@ -22,6 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import ConfigError, Settings, load_settings
 from app.core.db import create_engine, create_sessionmaker
+from app.core.hotel_settings import load_hotel_settings
 from app.modules.concierge_data.seed import SeedError, seed_kb
 from app.modules.room_service.models import MenuCategory, MenuItem
 from app.modules.staff_auth import repository
@@ -217,6 +218,24 @@ async def seed_dev_stays(
     return seeded
 
 
+def _clock(value: str) -> time:
+    try:
+        return time.fromisoformat(value)
+    except ValueError:
+        raise CliError(f"{value!r} is not a time like 06:00") from None
+
+
+async def set_service_hours(db: AsyncSession, *, opens: str, closes: str) -> str:
+    """Room-service hours (hotel time). The same open and close time means around the clock."""
+    settings = await load_hotel_settings(db)
+    settings.room_service_open = _clock(opens)
+    settings.room_service_close = _clock(closes)
+    await db.commit()
+    if settings.room_service_open == settings.room_service_close:
+        return "room service hours: around the clock"
+    return f"room service hours: {opens}-{closes}"
+
+
 async def seed_rooms(db: AsyncSession, path: Path) -> tuple[int, int]:
     """Create rooms from a CSV (number,floor,room_type). Existing numbers are left untouched."""
     try:
@@ -319,6 +338,12 @@ def _parser() -> argparse.ArgumentParser:
 
     commands.add_parser("seed-dev", help="create the three dev accounts (APP_ENV=dev only)")
 
+    service_hours = commands.add_parser(
+        "set-service-hours", help="room-service hours (same open and close = around the clock)"
+    )
+    service_hours.add_argument("--open", required=True, dest="opens")
+    service_hours.add_argument("--close", required=True, dest="closes")
+
     rooms = commands.add_parser("seed-rooms", help="create rooms from a CSV file")
     rooms.add_argument("--from-file", required=True, type=Path)
 
@@ -380,6 +405,8 @@ async def run(
                 else:
                     # Printed for the eval fixture to read; dev-only tokens of throwaway stays.
                     out(json.dumps(await seed_dev_stays(db, settings, count=args.count)))
+            elif args.command == "set-service-hours":
+                out(await set_service_hours(db, opens=args.opens, closes=args.closes))
             elif args.command == "seed-rooms":
                 made, skipped = await seed_rooms(db, args.from_file)
                 out(f"rooms created: {made}, already existed: {skipped}")

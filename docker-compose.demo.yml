@@ -1,0 +1,102 @@
+# One-command demo of the whole system on one computer (Docker Desktop only).
+#
+#   docker compose -f docker-compose.demo.yml up -d --build
+#
+# Then open http://localhost:3000 — guide: docs/demo.md. Stop: `... down` (keeps data);
+# start over with empty data: `... down -v`.
+#
+# DEMO ONLY: the values below are not secrets and must never be used for a real hotel
+# (production: docker-compose.prod.yml + docs/deploy.md).
+name: hotelapp-demo
+
+x-demo-backend-env: &demo-backend-env
+  APP_ENV: dev
+  APP_VERSION: demo
+  DATABASE_URL: postgresql+asyncpg://hotel:hotel-demo@db:5432/hotel
+  STAFF_JWT_SECRET: demo-only-staff-jwt-secret-not-for-production
+  STAY_JWT_SECRET: demo-only-stay-jwt-secret-not-for-production
+  ROOM_CODE_PEPPER: demo-only-room-code-pepper-not-for-production
+  ADMIN_WEB_ORIGINS: '["http://localhost:3000"]'
+  FCM_SENDER: log
+  DEV_STAFF_PASSWORD: ${DEMO_STAFF_PASSWORD:-Demo@12345}
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hotel
+      POSTGRES_PASSWORD: hotel-demo
+      POSTGRES_DB: hotel
+      TZ: UTC
+    volumes:
+      - demo-db:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel -d hotel"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # One-off: schema + demo data (3 staff accounts, 6 rooms, 7 dishes, hotel info, kitchen open
+  # around the clock), then exits. Safe to run again: existing rows are left untouched.
+  demo-init:
+    build: ./backend-api
+    image: hotelapp-demo/backend-api
+    environment: *demo-backend-env
+    entrypoint: ["sh", "-c"]
+    command:
+      - >
+        alembic upgrade head &&
+        python -m app.cli seed-dev &&
+        python -m app.cli seed-rooms --from-file seeds/rooms.example.csv &&
+        python -m app.cli seed-menu --from-file seeds/menu.example.csv &&
+        python -m app.cli seed-kb --from-file seeds/kb.example.yaml &&
+        python -m app.cli set-service-hours --open 00:00 --close 00:00
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  backend-api:
+    build: ./backend-api
+    image: hotelapp-demo/backend-api
+    environment: *demo-backend-env
+    ports:
+      - "8010:8000"   # the guest app on an emulator calls http://10.0.2.2:8010
+    depends_on:
+      demo-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  ai-service:
+    build: ./ai-service
+    image: hotelapp-demo/ai-service
+    environment:
+      APP_ENV: dev
+      APP_VERSION: demo
+      BACKEND_INTERNAL_URL: http://backend-api:8000
+      # Without a key the concierge answers with a fixed test sentence. For the real one:
+      # set GEMINI_API_KEY (or LLM_PROVIDER=openai + OPENAI_API_KEY) before `up`.
+      LLM_PROVIDER: ${LLM_PROVIDER:-fake}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "8011:8001"   # the guest app on an emulator calls http://10.0.2.2:8011
+    depends_on:
+      - backend-api
+    restart: unless-stopped
+
+  admin-web:
+    build:
+      context: ./admin-web
+      args:
+        BACKEND_URL: http://backend-api:8000
+    image: hotelapp-demo/admin-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-api
+    restart: unless-stopped
+
+volumes:
+  demo-db:
