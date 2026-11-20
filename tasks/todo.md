@@ -312,7 +312,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/integration/concierge_actions/test_confirmation.py`; coverage `confirmation.py` ≥ 95%
   - Files: `concierge/confirmation.py`, `tools/{order,checkout,housekeeping}.py`, `summary_templates/`, `api/chat.py`
 
-- [ ] **T51 · Guards + full prompt** · D19 · AI · S · Deps: T50
+- [x] **T51 · Guards + full prompt** · D19 · AI · S · Deps: T50
   - Accept: system prompt đầy đủ; canary + chặn trùng prompt; giới hạn 4 lượt tool / 1 tool ghi; grounding mở rộng nguồn
   - Verify: AI `tests/unit/concierge_actions/test_guards.py`; coverage `guards.py` ≥ 95%
   - Files: `concierge/guards.py`, `prompts/concierge.md`, `concierge/grounding.py`

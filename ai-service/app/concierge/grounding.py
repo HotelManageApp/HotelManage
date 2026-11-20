@@ -11,6 +11,8 @@ makes the answer ungrounded and the orchestrator replaces it.
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # Order matters: phones first (long digit runs), then prices, distances, times.
 _PHONE = re.compile(r"(?<![\d.,:])\+?\d[\d .\-()]{7,}\d(?![\d.,:])")
@@ -71,10 +73,26 @@ def has_facts(text: str) -> bool:
     return bool(extract(text))
 
 
-def _source_facts(sources: list[str]) -> set[Fact]:
+_ISO = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})")
+
+
+def _local_times(source: str, timezone_name: str) -> set[Fact]:
+    """Timestamps in tool data are UTC ("created_at": "...T08:45:00Z"); the guest is told the
+    hotel's local time, so that is a supported fact too."""
+    zone = ZoneInfo(timezone_name)
+    found: set[Fact] = set()
+    for stamp in _ISO.findall(source):
+        local = datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(zone)
+        found.add(Fact("time", f"{local.hour:02d}:{local.minute:02d}"))
+    return found
+
+
+def _source_facts(sources: list[str], timezone_name: str | None = None) -> set[Fact]:
     found: set[Fact] = set()
     for source in sources:
         found |= extract(source)
+        if timezone_name:
+            found |= _local_times(source, timezone_name)
         # Bare numbers in structured data ("distance_km": 1.2, "price_vnd": 65000).
         for km in re.findall(r'"distance_km":\s*(\d+(?:\.\d+)?)', source):
             found.add(Fact("distance", str(round(float(km) * 1000))))
@@ -84,12 +102,12 @@ def _source_facts(sources: list[str]) -> set[Fact]:
     return found
 
 
-def unsupported(reply: str, sources: list[str]) -> set[Fact]:
-    """Facts in `reply` that none of `sources` contains."""
+def unsupported(reply: str, sources: list[str], *, timezone_name: str | None = None) -> set[Fact]:
+    """Facts in `reply` that none of `sources` contains (timestamps also in local time)."""
     claimed = extract(reply)
     if not claimed:
         return set()
-    known = _source_facts(sources)
+    known = _source_facts(sources, timezone_name)
     digits_in_sources = {re.sub(r"\D", "", s) for s in sources}
     missing = set()
     for fact in claimed:

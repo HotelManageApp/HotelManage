@@ -410,6 +410,23 @@ class Gatekeeper:
             return CANCELLED_NOTE.format(kind=self.pending.kind, tool=name)
         return None
 
+    def would_execute(self, tool: Tool, gate: Gate, raw_args: Any) -> bool:
+        """Whether `run` with these arguments would place the order / send the request."""
+        parsed = validate(tool, raw_args)
+        if isinstance(parsed, ToolRun):
+            return False
+        return self._matches(gate, gate.payload(parsed))
+
+    def _matches(self, gate: Gate, payload: dict[str, Any]) -> bool:
+        pending = self.pending
+        return (
+            pending is not None
+            and self.decision == "CONFIRM"
+            and self.executed is None
+            and pending.kind == gate.kind
+            and pending.payload_hash == payload_hash(gate.kind, payload)
+        )
+
     async def run(
         self, tool: Tool, gate: Gate, backend: BackendClient, token: str, raw_args: Any, lang: str
     ) -> ToolRun:
@@ -418,13 +435,7 @@ class Gatekeeper:
             return parsed
         payload = gate.payload(parsed)
         pending = self.pending
-        if (
-            pending is not None
-            and self.decision == "CONFIRM"
-            and self.executed is None
-            and pending.kind == gate.kind
-            and pending.payload_hash == payload_hash(gate.kind, payload)
-        ):
+        if pending is not None and self._matches(gate, payload):
             return await self._execute(tool, gate, pending, backend, token, parsed, lang)
         if pending is not None and self.decision == "CONFIRM":
             # Changed items, another kind, or a second call: summarise again, never execute.

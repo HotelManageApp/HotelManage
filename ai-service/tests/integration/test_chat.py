@@ -254,15 +254,16 @@ async def test_not_found_tells_the_model_to_say_so(
     assert body["debug"]["grounded"] is True
 
 
-async def test_at_most_three_tool_rounds(
+async def test_at_most_four_tool_rounds(
     client: httpx.AsyncClient, fake_llm: FakeLLMClient, backend: FakeBackend
 ) -> None:
+    # SPEC-concierge-actions: at most 4 tool calls per guest message (was 3 rounds for the guide).
     fake_llm.queue(
-        *[tool_call(topic="OTHER", query=f"q{i}") for i in range(4)],
+        *[tool_call(topic="OTHER", query=f"q{i}") for i in range(5)],
         final("Bữa sáng 06:30."),
     )
     await ask(client)
-    assert backend.paths().count("/api/v1/guest/kb/search") == 3
+    assert backend.paths().count("/api/v1/guest/kb/search") == 4
     assert fake_llm.requests[-1].response_schema is not None
 
 

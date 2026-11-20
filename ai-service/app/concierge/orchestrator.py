@@ -17,7 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.concierge import confirmation, grounding
+from app.concierge import confirmation, grounding, guards
 from app.concierge.tools import guide, registry
 from app.concierge.tools.base import Tool, ToolRun, error, execute
 from app.core.backend_client import BackendClient, ChatLine, GuestContext, HotelInfo
@@ -27,7 +27,7 @@ from app.llm.base import LLMClient, LLMRequest, Message, ToolCall
 logger = get_logger(__name__)
 
 PROMPT_FILE = Path(__file__).resolve().parents[1] / "prompts" / "concierge.md"
-MAX_TOOL_ROUNDS = 3
+MAX_TOOL_ROUNDS = guards.MAX_TOOL_CALLS
 TEMPERATURE = 0.2
 
 TARGETS = ("ROOM_SERVICE", "HOUSEKEEPING", "MY_REQUESTS", "CALL_RECEPTION")
@@ -77,6 +77,7 @@ class Turn:
     grounded: bool
     tool_runs: list[ToolRun] = field(default_factory=list)
     forced_tool: bool = False
+    leak_blocked: bool = False
     gate: confirmation.Gatekeeper | None = None
     # {id, kind, summary} when the reply ends with a summary waiting for the guest's yes.
     pending_confirmation: dict[str, Any] | None = None
@@ -134,6 +135,8 @@ class Orchestrator:
     ) -> None:
         self._llm, self._backend, self._tz = llm, backend, timezone_name
         self._key = signing_key
+        # A fresh canary per process: a reply that contains it leaked the system prompt.
+        self._leaks = guards.LeakGuard(guards.new_canary())
         self._tools = tools
         self._prompt = load_prompt()
 
@@ -145,6 +148,7 @@ class Orchestrator:
             lang=guest.lang,
             local_datetime=now.strftime("%Y-%m-%d %H:%M (%A)"),
             stay_status=guest.status,
+            canary=self._leaks.canary,
         )
 
     async def answer(
@@ -158,9 +162,8 @@ class Orchestrator:
         now: datetime,
         confirm_action_id: str | None = None,
     ) -> Turn:
-        conversation: list[Message] = [
-            Message(role="system", content=self._system(info, guest, now))
-        ]
+        system = self._system(info, guest, now)
+        conversation: list[Message] = [Message(role="system", content=system)]
         for line in history:
             role = "user" if line.role == "GUEST" else "assistant"
             conversation.append(Message(role=role, content=line.content))
@@ -179,7 +182,10 @@ class Orchestrator:
         if note:
             conversation.append(Message(role="system", content=note))
 
-        runs = await self._tool_rounds(conversation, token, guest, tools, gate, choice="auto")
+        budget = guards.ToolBudget()
+        runs = await self._tool_rounds(
+            conversation, token, guest, tools, gate, budget, choice="auto"
+        )
         reply, targets = await self._final(conversation)
         turn = Turn(
             reply=reply,
@@ -193,7 +199,7 @@ class Orchestrator:
         if not turn.tool_runs and grounding.has_facts(turn.reply):
             turn.forced_tool = True
             turn.tool_runs = await self._tool_rounds(
-                conversation, token, guest, tools, gate, choice="required", rounds=1
+                conversation, token, guest, tools, gate, budget, choice="required", rounds=1
             )
             turn.reply, targets = await self._final(conversation)
             turn.suggested_actions = suggested(targets)
@@ -202,10 +208,15 @@ class Orchestrator:
             turn.reply = fallback_reply(guest.lang, info.reception_phone)
             turn.suggested_actions = suggested(["CALL_RECEPTION"])
 
+        # The model's words never carry the system prompt or its canary out (C2.6).
+        turn.reply, turn.leak_blocked = self._leaks.check(turn.reply, system, guest.lang)
+        if turn.leak_blocked:
+            turn.suggested_actions = []
+
         # Grounding step 2: every fact must be in this turn's sources.
         sources = [json.dumps(r.output, ensure_ascii=False) for r in turn.tool_runs]
         sources.append(info.reception_phone)
-        missing = grounding.unsupported(turn.reply, sources)
+        missing = grounding.unsupported(turn.reply, sources, timezone_name=self._tz)
         if missing:
             logger.warning("grounding_violation", kinds=sorted({f.kind for f in missing}))
             turn.grounded = False
@@ -234,6 +245,7 @@ class Orchestrator:
         guest: GuestContext,
         tools: tuple[Tool, ...],
         gate: confirmation.Gatekeeper,
+        budget: guards.ToolBudget,
         *,
         choice: str,
         rounds: int = MAX_TOOL_ROUNDS,
@@ -258,7 +270,13 @@ class Orchestrator:
             )
             for call in calls:
                 tool = offered.get(call.name)
-                if tool is not None and tool.gate is not None:
+                if not budget.take_call():
+                    logger.warning("tool_limit_reached", tool=call.name)
+                    run = ToolRun(call.name, {}, error("TOOL_LIMIT", "too many tool calls"))
+                elif tool is not None and tool.write and not budget.can_write():
+                    # One executed write per guest message; a gated tool may still propose.
+                    run = await self._second_write(tool, gate, token, call, guest.lang)
+                elif tool is not None and tool.gate is not None:
                     run = await gate.run(
                         tool, tool.gate, self._backend, token, call.arguments, guest.lang
                     )
@@ -269,9 +287,19 @@ class Orchestrator:
                     code = "STAY_CHECKOUT_PENDING" if call.name in known else "VALIDATION_ERROR"
                     logger.warning("tool_not_offered", tool=call.name)
                     run = ToolRun(call.name, {}, error(code, "tool not available"))
+                if tool is not None and tool.write and run.ok:
+                    budget.wrote()
                 runs.append(run)
                 conversation.append(self._tool_message(call, run))
         return runs
+
+    async def _second_write(
+        self, tool: Tool, gate: confirmation.Gatekeeper, token: str, call: ToolCall, lang: str
+    ) -> ToolRun:
+        if tool.gate is not None and not gate.would_execute(tool, tool.gate, call.arguments):
+            return await gate.run(tool, tool.gate, self._backend, token, call.arguments, lang)
+        logger.warning("write_limit_reached", tool=tool.name)
+        return ToolRun(tool.name, {}, error("WRITE_LIMIT", "one order or request per message"))
 
     @staticmethod
     def _tool_message(call: ToolCall, run: ToolRun) -> Message:
