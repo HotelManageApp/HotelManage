@@ -15,7 +15,7 @@ và ≥ 1 review. Tài liệu này liệt kê việc cần làm, theo thứ tự
 | `feature/HMA-57-release-apk` | mobile-app (T05–T52 phần app), CI T06, ký APK T57 |
 | `feature/HMA-58-release-prep` | gộp hai nhánh trên + `CHANGELOG.md`, tài liệu này (= bản ứng viên phát hành) |
 
-Trên `feature/HMA-58-release-prep`: backend 785 test, ai-service 305, admin-web 104, mobile-app 128 đều đạt; lint/analyze sạch.
+Trên `feature/HMA-58-release-prep`: backend 786 test, ai-service 305, admin-web 104, mobile-app 128 đều đạt; lint/analyze sạch.
 
 ## 2. Đưa vào `develop`
 
