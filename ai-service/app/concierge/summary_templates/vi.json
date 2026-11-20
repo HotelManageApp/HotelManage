@@ -1,0 +1,16 @@
+{
+  "order_title": "Tóm tắt đơn của Quý khách:",
+  "order_line": "- {name} × {quantity}: {unit_price} × {quantity} = {line_total}",
+  "order_line_note": "  Ghi chú: {note}",
+  "order_note": "Ghi chú cho đơn: {note}",
+  "order_total": "Tổng cộng: {total}",
+  "order_question": "Quý khách xác nhận đặt đơn này chứ?",
+  "checkout_title": "Tạm tính trả phòng (Lễ tân sẽ đối soát lại):",
+  "checkout_line": "- {description}: {amount}",
+  "checkout_discount_line": "- {description}: −{amount}",
+  "checkout_open_orders": "Còn {count} đơn đồ ăn đang xử lý, chưa tính vào tạm tính.",
+  "checkout_total": "Tổng tạm tính: {total}",
+  "checkout_question": "Quý khách xác nhận gửi yêu cầu trả phòng chứ?",
+  "money": "{amount}đ",
+  "thousands": "."
+}

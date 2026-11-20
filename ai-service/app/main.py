@@ -12,7 +12,7 @@ from app.api.chat import router as chat_router
 from app.api.health import router as health_router
 from app.concierge.orchestrator import Orchestrator
 from app.core.backend_client import BackendClient
-from app.core.config import Settings, load_settings
+from app.core.config import Settings, load_settings, signing_key
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.request_context import RequestContextMiddleware
@@ -45,7 +45,10 @@ def create_app(
         str(settings.backend_internal_url), timeout_seconds=settings.backend_timeout_seconds
     )
     app.state.orchestrator = Orchestrator(
-        app.state.llm, app.state.backend, timezone_name=settings.hotel_timezone
+        app.state.llm,
+        app.state.backend,
+        timezone_name=settings.hotel_timezone,
+        signing_key=signing_key(settings),
     )
 
     register_error_handlers(app)

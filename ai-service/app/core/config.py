@@ -3,6 +3,8 @@
 Missing or invalid required variables stop the app at startup with a message that names them.
 """
 
+import secrets
+from functools import lru_cache
 from typing import Any, Literal, Self
 
 from pydantic import AnyHttpUrl, Field, SecretStr, ValidationError, model_validator
@@ -38,11 +40,20 @@ class Settings(BaseSettings):
     backend_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
     # Local time put into the concierge prompt ("now=...").
     hotel_timezone: str = "Asia/Ho_Chi_Minh"
+    # Signs the chatbot's pending confirmations (SPEC-concierge-actions). Required in prod;
+    # in dev/test a random key is made at start-up (pending confirmations then do not survive a
+    # restart, which only means the guest is asked again).
+    concierge_signing_key: SecretStr | None = None
 
     @model_validator(mode="after")
     def _no_fake_llm_in_prod(self) -> Self:
         if self.app_env == "prod" and self.llm_provider == "fake":
             raise ValueError("LLM_PROVIDER=fake is not allowed when APP_ENV=prod")
+        return self
+
+    @model_validator(mode="after")
+    def _signing_key(self) -> Self:
+        _check_signing_key(self)
         return self
 
     @model_validator(mode="after")
@@ -54,6 +65,32 @@ class Settings(BaseSettings):
                 f"LLM_PROVIDER={self.llm_provider}"
             )
         return self
+
+
+MIN_SIGNING_KEY_LENGTH = 32
+
+
+def _check_signing_key(settings: "Settings") -> None:
+    key = settings.concierge_signing_key
+    if key is None or not key.get_secret_value():
+        if settings.app_env == "prod":
+            raise ValueError("CONCIERGE_SIGNING_KEY is required when APP_ENV=prod")
+        return
+    if len(key.get_secret_value()) < MIN_SIGNING_KEY_LENGTH:
+        raise ValueError(f"CONCIERGE_SIGNING_KEY must be at least {MIN_SIGNING_KEY_LENGTH} chars")
+
+
+def signing_key(settings: "Settings") -> bytes:
+    """The HMAC key for pending confirmations; a per-process random one outside prod."""
+    key = settings.concierge_signing_key
+    if key is not None and key.get_secret_value():
+        return key.get_secret_value().encode()
+    return _random_key()
+
+
+@lru_cache
+def _random_key() -> bytes:
+    return secrets.token_bytes(32)
 
 
 def load_settings(**overrides: Any) -> Settings:

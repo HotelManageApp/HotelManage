@@ -17,7 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.concierge import grounding
+from app.concierge import confirmation, grounding
 from app.concierge.tools import guide, registry
 from app.concierge.tools.base import Tool, ToolRun, error, execute
 from app.core.backend_client import BackendClient, ChatLine, GuestContext, HotelInfo
@@ -77,9 +77,13 @@ class Turn:
     grounded: bool
     tool_runs: list[ToolRun] = field(default_factory=list)
     forced_tool: bool = False
+    gate: confirmation.Gatekeeper | None = None
+    # {id, kind, summary} when the reply ends with a summary waiting for the guest's yes.
+    pending_confirmation: dict[str, Any] | None = None
 
     def trace(self) -> list[dict[str, Any]]:
-        return [run.trace() for run in self.tool_runs]
+        runs = [run.trace() for run in self.tool_runs]
+        return runs + (self.gate.trace() if self.gate else [])
 
 
 def suggested(targets: Any) -> list[dict[str, str]]:
@@ -90,6 +94,26 @@ def suggested(targets: Any) -> list[dict[str, str]]:
             out.append(
                 {"type": "CALL" if target == "CALL_RECEPTION" else "OPEN_SCREEN", "target": target}
             )
+    return out
+
+
+# What was just created -> the button that opens it in the app (SPEC-concierge-actions).
+CREATED_TARGETS = (
+    ("order_id", "OPEN_ORDER"),
+    ("request_id", "OPEN_HOUSEKEEPING"),
+    ("checkout_request_id", "OPEN_CHECKOUT"),
+)
+
+
+def created_actions(runs: list[ToolRun]) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    for run in runs:
+        data = run.output.get("data") if run.ok else None
+        if not isinstance(data, dict):
+            continue
+        for key, target in CREATED_TARGETS:
+            if data.get(key):
+                out.append({"type": "OPEN_ENTITY", "target": target, "entity_id": str(data[key])})
     return out
 
 
@@ -105,9 +129,11 @@ class Orchestrator:
         backend: BackendClient,
         *,
         timezone_name: str,
+        signing_key: bytes,
         tools: tuple[Tool, ...] = registry.ALL_TOOLS,
     ) -> None:
         self._llm, self._backend, self._tz = llm, backend, timezone_name
+        self._key = signing_key
         self._tools = tools
         self._prompt = load_prompt()
 
@@ -130,6 +156,7 @@ class Orchestrator:
         info: HotelInfo,
         history: list[ChatLine],
         now: datetime,
+        confirm_action_id: str | None = None,
     ) -> Turn:
         conversation: list[Message] = [
             Message(role="system", content=self._system(info, guest, now))
@@ -140,17 +167,33 @@ class Orchestrator:
         conversation.append(Message(role="user", content=message))
 
         tools = registry.available(guest.status, self._tools)
-        runs = await self._tool_rounds(conversation, token, guest, tools, choice="auto")
+        gate = await confirmation.Gatekeeper.open(
+            key=self._key,
+            now=now,
+            history=history,
+            message=message,
+            confirm_action_id=confirm_action_id,
+            llm=self._llm,
+        )
+        note = gate.note_for_model(registry.by_name(tools))
+        if note:
+            conversation.append(Message(role="system", content=note))
+
+        runs = await self._tool_rounds(conversation, token, guest, tools, gate, choice="auto")
         reply, targets = await self._final(conversation)
         turn = Turn(
-            reply=reply, suggested_actions=suggested(targets), grounded=True, tool_runs=runs
+            reply=reply,
+            suggested_actions=suggested(targets),
+            grounded=True,
+            tool_runs=runs,
+            gate=gate,
         )
 
         # Grounding step 1: facts without any lookup -> force one lookup and answer again.
         if not turn.tool_runs and grounding.has_facts(turn.reply):
             turn.forced_tool = True
             turn.tool_runs = await self._tool_rounds(
-                conversation, token, guest, tools, choice="required", rounds=1
+                conversation, token, guest, tools, gate, choice="required", rounds=1
             )
             turn.reply, targets = await self._final(conversation)
             turn.suggested_actions = suggested(targets)
@@ -165,9 +208,23 @@ class Orchestrator:
         missing = grounding.unsupported(turn.reply, sources)
         if missing:
             logger.warning("grounding_violation", kinds=sorted({f.kind for f in missing}))
-            turn.reply = fallback_reply(guest.lang, info.reception_phone)
             turn.grounded = False
-            turn.suggested_actions = suggested(["CALL_RECEPTION"])
+            if gate.proposed is not None:
+                turn.reply = ""  # the summary below, built by the server, says what matters
+            else:
+                turn.reply = fallback_reply(guest.lang, info.reception_phone)
+                turn.suggested_actions = suggested(["CALL_RECEPTION"])
+
+        # The summary and its numbers come from the backend preview, never from the model.
+        if gate.proposed is not None:
+            block = confirmation.render(gate.proposed, guest.lang)
+            turn.reply = f"{turn.reply}\n\n{block}" if turn.reply else block
+            turn.pending_confirmation = {
+                "id": gate.proposed.id,
+                "kind": gate.proposed.kind,
+                "summary": gate.proposed.summary,
+            }
+        turn.suggested_actions += created_actions(turn.tool_runs)
         return turn
 
     async def _tool_rounds(
@@ -176,6 +233,7 @@ class Orchestrator:
         token: str,
         guest: GuestContext,
         tools: tuple[Tool, ...],
+        gate: confirmation.Gatekeeper,
         *,
         choice: str,
         rounds: int = MAX_TOOL_ROUNDS,
@@ -200,7 +258,11 @@ class Orchestrator:
             )
             for call in calls:
                 tool = offered.get(call.name)
-                if tool is not None:
+                if tool is not None and tool.gate is not None:
+                    run = await gate.run(
+                        tool, tool.gate, self._backend, token, call.arguments, guest.lang
+                    )
+                elif tool is not None:
                     run = await execute(tool, self._backend, token, call.arguments, guest.lang)
                 else:
                     # Not offered: a write tool while CHECKOUT_PENDING, or a made-up name.

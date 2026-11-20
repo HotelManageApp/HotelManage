@@ -218,7 +218,10 @@ async def test_what_the_model_sees(client: httpx.AsyncClient, fake_llm: FakeLLMC
     assert [t.name for t in first.tools] == [
         "get_hotel_info_and_guide",
         "get_available_menu",
+        "create_room_service_order",
+        "request_housekeeping",
         "get_my_requests",
+        "request_express_checkout",
     ]
     assert first.tool_choice == "auto" and first.temperature == 0.2
 
@@ -444,7 +447,12 @@ async def test_bad_bodies_are_400(client: httpx.AsyncClient, body: dict) -> None
 
 
 async def test_no_debug_in_prod(fake_llm: FakeLLMClient, backend: FakeBackend) -> None:
-    settings = make_settings(app_env="prod", llm_provider="gemini", gemini_api_key="k" * 20)
+    settings = make_settings(
+        app_env="prod",
+        llm_provider="gemini",
+        gemini_api_key="k" * 20,
+        concierge_signing_key="s" * 32,
+    )
     app = create_app(
         settings,
         llm=fake_llm,

@@ -5,10 +5,18 @@ the server decides, not the prompt. The orchestrator also refuses a call to a to
 not offered, in case a model calls one anyway.
 """
 
-from app.concierge.tools import guide, menu, my_requests
+from app.concierge.tools import checkout, guide, housekeeping, menu, my_requests, order
 from app.concierge.tools.base import Tool
 
-ALL_TOOLS: tuple[Tool, ...] = (guide.TOOL, menu.TOOL, my_requests.TOOL)
+# The order of docs/chatbot-tools-spec.md §4.
+ALL_TOOLS: tuple[Tool, ...] = (
+    guide.TOOL,
+    menu.TOOL,
+    order.TOOL,
+    housekeeping.TOOL,
+    my_requests.TOOL,
+    checkout.TOOL,
+)
 
 
 def available(stay_status: str, tools: tuple[Tool, ...] = ALL_TOOLS) -> tuple[Tool, ...]:

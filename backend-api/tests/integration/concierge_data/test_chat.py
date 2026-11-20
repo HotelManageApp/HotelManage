@@ -72,6 +72,20 @@ async def test_saves_pairs_and_lists_them_oldest_first(
     assert [m["content"] for m in older] == ["Câu hỏi 2", "Trả lời 2"]
 
 
+async def test_with_trace_returns_the_assistant_trace_for_ai_service(
+    client: httpx.AsyncClient, guest: Guest
+) -> None:
+    trace = [{"tool": "create_room_service_order"}, {"pending_action": {"id": "a1", "sig": "s"}}]
+    await client.post(MESSAGES, json=exchange(1, tool_trace=trace), headers=guest.headers)
+    lines = (
+        await client.get(MESSAGES, params={"with_trace": "true"}, headers=guest.headers)
+    ).json()
+    assert "tool_trace" not in lines[0], "the guest line has no trace"
+    assert lines[1]["tool_trace"] == trace
+    plain = (await client.get(MESSAGES, headers=guest.headers)).json()
+    assert all("tool_trace" not in line for line in plain)
+
+
 async def test_a_retried_send_is_stored_once(
     client: httpx.AsyncClient, db: AsyncSession, guest: Guest
 ) -> None:

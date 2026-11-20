@@ -307,7 +307,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: AI `tests/unit/concierge_actions tests/integration/concierge_actions/test_read_tools.py`
   - Files: `concierge/tools/{menu,my_requests}.py`, `concierge/orchestrator.py`
 
-- [ ] **T50 · Confirmation gate + write tools** · D17–D19 · AI · M · Deps: T49, T45, T33
+- [x] **T50 · Confirmation gate + write tools** · D17–D19 · AI · M · Deps: T49, T45, T33
   - Accept: `pending_action` ký HMAC, hash payload, hết hạn 10 phút, phân loại xác nhận, `confirm_action_id`; `create_room_service_order`, `request_express_checkout` qua cổng; `request_housekeeping` trực tiếp; `Idempotency-Key = pending_action.id`
   - Verify: AI `tests/integration/concierge_actions/test_confirmation.py`; coverage `confirmation.py` ≥ 95%
   - Files: `concierge/confirmation.py`, `tools/{order,checkout,housekeeping}.py`, `summary_templates/`, `api/chat.py`

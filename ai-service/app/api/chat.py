@@ -62,11 +62,20 @@ class ChatRequest(BaseModel):
 
     message: str = Field(min_length=1, max_length=1000)
     client_message_id: uuid.UUID | None = None
+    # The app's "Xác nhận" button on a summary card (SPEC-concierge-actions).
+    confirm_action_id: uuid.UUID | None = None
 
 
 class SuggestedAction(BaseModel):
-    type: str
+    type: str  # OPEN_SCREEN | CALL | OPEN_ENTITY
     target: str
+    entity_id: str | None = None  # OPEN_ENTITY: the order / request just created
+
+
+class PendingConfirmation(BaseModel):
+    id: str
+    kind: str  # FOOD_ORDER | CHECKOUT
+    summary: dict[str, Any]
 
 
 class ChatResponse(BaseModel):
@@ -74,6 +83,7 @@ class ChatResponse(BaseModel):
     reply: str
     lang: str
     suggested_actions: list[SuggestedAction]
+    pending_confirmation: PendingConfirmation | None = None
     debug: dict[str, Any] | None = None
 
 
@@ -112,6 +122,9 @@ async def chat(
                     info=info,
                     history=history,
                     now=datetime.now(ZoneInfo(settings.hotel_timezone)),
+                    confirm_action_id=(
+                        body.confirm_action_id.hex if body.confirm_action_id else None
+                    ),
                 )
         except (TimeoutError, LLMTimeout):
             raise LlmTimedOut() from None
@@ -150,11 +163,15 @@ async def chat(
             "tool_calls": [{"name": r.name, "args": r.args} for r in turn.tool_runs],
             "grounded": turn.grounded,
             "forced_tool": turn.forced_tool,
+            **({"gate": turn.gate.events} if turn.gate and turn.gate.events else {}),
         }
     return ChatResponse(
         message_id=message_id,
         reply=turn.reply,
         lang=guest.lang,
         suggested_actions=[SuggestedAction(**a) for a in turn.suggested_actions],
+        pending_confirmation=(
+            PendingConfirmation(**turn.pending_confirmation) if turn.pending_confirmation else None
+        ),
         debug=debug,
     )

@@ -61,21 +61,27 @@ BACKEND = BackendClient("http://backend", transport=httpx.MockTransport(unreacha
 # ---------- flags ----------
 
 
-def test_the_read_tools_are_read_only_and_ungated() -> None:
-    for t in registry.ALL_TOOLS:
-        assert t.write is False and t.requires_confirmation is False, t.name
-    assert [t.name for t in registry.ALL_TOOLS] == [
-        "get_hotel_info_and_guide",
-        "get_available_menu",
-        "get_my_requests",
-    ]
+def test_the_tool_flags_match_the_spec_table() -> None:
+    flags = {t.name: (t.write, t.requires_confirmation) for t in registry.ALL_TOOLS}
+    assert flags == {
+        "get_hotel_info_and_guide": (False, False),
+        "get_available_menu": (False, False),
+        "create_room_service_order": (True, True),
+        "request_housekeeping": (True, False),
+        "get_my_requests": (False, False),
+        "request_express_checkout": (True, True),
+    }
 
 
 def test_write_tools_are_hidden_while_checkout_is_pending() -> None:
     tools = (tool(Recorder()), tool(Recorder(), write=True))
     assert [t.name for t in registry.available("ACTIVE", tools)] == ["read_note", "write_note"]
     assert [t.name for t in registry.available("CHECKOUT_PENDING", tools)] == ["read_note"]
-    assert registry.available("CHECKOUT_PENDING") == registry.ALL_TOOLS
+    assert [t.name for t in registry.available("CHECKOUT_PENDING")] == [
+        "get_hotel_info_and_guide",
+        "get_available_menu",
+        "get_my_requests",
+    ]
 
 
 def test_no_tool_schema_has_a_room_or_stay_field() -> None:

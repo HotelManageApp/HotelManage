@@ -242,6 +242,7 @@ async def test_checkout_pending_hides_write_tools_and_refuses_a_call_to_one(
         fake_llm,
         app.state.backend,
         timezone_name="Asia/Ho_Chi_Minh",
+        signing_key=b"k" * 32,
         tools=(*registry.ALL_TOOLS, writer),
     )
     backend.status = "CHECKOUT_PENDING"
@@ -254,7 +255,7 @@ async def test_checkout_pending_hides_write_tools_and_refuses_a_call_to_one(
     assert response.status_code == 200
     offered = [t.name for t in fake_llm.requests[0].tools]
     assert "write_something" not in offered
-    assert offered == [t.name for t in registry.ALL_TOOLS]
+    assert offered == [t.name for t in registry.ALL_TOOLS if not t.write]
     assert ran == []
     assert "STAY_CHECKOUT_PENDING" in fake_llm.requests[1].messages[-1].content
 

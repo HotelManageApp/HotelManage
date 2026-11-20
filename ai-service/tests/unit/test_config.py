@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.config import ConfigError, load_settings
+from app.core.config import ConfigError, load_settings, signing_key
 from app.main import create_app
 
 
@@ -53,3 +53,22 @@ def test_lazy_module_app_is_built_from_environment(clean_env: pytest.MonkeyPatch
     assert built is main_module.app
     assert built.docs_url == "/docs"
     assert not hasattr(main_module, "not_an_attribute")
+
+
+def test_the_signing_key_is_required_in_prod_and_long_enough() -> None:
+    prod = {
+        "app_env": "prod",
+        "llm_provider": "gemini",
+        "gemini_api_key": "k" * 20,
+        "_env_file": None,
+    }
+    with pytest.raises(ConfigError, match="CONCIERGE_SIGNING_KEY is required"):
+        load_settings(**prod)
+    with pytest.raises(ConfigError, match="at least 32"):
+        load_settings(**prod, concierge_signing_key="short")
+    settings = load_settings(**prod, concierge_signing_key="s" * 32)
+    assert signing_key(settings) == b"s" * 32
+
+    dev = load_settings(app_env="dev", _env_file=None)
+    assert len(signing_key(dev)) == 32
+    assert signing_key(dev) == signing_key(dev), "one random key per process"

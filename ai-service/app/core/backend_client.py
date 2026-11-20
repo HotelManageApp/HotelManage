@@ -71,6 +71,7 @@ class HotelInfo:
 class ChatLine:
     role: str  # GUEST | ASSISTANT
     content: str
+    trace: Any = None  # the assistant line's tool trace (pending confirmations live there)
 
 
 class BackendClient:
@@ -99,6 +100,7 @@ class BackendClient:
         *,
         params: dict[str, Any] | None = None,
         json: Any = None,
+        headers: dict[str, str] | None = None,
     ) -> Any:
         try:
             response = await self._http.request(
@@ -106,7 +108,7 @@ class BackendClient:
                 path,
                 params=params,
                 json=json,
-                headers={"Authorization": f"Bearer {token}"},
+                headers={**(headers or {}), "Authorization": f"Bearer {token}"},
             )
         except httpx.TimeoutException:
             logger.warning("backend_timeout", path=path)
@@ -158,9 +160,14 @@ class BackendClient:
 
     async def history(self, token: str, *, limit: int = 10) -> list[ChatLine]:
         data = await self._call(
-            "GET", "/api/v1/guest/chat/messages", token, params={"limit": limit}
+            "GET",
+            "/api/v1/guest/chat/messages",
+            token,
+            params={"limit": limit, "with_trace": "true"},
         )
-        return [ChatLine(role=m["role"], content=m["content"]) for m in data]
+        return [
+            ChatLine(role=m["role"], content=m["content"], trace=m.get("tool_trace")) for m in data
+        ]
 
     async def save_exchange(
         self,
@@ -206,6 +213,37 @@ class BackendClient:
 
     async def my_housekeeping(self, token: str) -> list[dict[str, Any]]:
         return await self._call("GET", "/api/v1/guest/housekeeping-requests", token)
+
+    async def preview_order(self, token: str, body: dict[str, Any]) -> dict[str, Any]:
+        return await self._call("POST", "/api/v1/guest/orders/preview", token, json=body)
+
+    async def create_order(
+        self, token: str, body: dict[str, Any], *, idempotency_key: str
+    ) -> dict[str, Any]:
+        return await self._call(
+            "POST",
+            "/api/v1/guest/orders",
+            token,
+            json=body,
+            headers={"Idempotency-Key": idempotency_key},
+        )
+
+    async def create_housekeeping(
+        self, token: str, body: dict[str, Any], *, idempotency_key: str
+    ) -> dict[str, Any]:
+        return await self._call(
+            "POST",
+            "/api/v1/guest/housekeeping-requests",
+            token,
+            json=body,
+            headers={"Idempotency-Key": idempotency_key},
+        )
+
+    async def checkout_preview(self, token: str) -> dict[str, Any]:
+        return await self._call("GET", "/api/v1/guest/checkout/preview", token)
+
+    async def create_checkout(self, token: str, body: dict[str, Any]) -> dict[str, Any]:
+        return await self._call("POST", "/api/v1/guest/checkout-requests", token, json=body)
 
     async def current_checkout(self, token: str) -> dict[str, Any] | None:
         """The stay's latest checkout request, or None when there is none (404)."""

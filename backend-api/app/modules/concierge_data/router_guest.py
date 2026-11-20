@@ -50,6 +50,9 @@ class ChatLine(BaseModel):
     role: Literal["GUEST", "ASSISTANT"]
     content: str
     created_at: datetime
+    # Only with ?with_trace=true (ai-service reads its own pending confirmations back,
+    # SPEC-concierge-actions); the app does not ask for it.
+    tool_trace: dict | list | None = None
 
 
 def _keys(value: object) -> set[str]:
@@ -84,18 +87,25 @@ class ExchangeSaved(BaseModel):
     guest_message_id: uuid.UUID
 
 
-@router.get("/chat/messages", response_model=list[ChatLine])
+@router.get("/chat/messages", response_model=list[ChatLine], response_model_exclude_none=True)
 async def chat_history(
     ctx: CurrentStay,
     db: DbSession,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     before: Annotated[AwareDatetime | None, Query()] = None,
+    with_trace: bool = False,
 ) -> list[ChatLine]:
     """The stay's conversation, oldest first; `before` pages back in time."""
     rows = await chat.history(db, ctx.stay_id, limit=limit, before=before)
     return [
         ChatLine.model_validate(
-            {"id": m.id, "role": m.role, "content": m.content, "created_at": m.created_at}
+            {
+                "id": m.id,
+                "role": m.role,
+                "content": m.content,
+                "created_at": m.created_at,
+                "tool_trace": m.tool_trace if with_trace else None,
+            }
         )
         for m in rows
     ]

@@ -1,0 +1,16 @@
+{
+  "order_title": "Your order summary:",
+  "order_line": "- {name} × {quantity}: {unit_price} × {quantity} = {line_total}",
+  "order_line_note": "  Note: {note}",
+  "order_note": "Order note: {note}",
+  "order_total": "Total: {total}",
+  "order_question": "Would you like me to place this order?",
+  "checkout_title": "Estimated bill (reception will verify it):",
+  "checkout_line": "- {description}: {amount}",
+  "checkout_discount_line": "- {description}: −{amount}",
+  "checkout_open_orders": "{count} food order(s) still in progress, not included yet.",
+  "checkout_total": "Estimated total: {total}",
+  "checkout_question": "Shall I send your check-out request to reception?",
+  "money": "{amount} VND",
+  "thousands": ","
+}
