@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/features/concierge/chat_screen.dart';
+import 'package:hotel_guest/features/express_checkout/checkout_confirm_screen.dart';
+import 'package:hotel_guest/features/express_checkout/checkout_status_screen.dart';
 import 'package:hotel_guest/features/home/home_screen.dart';
 import 'package:hotel_guest/features/housekeeping/hk_requests_screen.dart';
 import 'package:hotel_guest/features/housekeeping/housekeeping_screen.dart';
@@ -14,7 +16,8 @@ import 'package:hotel_guest/features/welcome/welcome_screen.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// `/` welcome + sign-in, `/scan` QR, `/home` signed-in area, `/menu`,
-/// `/cart` and `/orders` room service, `/housekeeping`,
+/// `/cart` and `/orders` room service, `/housekeeping`, `/checkout` express
+/// checkout,
 /// `/requests/<type>/<id>` where a tapped notification leads.
 /// The session decides where you may be; any 401 sends you back to `/`.
 GoRouter buildRouter(WidgetRef ref) {
@@ -63,8 +66,17 @@ GoRouter buildRouter(WidgetRef ref) {
         builder: (context, state) =>
             HkRequestDetailScreen(requestId: state.pathParameters['id']!),
       ),
-      // Request types without a detail screen yet (checkout) open the home
-      // screen (SPEC-notifications).
+      GoRoute(
+        path: '/checkout',
+        builder: (context, state) => const CheckoutConfirmScreen(),
+      ),
+      // A stay has at most one open checkout request: the screen shows the
+      // latest one whatever the id.
+      GoRoute(
+        path: '/requests/checkout/:id',
+        builder: (context, state) => const CheckoutStatusScreen(),
+      ),
+      // Any other request type opens the home screen (SPEC-notifications).
       GoRoute(
         path: '/requests/:type/:id',
         redirect: (context, state) => '/home',

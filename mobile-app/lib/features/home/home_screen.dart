@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_guest/core/auto_refresh.dart';
+import 'package:hotel_guest/features/express_checkout/checkout_repository.dart';
+import 'package:hotel_guest/features/express_checkout/checkout_status_screen.dart';
 import 'package:hotel_guest/features/housekeeping/hk_labels.dart';
 import 'package:hotel_guest/features/housekeeping/housekeeping_models.dart';
 import 'package:hotel_guest/features/housekeeping/housekeeping_repository.dart';
@@ -69,8 +71,14 @@ class HomeScreen extends ConsumerWidget {
               key: const Key('tile-order-food'),
               leading: const Icon(Icons.room_service),
               title: Text(l10n.homeOrderFood),
-              subtitle: Text(l10n.homeOrderFoodHint),
-              trailing: const Icon(Icons.chevron_right),
+              subtitle: Text(
+                stay.checkoutPending
+                    ? l10n.homeLockedDuringCheckout
+                    : l10n.homeOrderFoodHint,
+              ),
+              trailing: Icon(
+                stay.checkoutPending ? Icons.lock_outline : Icons.chevron_right,
+              ),
               onTap: () => context.push('/menu'),
             ),
           ),
@@ -88,21 +96,75 @@ class HomeScreen extends ConsumerWidget {
               key: const Key('tile-housekeeping'),
               leading: const Icon(Icons.cleaning_services_outlined),
               title: Text(l10n.homeHousekeeping),
-              subtitle: Text(l10n.homeHousekeepingHint),
-              trailing: const Icon(Icons.chevron_right),
+              subtitle: Text(
+                stay.checkoutPending
+                    ? l10n.homeLockedDuringCheckout
+                    : l10n.homeHousekeepingHint,
+              ),
+              trailing: Icon(
+                stay.checkoutPending ? Icons.lock_outline : Icons.chevron_right,
+              ),
               onTap: () => context.push('/housekeeping'),
             ),
           ),
-          if (stay.checkoutPending) ...[
-            const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(l10n.homeCheckoutPending),
-              ),
-            ),
-          ],
+          _CheckoutCard(checkoutPending: stay.checkoutPending),
         ],
+      ),
+    );
+  }
+}
+
+/// Express checkout: the button while nothing is open, the open request's
+/// status card once sent (SPEC-express-checkout, mobile-app).
+class _CheckoutCard extends ConsumerWidget {
+  const new({required this.checkoutPending});
+
+  final bool checkoutPending;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final request = ref.watch(currentCheckoutProvider).value;
+    if (request != null && request.isOpen) {
+      return AutoRefresh(
+        onRefresh: () => ref.invalidate(currentCheckoutProvider),
+        child: Card(
+          color: Theme.of(context).colorScheme.tertiaryContainer,
+          child: ListTile(
+            key: const Key('checkout-status-card'),
+            leading: const Icon(Icons.receipt_long),
+            title: Text(l10n.homeCheckoutCard),
+            subtitle: Text(checkoutStatusLabel(l10n, request.status)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/requests/checkout/${request.id}'),
+          ),
+        ),
+      );
+    }
+    if (checkoutPending) {
+      // Sent from elsewhere and not loaded yet.
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(l10n.homeCheckoutPending),
+        ),
+      );
+    }
+    final rejected = request != null && request.isRejected
+        ? request.rejectReason
+        : null;
+    return Card(
+      child: ListTile(
+        key: const Key('tile-express-checkout'),
+        leading: const Icon(Icons.exit_to_app),
+        title: Text(l10n.homeExpressCheckout),
+        subtitle: Text(
+          rejected == null
+              ? l10n.homeExpressCheckoutHint
+              : l10n.homeCheckoutLastRejected(rejected),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.push('/checkout'),
       ),
     );
   }

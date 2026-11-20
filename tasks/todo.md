@@ -289,7 +289,7 @@ Lệnh kiểm tra dùng trong cột Verify:
   - Verify: WEB `checkout`
   - Files: `reception/checkout/`, `components/checkout/{BillTable,ChargeForm,PrintableBill}.tsx`
 
-- [ ] **T47 · App express checkout** · D16–D17 · APP · M · Deps: T45
+- [x] **T47 · App express checkout** · D16–D17 · APP · M · Deps: T45
   - Accept: màn tạm tính + sao + xác nhận; màn theo dõi + hóa đơn snapshot + lý do từ chối; khóa đặt món/dọn phòng khi `CHECKOUT_PENDING`; `401 STAY_CLOSED` → lời cảm ơn
   - Verify: APP `test/express_checkout`
   - Files: `lib/features/express_checkout/`, `home_screen.dart`, `core/api_client.dart`

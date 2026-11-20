@@ -8,11 +8,10 @@ import 'package:hotel_guest/features/stay_access/session_store.dart';
 import '../stay_access/fakes.dart';
 import 'fakes.dart';
 
-/// Express checkout has no detail screen yet, so its notifications open home.
-const checkoutPayload = PushPayload(
-  type: 'CHECKOUT',
+const stayPayload = PushPayload(
+  type: 'STAY',
   entityId: '6f1c2a3b-0000-4000-8000-000000000002',
-  status: 'BILLING_VERIFIED',
+  status: 'ACTIVE',
 );
 
 Future<FakePushService> pumpSignedIn(
@@ -40,14 +39,15 @@ Future<FakePushService> pumpSignedIn(
 }
 
 void main() {
-  testWidgets('a tapped request notification opens the app at home '
-      'while the request has no detail screen', (tester) async {
+  testWidgets('a tapped stay notification (welcome, thank-you) opens home', (
+    tester,
+  ) async {
     final push = await pumpSignedIn(tester);
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HotelGuestApp)),
     );
 
-    push.taps.add(checkoutPayload);
+    push.taps.add(stayPayload);
     await tester.pumpAndSettle();
 
     expect(find.text('Phòng 101'), findsOneWidget);

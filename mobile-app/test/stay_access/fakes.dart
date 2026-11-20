@@ -3,9 +3,12 @@ import 'package:hotel_guest/core/api_client.dart';
 import 'package:hotel_guest/core/config.dart';
 import 'package:hotel_guest/core/errors.dart';
 import 'package:hotel_guest/core/providers.dart';
+import 'package:hotel_guest/features/express_checkout/checkout_repository.dart';
 import 'package:hotel_guest/features/stay_access/session_controller.dart';
 import 'package:hotel_guest/features/stay_access/session_store.dart';
 import 'package:hotel_guest/features/stay_access/stay_repository.dart';
+
+import '../express_checkout/fakes.dart';
 
 final stay101 = GuestStay(
   roomNumber: '101',
@@ -67,6 +70,7 @@ List<Override> sessionOverrides({
   required FakeStayRepository repo,
   required MemorySessionStore store,
   ApiClient? api,
+  FakeCheckoutRepository? checkout,
 }) => [
   appConfigProvider.overrideWithValue(
     const AppConfig(apiBaseUrl: 'http://backend.test', appEnv: 'test'),
@@ -74,4 +78,8 @@ List<Override> sessionOverrides({
   if (api != null) apiClientProvider.overrideWithValue(api),
   stayRepositoryProvider.overrideWithValue(repo),
   sessionStoreProvider.overrideWithValue(store),
+  // No checkout request unless a test scripts one.
+  checkoutRepositoryProvider.overrideWithValue(
+    checkout ?? FakeCheckoutRepository(),
+  ),
 ];
