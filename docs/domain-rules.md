@@ -32,6 +32,7 @@ stateDiagram-v2
 - Mã phiên dùng được khi `stay.status` là `ACTIVE` hoặc `CHECKOUT_PENDING` (lúc chờ trả phòng chỉ xem, không tạo yêu cầu mới), tới `expected_checkout_at` + 6 giờ. Nhiều thiết bị cùng stay được phép (mỗi thiết bị một `jti`, tối đa 6).
 - Lễ tân có thể **cấp lại mã** (revoke mã cũ + mọi session cũ) khi nghi lộ.
 - Khi stay `CLOSED`: mọi token → `401`; đơn đồ ăn `PENDING`/`CONFIRMED` và yêu cầu buồng phòng `REQUESTED`/`ASSIGNED` chuyển `CANCELLED` (lý do `STAY_CLOSED`); đơn đang nấu/giao và việc dọn đang làm được giữ nguyên; hệ thống mở một việc `TURNOVER` cho phòng.
+  Yêu cầu trả phòng nhanh còn mở (chỉ xảy ra khi stay được đóng ngoài luồng duyệt, VD công cụ dev) chuyển `REJECTED` (lý do `STAY_CLOSED`, người thực hiện `SYSTEM`).
 - Lễ tân "Đánh dấu đã dọn" (`CLEANING → VACANT`) thì việc `TURNOVER` chưa bắt đầu của phòng bị hủy (lý do `MARKED_VACANT_BY_RECEPTION`).
 
 ## 3. Đặt đồ ăn (Room Service)

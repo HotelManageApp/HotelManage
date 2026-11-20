@@ -228,6 +228,36 @@ async def reject(
     return request
 
 
+STAY_CLOSED_REASON = "STAY_CLOSED"
+
+
+async def reject_open_on_stay_closed(db: AsyncSession, stay_id: uuid.UUID) -> None:
+    """on_stay_closed hook: a stay that ends while its express request is still open leaves no
+    request waiting in reception's queue. Completing the request closes the stay after marking
+    it COMPLETED, and the desk refuses while one is open, so only other paths (the dev CLI,
+    operations scripts) reach this. Runs inside close_stay's transaction: no commit here."""
+    request = await open_request(db, stay_id)
+    if request is None:
+        return
+    room_number = await db.scalar(
+        select(Room.number).join(Stay, Stay.room_id == Room.id).where(Stay.id == stay_id)
+    )
+    from_status = request.status
+    request.status = S.REJECTED
+    request.reject_reason = STAY_CLOSED_REASON
+    request.rejected_at = datetime.now(UTC)
+    request.version += 1
+    await _record(
+        db,
+        request,
+        from_status,
+        actor="SYSTEM",
+        room_number=room_number or "",
+        reason=STAY_CLOSED_REASON,
+        push=False,  # the stay's thank-you push is the guest's last message
+    )
+
+
 async def refuse_desk_checkout(db: AsyncSession, stay_id: uuid.UUID) -> None:
     """Desk check-out while an express request is open: finish or reject that request first."""
     existing = await open_request(db, stay_id)
